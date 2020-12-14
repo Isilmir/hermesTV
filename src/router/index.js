@@ -2,8 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import test from '@/components/Test'
-import qr from '@/components/QR'
+//import qr from '@/components/QR'
 //import qrView from '@/components/QRview'
+import qr from '@/components/QR_pg'
 import qrView from '@/components/QRview_pg'
 
 Vue.use(Router)

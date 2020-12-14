@@ -43,7 +43,7 @@ export default {
   }, document.querySelector('#qr-code'));
   
   let objects = await PostsService.doGet('https://blooming-refuge-12227.herokuapp.com','/pg/get-objects');
-  this.objects = objects.data.map(el=>JSON.parse(el.qr))
+  this.objects = objects.data.map(el=>{let obj=JSON.parse(el.qr);obj.active=el.active;return obj})
   //console.log(this.objects);
   
   },

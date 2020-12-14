@@ -3,7 +3,8 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import test from '@/components/Test'
 import qr from '@/components/QR'
-import qrView from '@/components/QRview'
+//import qrView from '@/components/QRview'
+import qrView from '@/components/QRview_pg'
 
 Vue.use(Router)
 

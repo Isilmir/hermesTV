@@ -13,10 +13,10 @@ module.exports = {
     proxyTable: {},
 
     // Various Dev Server settings
-    host: '192.168.0.181', // can be overwritten by process.env.HOST
-    port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
-    https: true,
-	public: 'https://localhost:8080/',
+    host: process.env.HOST,//'192.168.0.181', // can be overwritten by process.env.HOST
+    port: process.env.PORT||8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    https: false,
+	public: 'https://hermestv.herokuapp.com/',//'https://localhost:8080/',
 	autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,

@@ -5,7 +5,7 @@
 	<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>
 	<div >
 	<div v-for="object in objects" :key="object.objectType+'_'+object.id" style="display:inline-flex;  align-content: flex-start; align-items: flex-start; margin:50px; width:350px">
-		<div style="display:flex">{{JSON.stringify(object,null,1)}}<br><b :style="obj.active?`color:green;`:`color:red;`">{{obj.active?`Активный`:`Неактивный`}}</b></div>
+		<div style="display:flex">{{JSON.stringify(object,null,1)}}<br><b :style="object.active?`color:green;`:`color:red;`">{{object.active?`Активный`:`Неактивный`}}</b></div>
 		<div  style="display:flex" :id="object.objectType+'_'+object.id"></div>
 	</div>
 </div>

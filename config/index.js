@@ -16,7 +16,7 @@ module.exports = {
     host: process.env.HOST,//'192.168.0.181', // can be overwritten by process.env.HOST
     port: process.env.PORT||8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     https: false,
-	public: 'https://hermestv.herokuapp.com/',//'https://localhost:8080/',
+	public: `http://${process.env.HOST}:${process.env.PORT}`//'https://hermestv.herokuapp.com/',//'https://localhost:8080/',
 	autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
@@ -34,7 +34,7 @@ module.exports = {
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
     cacheBusting: true,
-
+	
     cssSourceMap: true
   },
 

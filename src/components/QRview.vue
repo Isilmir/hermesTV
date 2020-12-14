@@ -39,7 +39,7 @@ export default {
     ecLevel: 'H', // L, M, Q, H
     fill: '#000000', // foreground color
     background: null, // color or null for transparent
-    size: 150 // in pixels
+    size: 150 // in pixels.
   }, document.querySelector('#qr-code'));
   
   let objects = await PostsService.doGet('https://192.168.0.181:3000/','/test');

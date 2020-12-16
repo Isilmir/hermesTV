@@ -1,86 +1,25 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li>
-        <a
-          href="https://vuejs.org"
-          target="_blank"
-        >
-          Core Docs
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://forum.vuejs.org"
-          target="_blank"
-        >
-          Forum
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://chat.vuejs.org"
-          target="_blank"
-        >
-          Community Chat
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/vuejs"
-          target="_blank"
-        >
-          Twitter
-        </a>
-      </li>
-      <br>
-      <li>
-        <a
-          href="http://vuejs-templates.github.io/webpack/"
-          target="_blank"
-        >
-          Docs for This Template
-        </a>
-      </li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li>
-        <a
-          href="http://router.vuejs.org/"
-          target="_blank"
-        >
-          vue-router
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vuex.vuejs.org/"
-          target="_blank"
-        >
-          vuex
-        </a>
-      </li>
-      <li>
-        <a
-          href="http://vue-loader.vuejs.org/"
-          target="_blank"
-        >
-          vue-loader
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-        >
-          awesome-vue
-        </a>
-      </li>
-    </ul>
-  </div>
+<div class="row">
+	<div></div>
+	<div style="text-align:left;">
+	  <h1>Гермес-ТВ</h1>
+		<div>Cайт сейчас находится на реконструкции но вы можете оказать помощь в тестировании сканера qr-кодов.</div><br>
+		<div>Для этого:</div>
+		<ol>
+			<li>Откройте на вашем ПК (или любом другом устройстве с большим экраном) ссылку <a href="https://hermestv.herokuapp.com/qrView">https://hermestv.herokuapp.com/qrView</a> .
+	<br>Там будет некоторое количество кодов для нескольких типов игровых объектов (да, там есть проблема с кодировкой, но не это сейчас главное).</li>
+			<li>Откройте на телефоне ссылку <a href="https://hermestv.herokuapp.com/qr">https://hermestv.herokuapp.com/qr</a> .<br>
+	Это сканер.<br>
+	Кнопка "Сканировать" - просто посмотреть что написано в qr<br>
+	Кнопка "Активировать" - активирует объект по qr<br>
+	Кнопка "Деактивировать" - деактивирует объект по qr</li>
+			<li>Чтобы посмотреть результат обновите страничку с qr-кодами</li>
+			<li>Если у вас есть возможность распечатать qr-коды, то попробуйте отсканировать их с бумаги</li>
+			<li>Добавьте результаты в таблицу на гуглодиске: <a href="https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0">https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0</a></li>
+		</ol>
+	</div>
+	<div></div>
+</div>
 </template>
 
 <script>
@@ -104,10 +43,15 @@ ul {
   padding: 0;
 }
 li {
-  display: inline-block;
+  //display: inline-block;
   margin: 0 10px;
+  margin-bottom:20px;
 }
 a {
   color: #42b983;
+}
+.row{
+  display: grid;
+  grid-template-columns: 1fr 1fr  1fr;
 }
 </style>

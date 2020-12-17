@@ -1,8 +1,9 @@
 <template>
 <div>
+<img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
 	<h1>Тестируем генерацию QR-кода</h1>
 	<!--<div id="qr-code"></div>-->
-	<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>
+	<!--<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>-->
 	<div >
 	<div v-for="object in objects" :key="object.objectType+'_'+object.id" style="display:inline-flex;  align-content: flex-start; align-items: flex-start; margin:50px; width:350px">
 		<div style="display:flex">{{JSON.stringify(object,null,1)}}<br><b :style="object.active?`color:green;`:`color:red;`">{{object.active?`Активный`:`Неактивный`}}</b></div>
@@ -41,8 +42,10 @@ export default {
 //    background: null, // color or null for transparent
 //    size: 150 // in pixels.
 //  }, document.querySelector('#qr-code'));
-  
+  let loader = document.getElementById('loader');
+  loader.classList.toggle('hidden');
   let objects = await PostsService.doGet('https://blooming-refuge-12227.herokuapp.com','/pg/get-objects');
+  loader.classList.toggle('hidden');
   this.objects = objects.data.map(el=>{let obj=JSON.parse(el.qr);obj.active=el.active;return obj})
   //console.log(this.objects);
   

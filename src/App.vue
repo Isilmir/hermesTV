@@ -20,4 +20,14 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+.loader{
+	position: fixed;
+	top: 50%;
+	left: 47.5%;
+	width: 5%;
+	z-index:100;
+}
+.hidden{
+	display: none
+}
 </style>

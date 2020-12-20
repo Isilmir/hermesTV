@@ -31,3 +31,6 @@ export default {
 	display: none
 }
 </style>
+<style lang="scss" scoped>
+
+</style>

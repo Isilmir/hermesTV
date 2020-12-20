@@ -6,8 +6,9 @@ import test from '@/components/Test'
 //import qrView from '@/components/QRview'
 import qr from '@/components/QR_pg'
 import qrView from '@/components/QRview_pg'
+import printForm from '@/components/printForm'
 
-Vue.use(Router)
+Vue.use(Router) 
 
 export default new Router({
   mode: 'history',
@@ -25,12 +26,17 @@ export default new Router({
 	{
       path: '/qr',
       name: 'qr',
-      component: qr
-    },
+	component: qr
+	},
 	{
       path: '/qrView',
       name: 'qrView',
       component: qrView
+    },
+	{
+      path: '/printForm',
+      name: 'printForm',
+      component: printForm
     }
   ]
 })

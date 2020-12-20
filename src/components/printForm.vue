@@ -1,12 +1,13 @@
 ﻿<template>
 <div>
 <img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
-	<h1 id="title">Тестируем генерацию печатной формы</h1>
+	<h1 id="title">Тестируем генерацию печатной формы БЖЗИ</h1>
 	<label>Имя: </label><input type="text" v-model="name"><br><br>
 	<label>Описание: </label><input type="text" v-model="description"><br><br>
+	<label>Владелец: </label><input type="text" v-model="owner"><br><br>
 	<label>Фотография: </label><input type="file" @change="sync"/><label style="color:red;">   {{img_error}}</label>
 	<!--<div id="qr-code"></div>-->
-	<!--<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>-->
+	<!--<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{result}}</div>-->
 	<div style="display:none" id="printform-wrapper">
 	<br v-for="n in 100">
 		<div id="printform">
@@ -23,7 +24,7 @@
 			<div class="qr" id="qr"></div>
 			<div class="name">{{name}}</div>
 			<div class="desc">{{description}}</div>
-			<div class="owner">Владелец: <br><br> Ахиллес</div>
+			<div class="owner">Владелец: <br><br> {{owner}}</div>
 			</div>
 		</div>
 		<br><br>
@@ -78,7 +79,8 @@ export default {
 	  name:'',
 	  description:'',
 	  res_content:null,
-	  img_error:''
+	  img_error:'',
+	  owner:''
     }
   },
   async mounted(){
@@ -202,7 +204,7 @@ export default {
 				id:'123',
 				objectType: 'player',
 				name: this.name,
-				owner: {id:'1234',name:'Ахиллес'}
+				owner: {id:'1234',name:this.owner}
 			}),
 			radius: 0.0, // 0.0 to 0.5
 			ecLevel: 'M', // L, M, Q, H

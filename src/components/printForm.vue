@@ -1,13 +1,18 @@
 ﻿<template>
 <div>
 <img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
-	<h1 id="title">Тестируем генерацию печатной формы БЖЗИ</h1>
-	<label>Имя: </label><input type="text" v-model="name"><br><br>
-	<label>Описание: </label><input type="text" v-model="description"><br><br>
-	<label>Владелец: </label><input type="text" v-model="owner"><br><br>
-	<label>Фотография: </label><input type="file" @change="sync"/><label style="color:red;">   {{img_error}}</label>
-	<!--<div id="qr-code"></div>-->
-	<!--<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{result}}</div>-->
+<h1 id="title">Тестируем генерацию печатной формы спутника</h1>
+	<div class="main">
+		<div class="entry-data">
+		<label>Имя: </label><input type="text" v-model="name"><br><br>
+		<label>Описание: </label><input type="text" v-model="description"><br><br>
+		<label>Владелец: </label><input type="text" v-model="owner"><br><br>
+		<label>Фотография: </label><input type="file" @change="sync"/><label style="color:red;">   {{img_error}}</label>
+		</div>
+		
+			<img class="result-data" :src="res_src" ref="img"></img>
+		
+	</div>
 	<div style="display:none" id="printform-wrapper">
 	<br v-for="n in 100">
 		<div id="printform">
@@ -27,8 +32,8 @@
 			<div class="owner">Владелец: <br><br> {{owner}}</div>
 			</div>
 		</div>
-		<br><br>
-	<img :src="res_src" ref="img" width="50%"></img>
+		<!--<br><br>-->
+	<!--<img :src="res_src" ref="img" height="50%"></img>-->
 </div>
 </template>
 
@@ -181,7 +186,7 @@ export default {
     },
 	selectImage (file) {
          this.file = file;
-	if(file.size>100000){this.img_error='Размер файла превышает 100Кб!';console.log('Размер файла превышает 100Кб!');return;}
+	if(file.size>10000000){this.img_error='Размер файла превышает 10Мб!';console.log('Размер файла превышает 10Мб!');return;}
          let reader = new FileReader();
          reader.onload = this.onImageLoad;
          reader.readAsDataURL(file);
@@ -223,6 +228,8 @@ export default {
 	  //document.body.appendChild(screenshot);
 	  //window.open(url, "_blank");
 	  //console.log(url);
+	  let loader = document.getElementById('loader');
+	  loader.classList.toggle('hidden');
 	  pdf.html(document.getElementById('printform'),{callback: async pdf=>{
 																				//pdf.save("a4.pdf");
 																				document.getElementById('printform-wrapper').style.display='block'
@@ -241,6 +248,7 @@ export default {
 																				//////x.document.close();
 																				
 																				this.res_content=url;
+																				loader.classList.toggle('hidden');
 																				//this.$emit('image-changed', this.res_content);
 																				
 																				//let doc = new jsPDF();
@@ -318,7 +326,7 @@ a {
 	//width: 100%;
 	height: 100%;
 	display:flex;
-	//justify-content: center;
+	justify-content: center;
 }
 .qr{
 	border: 6px solid white;
@@ -360,5 +368,26 @@ a {
 }
 #printform-wrapper{
 	overflow: hidden;
+}
+.main{
+	width:100%;
+	height:50%;
+	display:flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	//grid-template-rows: 1fr;
+	//grid-template-columns: 1fr 1fr;
+}
+.entry-data{
+    text-align:left;
+	grid-column: 1 / 2;
+	grid-row: 1 / 2;
+	margin: 25px;
+}
+.result-data{
+	grid-column: 2 / 3;
+	grid-row: 1 / 2;
+	height:50vh;
+	margin: 25px;
 }
 </style>

@@ -1,5 +1,6 @@
 <template>
 <div>
+	<img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
     <h1>{{ msg }}</h1>
 	<h1>{{ message }}</h1>
 	<video id="videoElem" style="height:40vh;"></video>
@@ -32,7 +33,6 @@ export default {
     }
   },
   async mounted(){
-	//this.getMessage();
 	this.hasCamera=await QrScanner.hasCamera();
 	const videoElem = document.getElementById('videoElem');
 	console.log(videoElem)
@@ -40,10 +40,6 @@ export default {
 	//this.qrScanner.start();
   },
   methods:{
-	async getMessage(){
-		const resp = await PostsService.doGet('https://192.168.0.181:3000/','test');
-		this.message = resp.data;
-	},
 	async startScan(action){
 		this.qrScanner = new QrScanner(videoElem, async result => {
 										this.qr = result;
@@ -61,11 +57,15 @@ export default {
 										if(resultJSON){
 											if(action=='activate'){
 												resultJSON.activationToggle=true;
-												let actionRes = await PostsService.doPost('https://192.168.0.181:3000/','/test-action',resultJSON);
+												loader.classList.toggle('hidden');
+												let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
+												loader.classList.toggle('hidden');
 												this.result = actionRes.data;
 											}else if(action=='deactivate'){
 												resultJSON.activationToggle=false;
-												let actionRes = await PostsService.doPost('https://192.168.0.181:3000/','/test-action',resultJSON);
+												loader.classList.toggle('hidden');
+												let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
+												loader.classList.toggle('hidden');
 												this.result = actionRes.data;
 											}
 											

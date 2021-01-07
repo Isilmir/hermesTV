@@ -33,7 +33,6 @@ export default {
     }
   },
   async mounted(){
-	//this.getMessage();
 	this.hasCamera=await QrScanner.hasCamera();
 	const videoElem = document.getElementById('videoElem');
 	console.log(videoElem)
@@ -41,10 +40,6 @@ export default {
 	//this.qrScanner.start();
   },
   methods:{
-	async getMessage(){
-		const resp = await PostsService.doGet('https://192.168.0.181:3000/','test');
-		this.message = resp.data;
-	},
 	async startScan(action){
 		this.qrScanner = new QrScanner(videoElem, async result => {
 										this.qr = result;

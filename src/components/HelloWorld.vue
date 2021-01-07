@@ -2,9 +2,9 @@
 <div class="row">
 	<div></div>
 	<div style="text-align:left;">
-	  <h1>Гермес-ТВ</h1>
+	  <B>Гермес-ТВ</B><br><br>
 		<div>Cайт сейчас находится на реконструкции но вы можете оказать помощь в тестировании.</div><br>
-		<h2>Сканер qr-кодов</h2>
+		<b>Сканер qr-кодов</b>
 		<ol>
 			<li>Откройте на вашем ПК (или любом другом устройстве с большим экраном) ссылку <a href="https://hermestv.herokuapp.com/qrView">https://hermestv.herokuapp.com/qrView</a> .
 	<br>Там будет некоторое количество кодов для нескольких типов игровых объектов (да, там есть проблема с кодировкой, но не это сейчас главное).</li>
@@ -18,13 +18,15 @@
 			<li>Добавьте результаты в таблицу на гуглодиске: <a href="https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0">https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0</a></li>
 		</ol>
 		<br><br>
-		<h2>Генератор печатной формы для БЖЗИ</h2>
+		<b>Генератор печатной формы для Спутников</b>
 		<ol>
 			<li>Откройте ссылку <a href="https://hermestv.herokuapp.com/printForm">https://hermestv.herokuapp.com/printForm</a>.</li>
-			<li>Введите имя БЖЗИ, описание и владельца<br>
-			<li>Выберите фотографию. <br>Размер файла не должен превышать 100Кб</li>
-			<li>Сохраните печатную форму БЖЗИ.</li>
-			<li>Если у вас есть возможность, распечатайте печатную форму БЖЗИ</li>
+			<li>Если у игрока уже были сохранены спутники, то они загрузятся. <br>Важно! Изображения не сохраняются и их нужно каждый раз загружать заново.</li>
+			<li>Добавьте спутников (введите имя и описание)</li>
+			<li>Для добавленных спутников можете поменять имя или описание</li>
+			<li>Выберите фотографию для каждого спутника. <br>Размер файла не должен превышать 10Мб</li>
+			<li>Отправьте изображения спутников в редакцию Гермес-ТВ.</li>
+			<li>Если у вас есть возможность, распечатайте печатную форму спутника</li>
 			<li>Добавьте результаты в таблицу на гуглодиске: <a href="https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0">https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0</a></li>
 		</ol>
 	</div>

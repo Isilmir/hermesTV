@@ -1,8 +1,9 @@
 <template>
 <div>
+	<img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
 	<h1>Тестируем генерацию QR-кода</h1>
-	<div id="qr-code"></div>
-	<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>
+	<!--<div id="qr-code"></div>
+	<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>-->
 	<div >
 	<div v-for="object in objects" :key="object.objectType+'_'+object.id" style="display:inline-flex;  align-content: flex-start; align-items: flex-start; margin:50px; width:350px">
 		<div style="display:flex">{{JSON.stringify(object,null,1)}}</div>
@@ -13,9 +14,9 @@
 </template>
 
 <script>
-import PostsService from '@/services/PostsService'
 import QrCreator from 'qr-creator';
 //QrScanner.WORKER_PATH = QrScannerWorkerPath;
+import axios from 'axios'
 export default {
   name: 'QRview',
   data () {
@@ -33,16 +34,25 @@ export default {
 	//console.log(videoElem)
 	//const qrScanner = new QrScanner(videoElem, result => {this.result = result;console.log('decoded qr code:', result);return result;});
 	//qrScanner.start();
-	QrCreator.render({
-    text: '{"qr":"Это QR код!!!"}',
-    radius: 0.0, // 0.0 to 0.5
-    ecLevel: 'H', // L, M, Q, H
-    fill: '#000000', // foreground color
-    background: null, // color or null for transparent
-    size: 150 // in pixels.
-  }, document.querySelector('#qr-code'));
-  
-  let objects = await PostsService.doGet('https://192.168.0.181:3000/','/test');
+//QrCreator.render({
+//  text: '{"qr":"Это QR код!!!"}',
+//  radius: 0.0, // 0.0 to 0.5
+//  ecLevel: 'H', // L, M, Q, H
+//  fill: '#000000', // foreground color
+//  background: null, // color or null for transparent
+//  size: 150 // in pixels.
+//}, document.querySelector('#qr-code'));
+  let loader = document.getElementById('loader');
+  loader.classList.toggle('hidden');
+  const objects = await axios.get('https://blooming-refuge-12227.herokuapp.com/test',//'http://192.168.0.181:5000/test', 
+		{
+			headers: {
+			  'Content-Type': 'application/json',
+			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+			}
+		});
+  //let objects = await PostsService.doGet('https://blooming-refuge-12227.herokuapp.com','/test');
+  loader.classList.toggle('hidden');
   this.objects = objects.data.map(el=>JSON.parse(el.qr))
   //console.log(this.objects);
   
@@ -50,7 +60,7 @@ export default {
   
   async updated(){
 	  this.objects.map(el=>{
-	console.log(JSON.stringify(el),'#'+el.objectType+'_'+el.id,document.querySelector('#'+el.objectType+'_'+el.id));
+	//console.log(JSON.stringify(el),'#'+el.objectType+'_'+el.id,document.querySelector('#'+el.objectType+'_'+el.id));
   QrCreator.render({
     text: JSON.stringify(el),
     radius: 0.0, // 0.0 to 0.5
@@ -62,13 +72,7 @@ export default {
   })
   },
   methods:{
-	async getMessage(){
-		const resp = await PostsService.doGet('http://192.168.0.181:8081/','test');
-		this.message = resp.data;
-	},
-	codeArrived (event) {
-                console.log(event.detail[0]);
-            }
+
   },
 	  components:{
 		//VueQrReader

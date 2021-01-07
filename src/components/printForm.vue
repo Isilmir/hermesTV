@@ -1,18 +1,36 @@
 ﻿<template>
 <div>
 <img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
-<h1 id="title">Тестируем генерацию печатной формы спутника</h1>
-	<div class="main">
+<h1 id="title">Информация о спутниках бойца</h1><br>
+	<!--<div class="main">
 		<div class="entry-data">
 		<label>Имя: </label><input type="text" v-model="name"><br><br>
-		<label>Описание: </label><input type="text" v-model="description"><br><br>
-		<label>Владелец: </label><input type="text" v-model="owner"><br><br>
-		<label>Фотография: </label><input type="file" @change="sync"/><label style="color:red;">   {{img_error}}</label>
+		<label>Описание: </label><input type="text" v-model="description"><br><br>-->
+		<!--<label>Владелец: </label><input type="text" v-model="owner"><br><br>-->
+		<!--<label>Фотография: </label><input type="file" @change="sync"/><label style="color:red;">   {{img_error}}</label>
 		</div>
 		
 			<img class="result-data" :src="res_src" ref="img"></img>
 		
-	</div>
+	</div>-->
+		<b-tabs v-model="activeTab" type="is-boxed">
+			<b-tab-item :label="tab.label" v-for="tab in tabs" :key="tab.id" :disabled="tab.id=='new'&&tabs.length>maxSquadSize">
+                <div class="main">
+					<div class="entry-data">
+					<label>Имя: </label><input type="text" v-model="tab.name" :disabled="tab.disabled"><br><br>
+					<div v-if="!tab.isPlayer"><label>Описание: </label><input type="text" v-model="tab.description"  :disabled="tab.disabled"><br><br></div>
+					<div v-if="tab.id!='new'"><label>Фотография: </label><input type="file" @change="sync($event,tab)"/><label style="color:red;">   {{img_error}}</label></div>
+					<div v-if="tab.id=='new'"><b-button @click="addBJZI(tab)" :disabled="!tab.name||!tab.description">Добавить спутника</b-button></div>
+					<div v-if="tab.id!='new'&&!tab.isPlayer&&tab.disabled"><br><b-button @click="tab.disabled=false">Изменить описание</b-button></div>
+					<div v-if="tab.id!='new'&&!tab.isPlayer&&!tab.disabled"><br><b-button @click="updateBJZI(tab)">Сохранить изменение</b-button></div>
+					</div>
+					
+						<img class="result-data" :src="tab.img_url" ref="img"></img>
+					
+				</div>
+            </b-tab-item>
+        </b-tabs>
+<b-button @click="sendMail" :disabled="sendButtonDisable">Отправить список спутников в редакцию Гермес-ТВ</b-button>
 	<div style="display:none" id="printform-wrapper">
 	<br v-for="n in 100">
 		<div id="printform">
@@ -26,10 +44,10 @@
 									'without-info': !showInfo || isEmpty
 								}"
 						></div></div>
-			<div class="qr" id="qr"></div>
+			<div class="qr " id="qr" ></div>
 			<div class="name">{{name}}</div>
 			<div class="desc">{{description}}</div>
-			<div class="owner">Владелец: <br><br> {{owner}}</div>
+			<div class="owner">Владелец: <br><br> {{user.name}}</div>
 			</div>
 		</div>
 		<!--<br><br>-->
@@ -38,14 +56,13 @@
 </template>
 
 <script>
-import PostsService from '@/services/PostsService'
-import QrCreator from 'qr-creator';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
-//console.log(jsPDF);
-//QrScanner.WORKER_PATH = QrScannerWorkerPath;
+import axios from 'axios'
+import domtoimage from 'dom-to-image';
+
 export default {
-  name: 'QRview',
+  name: 'printForm',
   props: {
             // Filename
             value: {
@@ -79,55 +96,49 @@ export default {
       msg: 'Тестируем qr-scanner',
 	  message:'',
 	  result:'',
-	  objects:[],
+	  tabs:[],
 	  content:null,
 	  name:'',
 	  description:'',
 	  res_content:null,
 	  img_error:'',
-	  owner:''
+	  owner:'',
+	  user:JSON.parse(localStorage.getItem('user')),
+	  activeTab: undefined,
+      showBooks: false,
+	  maxSquadSize: 11,
+	  sendButtonDisable: false
     }
   },
   async mounted(){
-	//this.getMessage();
-	//this.hasCamera=await QrScanner.hasCamera();
-	//const videoElem = document.getElementById('videoElem');
-	//console.log(videoElem)
-	//const qrScanner = new QrScanner(videoElem, result => {this.result = result;console.log('decoded qr code:', result);return result;});
-	//qrScanner.start();
-//	QrCreator.render({
-//    text: '{"qr":"Это QR код!!!"}',
-//    radius: 0.0, // 0.0 to 0.5
-//    ecLevel: 'H', // L, M, Q, H
-//    fill: '#000000', // foreground color
-//    background: null, // color or null for transparent
-//    size: 150 // in pixels.
-//  }, document.querySelector('#qr-code'));
-  //let loader = document.getElementById('loader');
-  //loader.classList.toggle('hidden');
-  //let objects = await PostsService.doGet('https://blooming-refuge-12227.herokuapp.com','/pg/get-objects');
-  //loader.classList.toggle('hidden');
-  //this.objects = objects.data.map(el=>{let obj=JSON.parse(el.qr);obj.active=el.active;return obj})
-  //console.log(this.objects);
+	console.log('user',this.user);
+	
+	this.loader=document.getElementById('loader');
+	this.loader.classList.toggle('hidden');
+	const bjzi = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBjzi',//'http://192.168.0.181:5000/getBjzi', 
+		{
+			headers: {
+			  'Content-Type': 'application/json',
+			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+			}
+		});
+	
+	//console.log(res);
+	
+	this.tabs=[{id:this.user.id,name:this.user.name,label:`${this.user.name} (Командир)`,disabled:true,isPlayer:true}];
+	bjzi.data.map(el=>{this.tabs.push({id:el.id,name:el.name,label:el.name,description:el.description,disabled:true})})
+//,{id:2,name:'Иван',label:'Иван',description:'друг детства',disabled:true}
+this.tabs.push({id:'new',label:'+',disabled:false});
+this.activeTab=0;
+	this.loader.classList.toggle('hidden');
   
   },
   
   async updated(){
-	  this.objects.map(el=>{
-	console.log(JSON.stringify(el),'#'+el.objectType+'_'+el.id,document.querySelector('#'+el.objectType+'_'+el.id));
-  QrCreator.render({
-    text: JSON.stringify(el),
-    radius: 0.0, // 0.0 to 0.5
-    ecLevel: 'M', // L, M, Q, H
-    fill: '#000000', // foreground color
-    background: null, // color or null for transparent
-    size: 128 // in pixels
-  }, document.querySelector('#'+el.objectType+'_'+el.id));
-  })
   },
   computed:{
 	isEmpty () {
-                return !Boolean(this.value);
+                return true;//!Boolean(this.value);
             },  
 	events () {
                 return {
@@ -136,29 +147,29 @@ export default {
             },
 	src () {
                 if (this.content) {
-					console.log('есть контент');
+					//console.log('есть контент');
                     return this.content;
                 }
-				console.log('нет контента');
-                return this.isEmpty
-                        ? ''
-                        : this.srcPrefix + this.value;
+				//console.log('нет контента');
+                return '';//this.isEmpty
+                        //? ''
+                        //: '';//this.srcPrefix + this.value;
             },
 	res_src () {
-                if (this.res_content) {
-					console.log('есть картинка');
-                    return this.res_content;
+                if (tab.img_url/*this.res_content*/) {
+					//console.log('есть картинка');
+                    return tab.img_url;//this.res_content;
                 }
-				console.log('нет картинки');
-                return this.isEmpty
-                        ? ''
-                        : this.srcPrefix + this.value;
+				//console.log('нет картинки');
+                return '';//this.isEmpty
+                        //? ''
+                        //: this.srcPrefix + this.value;
             },
 	fileInfo () {
                 if (this.isEmpty) {
                     return '';
                 }
-                let result = this.value;
+                let result = '';//this.value;
                 if (this.file instanceof File) {
                     result += "\n." + this.file.type.split('/')[1] + "\n"
                         + FileHelper.formatSize(this.file.size);
@@ -180,7 +191,8 @@ export default {
             },
   },
   methods:{
-	sync (e) {
+	sync (e,tab) {
+		//console.log('sync',tab);
         e.preventDefault();
         this.selectImage(e.target.files[0]);
     },
@@ -192,7 +204,11 @@ export default {
          reader.readAsDataURL(file);
     },
 	async onImageLoad (e) {
-		//console.log(e.target.result)
+		//console.log('onImageLoad',e.target.result)
+		//console.log('onImageLoad',this.tabs[this.activeTab])
+		let tab=this.tabs[this.activeTab];
+		this.name=tab.name;
+		this.description=tab.description;
         this.content = e.target.result;
         let filename = this.file instanceof File ? this.file.name : '';
         // Dispatch new input event with filename
@@ -206,64 +222,40 @@ export default {
 		if(qr.firstChild)qr.removeChild(qr.firstChild);
 		QrCreator.render({
 			text: JSON.stringify({
-				id:'123',
-				objectType: 'player',
-				name: this.name,
-				owner: {id:'1234',name:this.owner}
+				id:tab.id,
+				objectType: tab.isPlayer?'player':'bjzi',
+				name: tab.name,
+				owner: {id:this.user.id,name:this.user.name}
 			}),
 			radius: 0.0, // 0.0 to 0.5
 			ecLevel: 'M', // L, M, Q, H
 			fill: '#000000', // foreground color
 			background: null, // color or null for transparent
-			size: 244 // in pixels
+			size: 118//244 // in pixels
 		  }, document.querySelector('.qr'));
 		
+	  this.loader.classList.toggle('hidden');
+	  
+		// честное слово я не понимаю почему, но без этого setTimeout картинка в печатной форме не грузится
+		await setTimeout(()=>{console.log('внутри setTimeout',new Date())},0);
+		document.getElementById('printform-wrapper').style.display='block';
+		let screenshot= await html2canvas(document.getElementById('printform')
+			,{
+			  scale:1
+			}
+		);
 		
-	  let pdf = new jsPDF();
-	  //console.log(document.getElementById('printform'));
-	  //let screenshot= await html2canvas(document.getElementById('printform'));
-	  //html2canvas(document.getElementById('printform')).then((form)=>console.log(form))
-	  //let screenshot_dataurl = screenshot
-	  //let url = screenshot.toDataURL();
-	  //document.body.appendChild(screenshot);
-	  //window.open(url, "_blank");
-	  //console.log(url);
-	  let loader = document.getElementById('loader');
-	  loader.classList.toggle('hidden');
-	  pdf.html(document.getElementById('printform'),{callback: async pdf=>{
-																				//pdf.save("a4.pdf");
-																				document.getElementById('printform-wrapper').style.display='block'
-																				//console.log(document.getElementById('printform').style.display);
-																				let screenshot= await html2canvas(document.getElementById('printform'));
-																				//console.log(document.getElementById('printform').style.display);
-																				document.getElementById('printform-wrapper').style.display='none'
-																				let url = screenshot.toDataURL();
-																				//console.log(url);
-																				////console.log(url);
-																				////document.body.appendChild(screenshot);
-																				//////let iframe = `<iframe width='${screenshot.width}px' height='${screenshot.height}px' src='${url}'></iframe>`
-																				//////let x = window.open();
-																				//////x.document.open();
-																				//////x.document.write(iframe);
-																				//////x.document.close();
-																				
-																				this.res_content=url;
-																				loader.classList.toggle('hidden');
-																				//this.$emit('image-changed', this.res_content);
-																				
-																				//let doc = new jsPDF();
-																				//doc.addImage(url,'PNG',0,0,screenshot.width,screenshot.height);
-																				//console.log(doc.output('datauristring'));
-																				//window.open(url, "_blank");
-																				}});
-	  //pdf.save("a4.pdf");
-	  
-	  
+		let domtoimage_screenshot= await domtoimage.toPng(document.getElementById('printform'), { quality: 0.1 });
+		document.getElementById('printform-wrapper').style.display='none';
+		let url = screenshot.toDataURL();
+		this.res_content=url;
+		tab.img_url=domtoimage_screenshot;//url;
+		tab.img_width=screenshot.width;
+		tab.img_height=screenshot.height;
+		this.$forceUpdate();
+		this.loader.classList.toggle('hidden');
+		
     },
-	async getMessage(){
-		const resp = await PostsService.doGet('http://192.168.0.181:8081/','test');
-		this.message = resp.data;
-	},
 	dispatchInputEvents(filename, content) {
                 // Dispatch new input event with new value
                 this.$emit('input', filename);
@@ -271,12 +263,112 @@ export default {
                 this.$emit(this.events.IMAGE_CHANGED, content);
             },
 	codeArrived (event) {
-                console.log(event.detail[0]);
-            }
-  },
-	  components:{
-		//VueQrReader
-	  }
+                //console.log(event.detail[0]);
+            },
+	async sendMail(){
+		this.sendButtonDisable=true;
+		//console.log('sending mail');
+		await setTimeout(()=>{/*document.getElementById('loader')*/this.loader.classList.toggle('hidden');},0)
+		//let loader = document.getElementById('loader');
+		//loader.classList.toggle('hidden');
+		
+		if(this.tabs.filter(el=>el.id!='new').some(el=>!el.img_url)){this.$buefy.toast.open({
+                    message: 'Фотографии загружены не для всех бойцов!',
+                    type: 'is-danger'
+                })
+			//document.getElementById('loader')
+			this.loader.classList.toggle('hidden');
+			return;
+		}
+
+		let pdf = new jsPDF();
+		
+		let scale = 1;
+
+		// добавляем игрока
+		pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url,'PNG',10,10,190*scale,this.tabs.filter(el=>el.isPlayer)[0].img_height/this.tabs.filter(el=>el.isPlayer)[0].img_width*190*scale,null,'SLOW');
+		// добавляем спутников
+		this.tabs.filter(el=>el.id!='new').filter(el=>!el.isPlayer).map(el=>{pdf.addPage();pdf.addImage(el.img_url,'PNG',10,10,190*scale,el.img_height/el.img_width*190*scale);})
+
+		pdf.save("a4.pdf");
+
+		// отправляем форму для пересылки по почте
+	
+		const blob = await fetch(pdf.output('datauristring')).then(res => res.blob());
+
+		  const formData = new FormData();
+		  formData.append('attach', blob, 'printform.pdf');
+		  formData.append('userId', this.user.id);// взять userid из роута
+			formData.append('userName', this.user.name);// взять username из роута
+
+		  // Post the form, just make sure to set the 'Content-Type' header
+		  const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.181:5000/sendMail'
+			, formData
+			, {
+			headers: {
+			  'Content-Type': 'multipart/form-data',
+			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')
+			  }`
+			}
+		});
+		//console.log(res);
+		//loader.classList.toggle('hidden');
+		
+		//document.getElementById('loader')
+		this.loader.classList.toggle('hidden');
+		this.sendButtonDisable=false;
+	},
+	async addBJZI(bjzi){
+		//console.log(bjzi);
+		this.loader.classList.toggle('hidden');
+		
+		const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
+			,{
+				id:null,
+				name:bjzi.name,
+				description:bjzi.description
+			}, {
+			headers: {
+			  'Content-Type': 'application/json',
+			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+			}
+		});
+		// заменить math.random на получение id созданного в базе спутника
+		let id=res.data.id//Math.random()+'';
+		this.tabs.splice(this.tabs.length-1,2,{id:id,name:bjzi.name,label:bjzi.name,description:bjzi.description,disabled:true},{id:'new',label:'+',disabled:false});
+		//console.log(this.activeTab);
+		//this.$forceUpdate();
+		if(this.tabs.length>this.maxSquadSize){
+			
+			this.$buefy.toast.open({
+                    message: 'Добавлено максимальное количество спутников',
+                    type: 'is-success'
+                })
+			this.activeTab=0
+		};
+		this.loader.classList.toggle('hidden');
+		//this.$forceUpdate();
+		//console.log(this.tabs);
+	},
+	async updateBJZI(bjzi){
+		//console.log('сохраняем данные bjzi',bjzi);
+		this.loader.classList.toggle('hidden');
+		const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
+			,{
+				id:bjzi.id,
+				name:bjzi.name,
+				description:bjzi.description
+			}, {
+			headers: {
+			  'Content-Type': 'application/json',
+			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+			}
+		});
+		this.tabs.filter(el=>el.id==bjzi.id)[0].label=bjzi.name;
+		this.tabs.filter(el=>el.id==bjzi.id)[0].disabled=true;
+		this.loader.classList.toggle('hidden');
+	}
+  }
 }
 </script>
 
@@ -299,18 +391,20 @@ a {
 #printform_backup{
 	border: 1px solid black;
 	width:1000px;
-	height:1300px;
+	height:1414px;
 	display:grid;
 	grid-template-rows: 4fr 256px 1fr 1fr;
 	grid-template-columns: 2fr 256px;
 }
 #printform{
 	border: 1px solid black;
-	width:1000px;
-	height:1300px;
+	width:500px;
+	//jfjf:500px;
+	height:707px;
+	//dfdfg:707px;
 	display:grid;
-	grid-template-rows: 4fr 256px 1fr 1fr;
-	grid-template-columns: 3fr 1fr 256px;
+	grid-template-rows: 4fr 128px 1fr 1fr;
+	grid-template-columns: 3fr 1fr 128px;
 }
 .photo{
 	grid-column: 1 / 4;
@@ -329,7 +423,7 @@ a {
 	justify-content: center;
 }
 .qr{
-	border: 6px solid white;
+	border: 3px solid white;
 	grid-column: 3 / 4;
 	grid-row: 2 / 3;
 	background-color: #ffffff;
@@ -342,7 +436,7 @@ a {
 	//background-color: #aaff77;
 	border: 1px solid black;
 	opacity:1;
-	font: bold 500% 'Comic Sans MS';
+	font: bold 100% 'Comic Sans MS';
 }
 .desc{
 	grid-column: 1 / 2;
@@ -350,7 +444,7 @@ a {
 	//background-color: #aa5500;
 	border: 1px solid black;
 	opacity:1;
-	font: bold 150% 'Comic Sans MS';
+	font: bold 100% 'Comic Sans MS';
 }
 .owner{
 	grid-column: 2 / 4;
@@ -358,7 +452,7 @@ a {
 	//background-color: #aa5500;
 	border: 1px solid black;
 	opacity:1;
-	font: bold 150% 'Comic Sans MS';
+	font: bold 100% 'Comic Sans MS';
 }
 .image-uploader__image{
 	//width: 100%;

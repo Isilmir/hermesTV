@@ -17,6 +17,7 @@
 
 <script>
 import PostsService from '@/services/PostsService'
+import axios from 'axios'
 import QrScanner from 'qr-scanner'
 import QrScannerWorkerPath from '!!file-loader!../../node_modules/qr-scanner/qr-scanner-worker.min.js';
 QrScanner.WORKER_PATH = QrScannerWorkerPath;
@@ -58,13 +59,27 @@ export default {
 											if(action=='activate'){
 												resultJSON.activationToggle=true;
 												loader_.classList.toggle('hidden');
-												let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
+												let actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
+													,resultJSON, {
+													headers: {
+													  'Content-Type': 'application/json',
+													  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+													}
+												});
+												//let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
 												loader_.classList.toggle('hidden');
 												this.result = actionRes.data;
 											}else if(action=='deactivate'){
 												resultJSON.activationToggle=false;
 												loader_.classList.toggle('hidden');
-												let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
+												let actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
+													,resultJSON, {
+													headers: {
+													  'Content-Type': 'application/json',
+													  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+													}
+												});
+												//let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
 												loader_.classList.toggle('hidden');
 												this.result = actionRes.data;
 											}

@@ -6,7 +6,7 @@
 	<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>-->
 	<div >
 	<div v-for="object in objects" :key="object.objectType+'_'+object.id" style="display:inline-flex;  align-content: flex-start; align-items: flex-start; margin:50px; width:350px">
-		<div style="display:flex">{{JSON.stringify(object,null,1)}}</div>
+		<div style="display:flex">{{JSON.stringify(object,null,1)}}<br><b :style="object.active?`color:green;`:`color:red;`">{{object.active?`Активный`:`Неактивный`}}</b></div>
 		<div  style="display:flex" :id="object.objectType+'_'+object.id"></div>
 	</div>
 </div>
@@ -53,7 +53,7 @@ export default {
 		});
   //let objects = await PostsService.doGet('https://blooming-refuge-12227.herokuapp.com','/test');
   loader_.classList.toggle('hidden');
-  this.objects = objects.data.map(el=>JSON.parse(el.qr))
+  this.objects = objects.data.map(el=>{let obj=JSON.parse(el.qr);obj.active=el.active;return obj})
   //console.log(this.objects);
   
   },

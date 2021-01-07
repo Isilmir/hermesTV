@@ -278,6 +278,7 @@ this.activeTab=0;
                 })
 			//document.getElementById('loader_')
 			this.loader_.classList.toggle('hidden');
+			this.sendButtonDisable=false;
 			return;
 		}
 

@@ -1,6 +1,6 @@
 <template>
 <div>
-	<img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
+	<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
     <h1>{{ msg }}</h1>
 	<h1>{{ message }}</h1>
 	<video id="videoElem" style="height:40vh;"></video>
@@ -57,15 +57,15 @@ export default {
 										if(resultJSON){
 											if(action=='activate'){
 												resultJSON.activationToggle=true;
-												loader.classList.toggle('hidden');
+												loader_.classList.toggle('hidden');
 												let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
-												loader.classList.toggle('hidden');
+												loader_.classList.toggle('hidden');
 												this.result = actionRes.data;
 											}else if(action=='deactivate'){
 												resultJSON.activationToggle=false;
-												loader.classList.toggle('hidden');
+												loader_.classList.toggle('hidden');
 												let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
-												loader.classList.toggle('hidden');
+												loader_.classList.toggle('hidden');
 												this.result = actionRes.data;
 											}
 											

@@ -1,6 +1,6 @@
 ﻿<template>
 <div>
-<img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
+<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
 <h1 id="title">Информация о спутниках бойца</h1><br>
 	<!--<div class="main">
 		<div class="entry-data">
@@ -36,7 +36,7 @@
 		<div id="printform">
 			<div class="photo"><div class="photo-wrapper"><img
 								
-								class="image-uploader__image"
+								class="image-uploader___image"
 								ref="img"
 								:src="src"
 								:class="{
@@ -113,8 +113,8 @@ export default {
   async mounted(){
 	console.log('user',this.user);
 	
-	this.loader=document.getElementById('loader');
-	this.loader.classList.toggle('hidden');
+	this.loader_=document.getElementById('loader_');
+	this.loader_.classList.toggle('hidden');
 	const bjzi = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBjzi',//'http://192.168.0.181:5000/getBjzi', 
 		{
 			headers: {
@@ -130,7 +130,7 @@ export default {
 //,{id:2,name:'Иван',label:'Иван',description:'друг детства',disabled:true}
 this.tabs.push({id:'new',label:'+',disabled:false});
 this.activeTab=0;
-	this.loader.classList.toggle('hidden');
+	this.loader_.classList.toggle('hidden');
   
   },
   
@@ -234,7 +234,7 @@ this.activeTab=0;
 			size: 118//244 // in pixels
 		  }, document.querySelector('.qr'));
 		
-	  this.loader.classList.toggle('hidden');
+	  this.loader_.classList.toggle('hidden');
 	  
 		// честное слово я не понимаю почему, но без этого setTimeout картинка в печатной форме не грузится
 		await setTimeout(()=>{console.log('внутри setTimeout',new Date())},0);
@@ -253,7 +253,7 @@ this.activeTab=0;
 		tab.img_width=screenshot.width;
 		tab.img_height=screenshot.height;
 		this.$forceUpdate();
-		this.loader.classList.toggle('hidden');
+		this.loader_.classList.toggle('hidden');
 		
     },
 	dispatchInputEvents(filename, content) {
@@ -268,16 +268,16 @@ this.activeTab=0;
 	async sendMail(){
 		this.sendButtonDisable=true;
 		//console.log('sending mail');
-		await setTimeout(()=>{/*document.getElementById('loader')*/this.loader.classList.toggle('hidden');},0)
-		//let loader = document.getElementById('loader');
-		//loader.classList.toggle('hidden');
+		await setTimeout(()=>{/*document.getElementById('loader_')*/this.loader_.classList.toggle('hidden');},0)
+		//let loader_ = document.getElementById('loader_');
+		//loader_.classList.toggle('hidden');
 		
 		if(this.tabs.filter(el=>el.id!='new').some(el=>!el.img_url)){this.$buefy.toast.open({
                     message: 'Фотографии загружены не для всех бойцов!',
                     type: 'is-danger'
                 })
-			//document.getElementById('loader')
-			this.loader.classList.toggle('hidden');
+			//document.getElementById('loader_')
+			this.loader_.classList.toggle('hidden');
 			return;
 		}
 
@@ -312,15 +312,15 @@ this.activeTab=0;
 			}
 		});
 		//console.log(res);
-		//loader.classList.toggle('hidden');
+		//loader_.classList.toggle('hidden');
 		
-		//document.getElementById('loader')
-		this.loader.classList.toggle('hidden');
+		//document.getElementById('loader_')
+		this.loader_.classList.toggle('hidden');
 		this.sendButtonDisable=false;
 	},
 	async addBJZI(bjzi){
 		//console.log(bjzi);
-		this.loader.classList.toggle('hidden');
+		this.loader_.classList.toggle('hidden');
 		
 		const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
 			,{
@@ -346,13 +346,13 @@ this.activeTab=0;
                 })
 			this.activeTab=0
 		};
-		this.loader.classList.toggle('hidden');
+		this.loader_.classList.toggle('hidden');
 		//this.$forceUpdate();
 		//console.log(this.tabs);
 	},
 	async updateBJZI(bjzi){
 		//console.log('сохраняем данные bjzi',bjzi);
-		this.loader.classList.toggle('hidden');
+		this.loader_.classList.toggle('hidden');
 		const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
 			,{
 				id:bjzi.id,
@@ -366,7 +366,7 @@ this.activeTab=0;
 		});
 		this.tabs.filter(el=>el.id==bjzi.id)[0].label=bjzi.name;
 		this.tabs.filter(el=>el.id==bjzi.id)[0].disabled=true;
-		this.loader.classList.toggle('hidden');
+		this.loader_.classList.toggle('hidden');
 	}
   }
 }
@@ -454,7 +454,7 @@ a {
 	opacity:1;
 	font: bold 100% 'Comic Sans MS';
 }
-.image-uploader__image{
+.image-uploader___image{
 	//width: 100%;
 	height:100%;
 	z-index:-100;

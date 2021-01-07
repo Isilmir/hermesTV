@@ -1,6 +1,6 @@
 <template>
 <div>
-	<img src="../assets/lazy-img.gif" id="loader" class="loader hidden"></img>
+	<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
 	<h1>Тестируем генерацию QR-кода</h1>
 	<!--<div id="qr-code"></div>
 	<div style="display: flex; align-content: flex-start; align-items: flex-start;">result: {{ result }}</div>-->
@@ -42,8 +42,8 @@ export default {
 //  background: null, // color or null for transparent
 //  size: 150 // in pixels.
 //}, document.querySelector('#qr-code'));
-  let loader = document.getElementById('loader');
-  loader.classList.toggle('hidden');
+  let loader_ = document.getElementById('loader_');
+  loader_.classList.toggle('hidden');
   const objects = await axios.get('https://blooming-refuge-12227.herokuapp.com/test',//'http://192.168.0.181:5000/test', 
 		{
 			headers: {
@@ -52,7 +52,7 @@ export default {
 			}
 		});
   //let objects = await PostsService.doGet('https://blooming-refuge-12227.herokuapp.com','/test');
-  loader.classList.toggle('hidden');
+  loader_.classList.toggle('hidden');
   this.objects = objects.data.map(el=>JSON.parse(el.qr))
   //console.log(this.objects);
   

@@ -8,6 +8,7 @@ import qrView from '@/components/QRview'
 //import qrView from '@/components/QRview_pg'
 import printForm from '@/components/printForm'
 import login from '@/components/login'
+import graph from '@/components/graph'
 
 Vue.use(Router) 
 
@@ -60,6 +61,14 @@ let router = new Router({
       component: login,
 	  meta:{
 			guest:true
+		}
+    },
+	{
+      path: '/graph',
+      name: 'graph',
+      component: graph,
+	  meta:{
+			requireAuth:true
 		}
     }
   ]

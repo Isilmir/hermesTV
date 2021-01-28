@@ -18,6 +18,7 @@
     "qr-creator": "^1.0.0",
     "qr-scanner": "^1.2.0",
     "vue": "^2.5.2",
+    "vue-d3-network": "^0.1.28",
     "vue-qr-reader": "^1.6.2",
     "vue-router": "^3.0.1"
   },

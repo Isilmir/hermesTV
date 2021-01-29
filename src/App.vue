@@ -2,7 +2,8 @@
   <div id="app">
     <!--<img src="./assets/logo.png">--><div class="header">{{user.name}} <a v-if="user.name!='Гость'" href="#" @click="logout">выйти</a></div>
     
-<router-view/>
+<router-view style="height:100%"/>
+
   </div>
 </template>
 
@@ -48,6 +49,15 @@ export default {
   text-align: center;
   color: #2c3e50;
   //margin-top: 60px;
+  display:block;
+  //width:50%;
+  height:100%;
+}
+html{
+	height:100%;
+}
+body{
+	height:100%;
 }
 .loader_{
 	position: fixed;

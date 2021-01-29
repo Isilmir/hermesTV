@@ -17,11 +17,12 @@ export default {
       msg: 'Welcome to Your Vue.js App',
 	  nodes:[],//[{id:3,name:'адын',_color:'#00ff00'},{id:2,name:'дыва',_color:'#00ff00'},{id:1,name:'тры',_color:'#ff0000'}],
 	links:[],//[{name:'линк адын',tid:1,sid:2,_color:'#ff0000'},{name:'линк дыва',tid:2,sid:1,_color:'#00ff00'},{name:'линк тры',tid:3,sid:1,_color:'#00ffff'}],
-	options:{canvas:false,nodeSize:10,force:10000,linkWidth:1,nodeLabels:true,linkLabels:true,strLinks:true}
+	options:{canvas:false,nodeSize:20,force:10000,linkWidth:1,nodeLabels:true,linkLabels:true,strLinks:true}
     }
   }
   ,async mounted(){
   this.loader_=document.getElementById('loader_');
+  console.log(this.$route.query.id,this.$route.query.type,this.$route.query.deep);
   //console.log(`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`)
 	//const graph = await axios.post('https://blooming-refuge-12227.herokuapp.com/getGraph',{
 	//			id:42849,
@@ -41,10 +42,12 @@ export default {
 	async drawGraph () {
 		this.req_status='loader'
 		this.loader_.classList.toggle('hidden');
-      const response = await axios.post('https://blooming-refuge-12227.herokuapp.com/getGraph',{
-				id:42849,
-				type:"player",
-				deep:3
+		let response;
+		try{
+			response = await axios.post('https://blooming-refuge-12227.herokuapp.com/getGraph',{
+				id:this.$route.query.id||2,// это только для демонстрации. потом заполнение убрать ,//42849,
+				type:this.$route.query.type||'story',//"player",
+				deep:this.$route.query.deep||6//6
 			},
 		{
 			headers: {
@@ -52,30 +55,37 @@ export default {
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
 			}
 		});
+		}catch(e){
 		this.loader_.classList.toggle('hidden');
-	  //console.log('response.data',response.data)
+		console.log(e.message);
+		this.nodes=[{id:1,name:'Увы, что-то пошло не так и мы не смогли отрисовать связи'}]
+		return;
+		}
+		this.loader_.classList.toggle('hidden');
+	  console.log('response.data',response.data)
 	  let posts=[]
       /*this.posts = */response.data.map((el)=>posts.push(el))
-	  let links=posts.map(el=>{return{sid:el.from.id,tid:el.to.id,_color:'#005500',name:el.description}})
+	  let links=posts.map(el=>{if(!el.from.id||!el.to.id){return;}return{sid:el.from.id,tid:el.to.id,_color:'#005500',name:el.description}}).filter(el=>el)
 	  //console.log(links)
 	  this.links = links
 		let nodes=[]
-	  posts.filter(el=>{nodes.push({id:el.from.id,name:el.from.name,_color:this.setColor(el.from.objectType)})})
-	  posts.filter(el=>{nodes.push({id:el.to.id,name:el.to.name,_color:this.setColor(el.to.objectType)})})
+	  posts.filter(el=>{if(!el.from.id){return;}nodes.push({id:el.from.id,name:el.from.name,_color:this.setColor(el.from.objectType)})})
+	  posts.filter(el=>{if(!el.to.id){return;}nodes.push({id:el.to.id,name:el.to.name,_color:this.setColor(el.to.objectType)})})
+		nodes = nodes.filter(el=>el);
 		let nodesPure=[]
 		nodes.map(el=>{if(nodesPure.filter(ell=>ell.id==el.id).length>0){return;}else{nodesPure.push(el)}})
-	  console.log(nodesPure)
+	  console.log(nodesPure,nodes,links)
 	  this.nodes=nodesPure
 	  this.req_status=''
-	  
+	  if(this.nodes.length==0)this.nodes.push({id:1,name:`Не удалось найти такой объект с типом ${this.$route.query.type}`})
     },
 	setColor(sys){
 		switch(sys){
-			case 1:
-				return '#FF0000'
+			case 'player':
+				return '#cc0000'
 			break;
-			case 19:
-				return '#ffff00'
+			case 'story':
+				return '#cccc00'
 			break;
 			case 'DIAFRONT':
 				return '#0000ff'
@@ -135,8 +145,5 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr  1fr;
 }
-text.node-label{
-	font-size:20;
-	stroke-width:2;
-}
+
 </style>

@@ -1,7 +1,7 @@
 <template>
 <div>
-
-<d3-network :net-nodes="nodes" :net-links="links" :options="options" style="height:100%;width:100%"/>
+<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
+<d3-network :net-nodes="nodes" :net-links="links" :options="options" :link-cb="lcb" style="height:100%;width:100%"/>
 
 </div>
 </template>
@@ -15,13 +15,14 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-	  nodes:[{id:3,name:'адын',_color:'#00ff00'},{id:2,name:'дыва',_color:'#00ff00'},{id:1,name:'тры',_color:'#ff0000'}],
-	links:[{name:'линк адын',tid:1,sid:2,_color:'#ff0000'},{name:'линк дыва',tid:2,sid:1,_color:'#00ff00'},{name:'линк тры',tid:3,sid:1,_color:'#00ffff'}],
+	  nodes:[],//[{id:3,name:'адын',_color:'#00ff00'},{id:2,name:'дыва',_color:'#00ff00'},{id:1,name:'тры',_color:'#ff0000'}],
+	links:[],//[{name:'линк адын',tid:1,sid:2,_color:'#ff0000'},{name:'линк дыва',tid:2,sid:1,_color:'#00ff00'},{name:'линк тры',tid:3,sid:1,_color:'#00ffff'}],
 	options:{canvas:false,nodeSize:10,force:10000,linkWidth:1,nodeLabels:true,linkLabels:true,strLinks:true}
     }
   }
   ,async mounted(){
-  console.log(`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`)
+  this.loader_=document.getElementById('loader_');
+  //console.log(`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`)
 	//const graph = await axios.post('https://blooming-refuge-12227.herokuapp.com/getGraph',{
 	//			id:42849,
 	//			type:"player",
@@ -39,6 +40,7 @@ export default {
   ,methods:{
 	async drawGraph () {
 		this.req_status='loader'
+		this.loader_.classList.toggle('hidden');
       const response = await axios.post('https://blooming-refuge-12227.herokuapp.com/getGraph',{
 				id:42849,
 				type:"player",
@@ -50,6 +52,7 @@ export default {
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
 			}
 		});
+		this.loader_.classList.toggle('hidden');
 	  //console.log('response.data',response.data)
 	  let posts=[]
       /*this.posts = */response.data.map((el)=>posts.push(el))
@@ -101,6 +104,9 @@ export default {
 		}
 		return '#000000'
 	}
+	,lcb (link) {
+      return link
+    }
   }
   ,components:{
 	D3Network

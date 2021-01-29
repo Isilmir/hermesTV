@@ -62,7 +62,9 @@ export default {
 .hidden{
 	display: none
 }
+.node-label{
+	//font-size:100%;
+	font: 110% fantasy;
+}
 </style>
-<style lang="scss" scoped>
 
-</style>

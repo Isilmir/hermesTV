@@ -9,6 +9,7 @@ import qrView from '@/components/QRview'
 import printForm from '@/components/printForm'
 import login from '@/components/login'
 import graph from '@/components/graph'
+import stories from '@/components/stories'
 
 Vue.use(Router) 
 
@@ -67,6 +68,14 @@ let router = new Router({
       path: '/graph',
       name: 'graph',
       component: graph,
+	  meta:{
+			requireAuth:true
+		}
+    },
+	{
+      path: '/stories',
+      name: 'stories',
+      component: stories,
 	  meta:{
 			requireAuth:true
 		}

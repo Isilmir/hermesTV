@@ -40,7 +40,7 @@ export default {
   }
   ,methods:{
 	async drawGraph () {
-		this.req_status='loader'
+		//this.req_status='loader'
 		this.loader_.classList.toggle('hidden');
 		let response;
 		try{
@@ -74,7 +74,7 @@ export default {
 		nodes = nodes.filter(el=>el);
 		let nodesPure=[]
 		nodes.map(el=>{if(nodesPure.filter(ell=>ell.id==el.id).length>0){return;}else{nodesPure.push(el)}})
-	  console.log(nodesPure,nodes,links)
+	  //console.log(nodesPure,nodes,links)
 	  this.nodes=nodesPure
 	  this.req_status=''
 	  if(this.nodes.length==0)this.nodes.push({id:1,name:`Не удалось найти такой объект с типом ${this.$route.query.type}`})

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import axios from 'axios'
 import HelloWorld from '@/components/HelloWorld'
 import test from '@/components/Test'
 import qr from '@/components/QR'
@@ -10,6 +11,8 @@ import printForm from '@/components/printForm'
 import login from '@/components/login'
 import graph from '@/components/graph'
 import stories from '@/components/stories'
+import notFound from '@/components/notFound'
+import forbidden from '@/components/forbidden'
 
 Vue.use(Router) 
 
@@ -37,7 +40,8 @@ let router = new Router({
       name: 'qr',
 	component: qr,
 	  meta:{
-			requireAuth:true
+			requireAuth:true,
+			requireAdmin:true
 		}
 	},
 	{
@@ -45,7 +49,8 @@ let router = new Router({
       name: 'qrView',
       component: qrView,
 	  meta:{
-			requireAuth:true
+			requireAuth:true,
+			requireAdmin:true
 		}
     },
 	{
@@ -69,7 +74,8 @@ let router = new Router({
       name: 'graph',
       component: graph,
 	  meta:{
-			requireAuth:true
+			requireAuth:true,
+			requireAdmin:true
 		}
     },
 	{
@@ -77,13 +83,34 @@ let router = new Router({
       name: 'stories',
       component: stories,
 	  meta:{
-			requireAuth:true
+			requireAuth:true,
+			requireAdmin:true
 		}
-    }
+    },
+	{
+      path: '/403',
+      name: 'forbidden',
+      component: forbidden,
+	  meta:{
+			guest:true
+		}
+    },
+	{
+      path: '/404',
+      name: 'notFound',
+      component: notFound,
+	  meta:{
+			guest:true
+		}
+    },
+	{
+		path: '*', 
+		redirect: '/404' 
+	}
   ]
 });
 
-router.beforeEach((to,from,next)=>{
+router.beforeEach(async (to,from,next)=>{
 	//console.log('beforeEach');
 //console.log('to',to);
 //console.log('from',from);
@@ -99,6 +126,30 @@ router.beforeEach((to,from,next)=>{
 				query: { nextUrl: to.fullPath || '/' }
             });
         } else {
+			if(to.matched.some(record => record.meta.requireAdmin)){
+				let response;
+				try{
+					response = await axios.get('https://blooming-refuge-12227.herokuapp.com/isAdmin',{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+					});
+					//console.log(`получили ответ: ${response}`);
+				}catch(e){
+					console.log(e.message);
+					next({
+						path: '/403'
+					});
+				}
+				if(response.data.isAdmin){
+					next();
+				}else{
+					next({
+						path: '/403'
+					});
+				}
+			}
 			//console.log('jwt',localStorage.getItem('jwt'));
             //let user = JSON.parse(localStorage.getItem('user'))
             //if(to.matched.some(record => record.meta.is_admin)) {
@@ -108,9 +159,9 @@ router.beforeEach((to,from,next)=>{
             //    else{
             //        next({ name: 'userboard'})
             //    }
-            //}else {
-                next()
-            //}
+            else {
+                next();
+            }
         }
     } else if(to.path == '/login') {
 	  //console.log('/login');

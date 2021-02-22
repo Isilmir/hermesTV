@@ -47,7 +47,7 @@
 			<div class="qr " id="qr" ></div>
 			<div class="name">{{name}}</div>
 			<div class="desc">{{description}}</div>
-			<div class="owner">Владелец: <br><br> {{user.name}}</div>
+			<div class="owner">Командир: <br> {{user.name}} <br>({{user.side.name}})</div>
 			</div>
 		</div>
 		<!--<br><br>-->
@@ -312,7 +312,7 @@ this.activeTab=0;
 			  }`
 			}
 		});
-		//console.log(res);
+		console.log(res);
 		//loader_.classList.toggle('hidden');
 		
 		//document.getElementById('loader_')
@@ -375,6 +375,17 @@ this.activeTab=0;
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+@font-face{
+	font-family:'B52';
+	src: local('B52'),
+		url(./../fonts/b52.ttf);
+}
+
+#title{
+	//font-family:'B52';
+	//font-size:150%;
+}
+
 h1, h2 {
   font-weight: normal;
 }
@@ -437,7 +448,9 @@ a {
 	//background-color: #aaff77;
 	border: 1px solid black;
 	opacity:1;
-	font: bold 100% 'Comic Sans MS';
+	//font: bold 100% 'Comic Sans MS';
+	font-family:'B52';
+	font-size:170%;
 }
 .desc{
 	grid-column: 1 / 2;
@@ -445,7 +458,9 @@ a {
 	//background-color: #aa5500;
 	border: 1px solid black;
 	opacity:1;
-	font: bold 100% 'Comic Sans MS';
+	//font: bold 100% 'Comic Sans MS';
+	font-family:'B52';
+	font-size:120%;
 }
 .owner{
 	grid-column: 2 / 4;
@@ -453,7 +468,9 @@ a {
 	//background-color: #aa5500;
 	border: 1px solid black;
 	opacity:1;
-	font: bold 100% 'Comic Sans MS';
+	//font: bold 100% 'Comic Sans MS';
+	font-family:'B52';
+	font-size:120%;
 }
 .image-uploader___image{
 	//width: 100%;

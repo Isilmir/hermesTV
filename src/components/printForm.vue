@@ -48,6 +48,7 @@
 								}"
 						></div></div>
 			<div class="qr " id="qr" ></div>
+			<div class="qr_desc">{{qr_desc}}</div>
 			<div class="name">{{name}}<br><span class="name_desc" v-if="isPlayer">герой</span><span class="name_desc" v-if="!isPlayer">спутник</span></div>
 			<div class="dead">Мертв</div>
 			<!--<div class="desc">{{description}}</div>-->
@@ -110,6 +111,7 @@ export default {
 	  content:null,
 	  name:'',
 	  isPlayer:null,
+	  qr_desc:'',
 	  description:'',
 	  res_content:null,
 	  res_content_back:null,
@@ -221,6 +223,7 @@ this.activeTab=0;
 		let tab=this.tabs[this.activeTab];
 		this.name=tab.name;
 		this.isPlayer=tab.isPlayer;
+		this.qr_desc=`${tab.isPlayer?'player':'bjzi'} ${tab.id}`;
 		this.description=tab.description;
         this.content = e.target.result;
         let filename = this.file instanceof File ? this.file.name : '';
@@ -474,7 +477,7 @@ a {
 	height:707px;
 	//dfdfg:707px;
 	display:grid;
-	grid-template-rows: 64px 4fr 64px 64px 128px 1fr;
+	grid-template-rows: 64px 4fr 64px 64px 128px 12px 1fr;
 	grid-template-columns: 64px 1fr 64px 64px;
 }
 #printform_back{
@@ -492,7 +495,7 @@ a {
 	grid-column: 2 / 4;
 	grid-row: 2 / 4;
 	//background-color: #5599ff;
-	border: 1px dashed black;
+	//border: 1px dashed black;
 	opacity:1;
 	overflow: hidden;
 	display:flex;
@@ -506,7 +509,7 @@ a {
 }
 .qr{
 	//border: 3px dashed white;
-	border-bottom: 1px dashed black;
+	//border-bottom: 1px dashed black;
 	border-left: 1px dashed black;
 	border-top: 1px dashed black;
 	//grid-column: 3 / 4;
@@ -520,7 +523,7 @@ a {
 }
 .name{
 	grid-column: 1 / 3;
-	grid-row: 5 / 6;
+	grid-row: 5 / 7;
 	//background-color: #aaff77;
 	//border: 1px dashed black;
 	border-bottom:1px dashed black;
@@ -531,9 +534,17 @@ a {
 	font-family:'B52';
 	font-size:210%;
 }
+.qr_desc{
+	grid-column: 3 / 5;
+	grid-row: 6 / 7;
+	border-left: 1px dashed black;
+	border-bottom: 1px dashed black;
+	//font-family:'B52';
+	font-size:50%;
+}
 .dead{
 	grid-column: 1 / 5;
-	grid-row: 6 / 7;
+	grid-row: 7 / 8;
 	//background-color: #aaff77;
 	//border: 1px dashed black;
 	//border-bottom:1px dashed black;

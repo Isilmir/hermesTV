@@ -31,6 +31,7 @@
 				</div>
             </b-tab-item>
         </b-tabs>
+		<div style="color:red;" v-if="sendError">При отправке письма произошла ошибка! <br>Просьба самостоятельно отправить сохраненный файл на почту hermes.tv.troy@gmail.com указав в теме "{{user.id}} {{user.name}}"</div>
 <b-button @click="sendMail" :disabled="sendButtonDisable">Отправить список спутников в редакцию Гермес-ТВ</b-button>
 	<div style="display:none" id="printform-wrapper">
 	<!--<div id="printform-wrapper">-->
@@ -121,7 +122,8 @@ export default {
 	  activeTab: undefined,
       showBooks: false,
 	  maxSquadSize: 11,
-	  sendButtonDisable: false
+	  sendButtonDisable: false,
+	  sendError:false
     }
   },
   async mounted(){
@@ -220,6 +222,7 @@ this.activeTab=0;
 	async onImageLoad (e) {
 		//console.log('onImageLoad',e.target.result)
 		//console.log('onImageLoad',this.tabs[this.activeTab])
+		this.sendError=false;
 		let tab=this.tabs[this.activeTab];
 		this.name=tab.name;
 		this.isPlayer=tab.isPlayer;
@@ -263,7 +266,7 @@ this.activeTab=0;
 			}
 		);
 		
-		let domtoimage_screenshot= await domtoimage.toPng(document.getElementById('printform'), { quality: 0.1 });
+		let domtoimage_screenshot= await domtoimage.toPng(document.getElementById('printform'), { quality: 1 });
 //document.getElementById('printform-wrapper').style.display='none';
 		let url = screenshot.toDataURL();
 		this.res_content=url;
@@ -280,10 +283,10 @@ this.activeTab=0;
 			}
 		);
 		
-		let domtoimage_screenshot_back= await domtoimage.toPng(document.getElementById('printform_back'), { quality: 0.1 });
+		let domtoimage_screenshot_back= await domtoimage.toPng(document.getElementById('printform_back'), { quality: 1 });
 document.getElementById('printform-wrapper').style.display='none';
 		let url_back = screenshot_back.toDataURL();
-		this.res_content=url;
+		this.res_content=url_back;
 		tab.img_url_back=domtoimage_screenshot_back;//url;
 		tab.img_width_back=screenshot_back.width;
 		tab.img_height_back=screenshot_back.height;
@@ -307,9 +310,9 @@ document.getElementById('printform-wrapper').style.display='none';
 		//loader_.classList.toggle('hidden');
 		
 		if(this.tabs.filter(el=>el.id!='new').some(el=>!el.img_url)){this.$buefy.toast.open({
-                    message: 'Фотографии загружены не для всех бойцов!',
-                    type: 'is-danger'
-                })
+					message: 'Фотографии загружены не для всех бойцов!',
+					type: 'is-danger'
+				})
 			//document.getElementById('loader_')
 			this.loader_.classList.toggle('hidden');
 			this.sendButtonDisable=false;
@@ -325,11 +328,13 @@ document.getElementById('printform-wrapper').style.display='none';
 		pdf.addPage();
 		pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url_back,'PNG',10,10,190*scale,this.tabs.filter(el=>el.isPlayer)[0].img_height_back/this.tabs.filter(el=>el.isPlayer)[0].img_width_back*190*scale,null,'SLOW');
 		// добавляем спутников
-		this.tabs.filter(el=>el.id!='new').filter(el=>!el.isPlayer).map(el=>{
+		this.tabs.filter(el=>el.id!='new').filter(el=>!el.isPlayer)
+		//.filter(el=>el.img_url)// только для дебага. удалить после использования
+		.map(el=>{
 																			pdf.addPage();
-																			pdf.addImage(el.img_url,'PNG',10,10,190*scale,el.img_height/el.img_width*190*scale);
+																			pdf.addImage(el.img_url,'PNG',10,10,190*scale,el.img_height/el.img_width*190*scale,null,'SLOW');
 																			pdf.addPage();
-																			pdf.addImage(el.img_url_back,'PNG',10,10,190*scale,el.img_height_back/el.img_width_back*190*scale);
+																			pdf.addImage(el.img_url_back,'PNG',10,10,190*scale,el.img_height_back/el.img_width_back*190*scale,null,'SLOW');
 																			})
 
 		pdf.save(`${this.user.id}_${this.user.name}_printform.pdf`);
@@ -346,21 +351,22 @@ document.getElementById('printform-wrapper').style.display='none';
 		  // Post the form, just make sure to set the 'Content-Type' header
 		  let res;
 		  
-		 try{ 
-		  res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.181:5000/sendMail'
+		try{ 
+		res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.181:5000/sendMail'
 			, formData
 			, {
 			headers: {
-			  'Content-Type': 'multipart/form-data',
-			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')
-			  }`
+			'Content-Type': 'multipart/form-data',
+			'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')
+			}`
 			}
 		});
 		}catch(e){
 			this.$buefy.toast.open({
-                    message: 'Ошибка при отправке письма!',
-                    type: 'is-danger'
-                })
+					message: 'Ошибка при отправке письма!',
+					type: 'is-danger'
+				})
+			this.sendError=true;
 		}
 		console.log(res);
 		//loader_.classList.toggle('hidden');
@@ -492,8 +498,8 @@ a {
 	grid-template-columns: 3fr 2fr;
 }
 .photo{
-	grid-column: 2 / 4;
-	grid-row: 2 / 4;
+	grid-column: 1 / 5;
+	grid-row: 1 / 5;
 	//background-color: #5599ff;
 	//border: 1px dashed black;
 	opacity:1;
@@ -537,6 +543,7 @@ a {
 .qr_desc{
 	grid-column: 3 / 5;
 	grid-row: 6 / 7;
+	border-top:none;
 	border-left: 1px dashed black;
 	border-bottom: 1px dashed black;
 	//font-family:'B52';

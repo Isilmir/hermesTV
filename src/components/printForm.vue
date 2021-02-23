@@ -26,13 +26,16 @@
 					</div>
 					
 						<img class="result-data" :src="tab.img_url" ref="img"></img>
+						<img class="result-data_back" :src="tab.img_url_back" ref="img"></img>
 					
 				</div>
             </b-tab-item>
         </b-tabs>
 <b-button @click="sendMail" :disabled="sendButtonDisable">Отправить список спутников в редакцию Гермес-ТВ</b-button>
 	<div style="display:none" id="printform-wrapper">
-	<br v-for="n in 100">
+	<!--<div id="printform-wrapper">-->
+		<br v-for="n in 100">
+		
 		<div id="printform">
 			<div class="photo"><div class="photo-wrapper"><img
 								
@@ -45,11 +48,18 @@
 								}"
 						></div></div>
 			<div class="qr " id="qr" ></div>
-			<div class="name">{{name}}</div>
-			<div class="desc">{{description}}</div>
-			<div class="owner">Командир: <br> {{user.name}} <br>({{user.side.name}})</div>
-			</div>
+			<div class="name">{{name}}<br><span class="name_desc" v-if="isPlayer">герой</span><span class="name_desc" v-if="!isPlayer">спутник</span></div>
+			<div class="dead">Мертв</div>
+			<!--<div class="desc">{{description}}</div>-->
+			<!--<div class="owner">Командир: <br> {{user.name}} <br>({{user.side.name}})</div>-->
 		</div>
+		<div id="printform_back">
+			<div class="desc" v-if="isPlayer">Отряд: <br>{{user.squad.name}}</div>
+			<div class="desc" v-if="!isPlayer">{{description}}</div>
+			<div class="owner" v-if="isPlayer">Сторона: <br>{{user.side.name}}</div>
+			<div class="owner" v-if="!isPlayer">Командир: <br> {{user.name}} <br>({{user.side.name}})</div>
+		</div>
+	</div>
 		<!--<br><br>-->
 	<!--<img :src="res_src" ref="img" height="50%"></img>-->
 </div>
@@ -99,8 +109,10 @@ export default {
 	  tabs:[],
 	  content:null,
 	  name:'',
+	  isPlayer:null,
 	  description:'',
 	  res_content:null,
+	  res_content_back:null,
 	  img_error:'',
 	  owner:'',
 	  user:JSON.parse(localStorage.getItem('user')),
@@ -208,6 +220,7 @@ this.activeTab=0;
 		//console.log('onImageLoad',this.tabs[this.activeTab])
 		let tab=this.tabs[this.activeTab];
 		this.name=tab.name;
+		this.isPlayer=tab.isPlayer;
 		this.description=tab.description;
         this.content = e.target.result;
         let filename = this.file instanceof File ? this.file.name : '';
@@ -237,8 +250,10 @@ this.activeTab=0;
 	  this.loader_.classList.toggle('hidden');
 	  
 		// честное слово я не понимаю почему, но без этого setTimeout картинка в печатной форме не грузится
-		await setTimeout(()=>{console.log('внутри setTimeout',new Date())},0);
+		await setTimeout(()=>{return;},0);
 		document.getElementById('printform-wrapper').style.display='block';
+		
+		//обработка лицевой стороны
 		let screenshot= await html2canvas(document.getElementById('printform')
 			,{
 			  scale:1
@@ -246,15 +261,31 @@ this.activeTab=0;
 		);
 		
 		let domtoimage_screenshot= await domtoimage.toPng(document.getElementById('printform'), { quality: 0.1 });
-		document.getElementById('printform-wrapper').style.display='none';
+//document.getElementById('printform-wrapper').style.display='none';
 		let url = screenshot.toDataURL();
 		this.res_content=url;
 		tab.img_url=domtoimage_screenshot;//url;
 		tab.img_width=screenshot.width;
 		tab.img_height=screenshot.height;
 		this.$forceUpdate();
-		this.loader_.classList.toggle('hidden');
+		//this.loader_.classList.toggle('hidden');
 		
+		//обработка обратной стороны
+		let screenshot_back= await html2canvas(document.getElementById('printform_back')
+			,{
+			  scale:1
+			}
+		);
+		
+		let domtoimage_screenshot_back= await domtoimage.toPng(document.getElementById('printform_back'), { quality: 0.1 });
+document.getElementById('printform-wrapper').style.display='none';
+		let url_back = screenshot_back.toDataURL();
+		this.res_content=url;
+		tab.img_url_back=domtoimage_screenshot_back;//url;
+		tab.img_width_back=screenshot_back.width;
+		tab.img_height_back=screenshot_back.height;
+		this.$forceUpdate();
+		this.loader_.classList.toggle('hidden');
     },
 	dispatchInputEvents(filename, content) {
                 // Dispatch new input event with new value
@@ -288,22 +319,32 @@ this.activeTab=0;
 
 		// добавляем игрока
 		pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url,'PNG',10,10,190*scale,this.tabs.filter(el=>el.isPlayer)[0].img_height/this.tabs.filter(el=>el.isPlayer)[0].img_width*190*scale,null,'SLOW');
+		pdf.addPage();
+		pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url_back,'PNG',10,10,190*scale,this.tabs.filter(el=>el.isPlayer)[0].img_height_back/this.tabs.filter(el=>el.isPlayer)[0].img_width_back*190*scale,null,'SLOW');
 		// добавляем спутников
-		this.tabs.filter(el=>el.id!='new').filter(el=>!el.isPlayer).map(el=>{pdf.addPage();pdf.addImage(el.img_url,'PNG',10,10,190*scale,el.img_height/el.img_width*190*scale);})
+		this.tabs.filter(el=>el.id!='new').filter(el=>!el.isPlayer).map(el=>{
+																			pdf.addPage();
+																			pdf.addImage(el.img_url,'PNG',10,10,190*scale,el.img_height/el.img_width*190*scale);
+																			pdf.addPage();
+																			pdf.addImage(el.img_url_back,'PNG',10,10,190*scale,el.img_height_back/el.img_width_back*190*scale);
+																			})
 
-		pdf.save("a4.pdf");
+		pdf.save(`${this.user.id}_${this.user.name}_printform.pdf`);
 
 		// отправляем форму для пересылки по почте
 	
 		const blob = await fetch(pdf.output('datauristring')).then(res => res.blob());
 
 		  const formData = new FormData();
-		  formData.append('attach', blob, 'printform.pdf');
+		  formData.append('attach', blob, `${this.user.id}_${this.user.name}_printform.pdf`);
 		  formData.append('userId', this.user.id);// взять userid из роута
 			formData.append('userName', this.user.name);// взять username из роута
 
 		  // Post the form, just make sure to set the 'Content-Type' header
-		  const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.181:5000/sendMail'
+		  let res;
+		  
+		 try{ 
+		  res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.181:5000/sendMail'
 			, formData
 			, {
 			headers: {
@@ -312,6 +353,12 @@ this.activeTab=0;
 			  }`
 			}
 		});
+		}catch(e){
+			this.$buefy.toast.open({
+                    message: 'Ошибка при отправке письма!',
+                    type: 'is-danger'
+                })
+		}
 		console.log(res);
 		//loader_.classList.toggle('hidden');
 		
@@ -408,8 +455,9 @@ a {
 	grid-template-rows: 4fr 256px 1fr 1fr;
 	grid-template-columns: 2fr 256px;
 }
-#printform{
-	border: 1px solid black;
+#printform_backup_2{
+	//border: 1px dashed black;
+	border:none;
 	width:500px;
 	//jfjf:500px;
 	height:707px;
@@ -418,11 +466,33 @@ a {
 	grid-template-rows: 4fr 128px 1fr 1fr;
 	grid-template-columns: 3fr 1fr 128px;
 }
+#printform{
+	border: 1px dashed black;
+	//border:none;
+	width:500px;
+	//jfjf:500px;
+	height:707px;
+	//dfdfg:707px;
+	display:grid;
+	grid-template-rows: 64px 4fr 64px 64px 128px 1fr;
+	grid-template-columns: 64px 1fr 64px 64px;
+}
+#printform_back{
+	border: 1px dashed black;
+	//border:none;
+	width:500px;
+	//jfjf:500px;
+	height:707px;
+	//dfdfg:707px;
+	display:grid;
+	grid-template-rows: 1fr 6fr;
+	grid-template-columns: 3fr 2fr;
+}
 .photo{
-	grid-column: 1 / 4;
-	grid-row: 1 / 3;
+	grid-column: 2 / 4;
+	grid-row: 2 / 4;
 	//background-color: #5599ff;
-	border: 1px solid black;
+	border: 1px dashed black;
 	opacity:1;
 	overflow: hidden;
 	display:flex;
@@ -435,28 +505,56 @@ a {
 	justify-content: center;
 }
 .qr{
-	border: 3px solid white;
-	grid-column: 3 / 4;
-	grid-row: 2 / 3;
+	//border: 3px dashed white;
+	border-bottom: 1px dashed black;
+	border-left: 1px dashed black;
+	border-top: 1px dashed black;
+	//grid-column: 3 / 4;
+	//grid-row: 2 / 3;
+	padding-top:5px;
+	grid-column: 3 / 5;
+	grid-row: 5 / 6;
 	background-color: #ffffff;
 	opacity:1;
 	z-index:100;
 }
 .name{
-	grid-column: 1 / 4;
-	grid-row: 3 / 4;
+	grid-column: 1 / 3;
+	grid-row: 5 / 6;
 	//background-color: #aaff77;
-	border: 1px solid black;
+	//border: 1px dashed black;
+	border-bottom:1px dashed black;
+	//border-left:1px dashed black;
+	border-top:1px dashed black;
 	opacity:1;
 	//font: bold 100% 'Comic Sans MS';
 	font-family:'B52';
-	font-size:170%;
+	font-size:210%;
+}
+.dead{
+	grid-column: 1 / 5;
+	grid-row: 6 / 7;
+	//background-color: #aaff77;
+	//border: 1px dashed black;
+	//border-bottom:1px dashed black;
+	//border-left:1px dashed black;
+	//border-right:1px dashed black;
+	opacity:1;
+	//font: bold 100% 'Comic Sans MS';
+	font-family:'B52';
+	font-size:300%;
+	background-color:#ff0000;
+	color:#000000;
+	color:#000000;
 }
 .desc{
 	grid-column: 1 / 2;
-	grid-row: 4 / 5;
+	grid-row: 1 / 2;
 	//background-color: #aa5500;
-	border: 1px solid black;
+	//border: 1px dashed black;
+	//border-top:1px dashed black;
+	//border-left:1px dashed black;
+	border-bottom:1px dashed black;
 	opacity:1;
 	//font: bold 100% 'Comic Sans MS';
 	font-family:'B52';
@@ -464,13 +562,21 @@ a {
 }
 .owner{
 	grid-column: 2 / 4;
-	grid-row: 4 / 5;
+	grid-row: 1 / 2;
 	//background-color: #aa5500;
-	border: 1px solid black;
+	//border: 1px dashed black;
+	//border-top:1px dashed black;
+	border-left:1px dashed black;
+	//border-right:1px dashed black;
+	border-bottom:1px dashed black;
 	opacity:1;
 	//font: bold 100% 'Comic Sans MS';
 	font-family:'B52';
 	font-size:120%;
+}
+.name_desc{
+	font-family:'B52';
+	font-size:70%;
 }
 .image-uploader___image{
 	//width: 100%;
@@ -499,6 +605,12 @@ a {
 .result-data{
 	grid-column: 2 / 3;
 	grid-row: 1 / 2;
+	height:50vh;
+	margin: 25px;
+}
+.result-data_back{
+	//grid-column: 2 / 3;
+	//grid-row: 1 / 2;
 	height:50vh;
 	margin: 25px;
 }

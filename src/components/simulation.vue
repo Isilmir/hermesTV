@@ -1,9 +1,7 @@
 <template>
 <div >
 <B>Симуляция экономики игры</B><br><br>
-<b-tabs v-model="activeTab" type="is-boxed" position="is-centered">
-<b-tab-item label="Данные">
-	<div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-left:50px; width:90%;">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin-left:50px; width:90%;">
 
 	  <b-field label="Шанс получить ранение во время войны">
             <b-slider v-model="woundChance_war" :custom-formatter="(val) => val + '%'" :tooltip="false" indicator style="width:300px" :max="98"></b-slider>
@@ -11,8 +9,11 @@
 		<b-field label="Шанс получить ранение во время мира">
             <b-slider v-model="woundChance_piece" :custom-formatter="(val) => val + '%'" :tooltip="false" indicator style="width:300px"  :max="98"></b-slider>
         </b-field>
+		<b-field label="Шанс вылечить ранение">
+            <b-slider v-model="cureChance" :custom-formatter="(val) => val + '%'" :tooltip="false" indicator style="width:300px"  :max="100"></b-slider>
+        </b-field>
 		<b-field label="Шанс получить гуманитарку за цикл">
-            <b-slider v-model="humanitaryHelpChance" :custom-formatter="(val) => val + '%'" :tooltip="false" indicator style="width:300px"></b-slider>
+            <b-slider v-model="humanitaryHelpChance" :custom-formatter="(val) => val + '%'" :tooltip="false" indicator style="width:300px" :max="98"></b-slider>
         </b-field>
 		<b-field label="Шанс получить спутника за цикл">
             <b-slider v-model="mercenaryHelpChance" :custom-formatter="(val) => val + '%'" :tooltip="false" indicator style="width:300px"></b-slider>
@@ -24,12 +25,45 @@
             <b-slider v-model="startHumanitary"  :tooltip="false" indicator style="width:300px" :max="10"></b-slider>
         </b-field>
 		</div>
-		<b-button @click="startSimulation">Начать симуляцию</b-button>
+		<b-button @click="startSimulation">Начать симуляцию</b-button><br><br>
+<b-tabs v-model="activeTab" type="is-boxed" position="is-centered">
+<b-tab-item label="Инструкция">
+	<div style="text-align:left;margin-left:10%;margin-right:10%;">
+		<div>Симуляция производится по циклам игры. Берется 200 абстрактных персонажей, с каждым из которых в течение цикла может произойти несколько событий.<br>
+			В качестве результата смотрите графики и, если нужно, сырые данные в табличном виде</div><br>
+		<div>Сейчас <b>не моделируются</b>: отряды и потеря гуманитарки из-за отсутствия отряда; перераспределение ресурсов между персонажами; использование тяжелого вооружения; не учитываются персонажи вышедшие второй ролью; убийство основного персонажа из пистолета.</div><br>
+		<div>События, происходящие с персонажем за цикл:</div><br>
+		<ol>
+			<li><b>Персонаж может получить спутника.</b><br>
+				С некоторой вероятностью и не больше одного за цикл</li>
+			<li><b>Персонаж может получить гуманитарку.</b><br>
+				С некоторой вероятностью, несколько за цикл. Механизм такой: проверяется шанс получить гуманитарку и если он успешен, то персонаж получает 
+				гуманитарку и шанс проверяется еще раз. И еще. И так до бесконечности. Но если шанс окажется провален, то происходит переход к следующему шагу. 
+				Таким образом учитывая, что шанс меньше 1, вероятность непрерывной цепочки будет стремительно убывать и в среднем персонаж может получить 1 гуманитарку, но некоторые получат 2 или даже 3</li>
+			<li><b>Персонаж может быть ранен.</b><br>
+				Механизм такой же как с гуманитаркой - персонаж может получить несколько ранений за цикл.<br>
+				Если персонаж был ранен, то сначала проверяется шанс на лечение и в случае успеха тратится 1 гуманитарка<br>
+				Если лечение не успешно, то персонаж теряет спутника<br>
+				Если спутников нет, то умирает</li>
+			<li><b>Персонаж тратит гуманитарку.</b><br>
+				Если гуманитарки нет, то теряет спутника<br>
+				Если спутников тоже нет, то умирает</li>
+		</ol>
+	</div>	
+
+</b-tab-item>
+<b-tab-item label="Графики">
+<div>
+<div><canvas id="Persons" style="heigh:100%;width:100%"></canvas></div><br>
+<div><canvas id="MainChart" style="heigh:100%;width:100%"></canvas></div><br>
+<div><canvas id="Middle" style="heigh:100%;width:100%"></canvas></div>
+</div>
+</b-tab-item>
+<b-tab-item label="Данные">
+
 		<b-table :data="rows" :columns="columns" :bordered="false" :hoverable="true" style="text-align:left;"></b-table> 
 		
 
-</b-tab-item>
-<b-tab-item label="График">
 </b-tab-item>
 </b-tabs>
 </div>
@@ -38,21 +72,23 @@
 <script>
 let statistic=[];
 class Simulation{
-	constructor(woundChance_war,woundChance_piece,humanitaryHelpChance,mercenaryHelpChance,startBjzi,startHumanitary,startGold) {
+	constructor(woundChance_war,woundChance_piece,humanitaryHelpChance,mercenaryHelpChance,startBjzi,startHumanitary,startGold,cureChance) {
 			this.periods = setPeriods();
-			this.woundChance = {war:woundChance_war,piece:woundChance_piece}
-			this.humanitaryHelpChance = humanitaryHelpChance
-			this.mercenaryHelpChance = mercenaryHelpChance
-			this.startBjzi = startBjzi,
+			this.woundChance = {war:woundChance_war,piece:woundChance_piece};
+			this.humanitaryHelpChance = humanitaryHelpChance;
+			this.mercenaryHelpChance = mercenaryHelpChance;
+			this.startBjzi = startBjzi;
 			this.startHumanitary = startHumanitary,
-			this.startGold = startGold
+			this.startGold = startGold;
 			this.players = setPlayers(this);
-			this.bonusHumanitary = 0
-			this.bonusBjzi = 0
+			this.bonusHumanitary = 0;
+			this.bonusBjzi = 0;
+			this.cureChance = cureChance;
 			}
 			
 	start(){
-		console.log('начали симуляцию')
+		//console.log('начали симуляцию')
+		statistic.push(this.getStatistic({id:0,type:'start'}));
 		this.periods
 		.map(period=>{
 					//console.log(`Пошел период ${period.id} - ${period.type}`);
@@ -81,6 +117,7 @@ class Simulation{
 function starve(context){
 	 context.players.map(player=>{
 		//console.log(player)
+		if(player.state<0)return;
 		let humanitary = player.resources.filter(resource=>resource.type=='humanitary');
 		let bjzi = player.resources.filter(resource=>resource.type=='bjzi');
 		if(humanitary.length>0){
@@ -98,41 +135,61 @@ function starve(context){
 
 function wound(context,periodType){
 	context.players.map(player=>{
+		if(player.state<0)return;
 		let bjzi;
-		let trigger = getChance()>context.woundChance[periodType]?false:true;
-		while(trigger){
-			bjzi = player.resources.filter(resource=>resource.type=='bjzi');
-			if(bjzi.length>0){
-				player.resources=player.resources.filter(resource=>!(resource.id==bjzi[0].id&&resource.type=='bjzi'))	
+		let humanitary=player.resources.filter(resource=>resource.type=='humanitary');
+		let cured;
+		let wounded = getChance()>context.woundChance[periodType]?false:true;
+		while(wounded){
+			cured = getChance()>context.cureChance?false:true;
+			if(!cured){
+				bjzi = player.resources.filter(resource=>resource.type=='bjzi');
+				if(bjzi.length>0){
+					player.resources=player.resources.filter(resource=>!(resource.id==bjzi[0].id&&resource.type=='bjzi'))	
+				}else{
+					player.state=-1;
+				}
 			}else{
-				player.state=-1;
+				humanitary=player.resources.filter(resource=>resource.type=='humanitary');
+				bjzi = player.resources.filter(resource=>resource.type=='bjzi');
+				if(humanitary.length>0){
+					player.resources=player.resources.filter(resource=>!(resource.id==humanitary[0].id&&resource.type=='humanitary'))
+										//console.log(player.resources.filter(resource=>resource.type=='humanitaryhumanitary').length);
+				}else if(bjzi.length>0){
+					player.resources=player.resources.filter(resource=>!(resource.id==bjzi[0].id&&resource.type=='bjzi'))	
+				}else{
+					player.state=-1;
+				}
 			}
-			trigger = getChance()>context.woundChance[periodType]?false:true;
+			wounded = getChance()>context.woundChance[periodType]?false:true;
 		}
 	})
 	return context;
 }
 function humanitaryHelp(context){
 	context.players.map(player=>{
+		if(player.state<0)return;
 		let humanitary;
 		let trigger = getChance()>context.humanitaryHelpChance?false:true;
 		//console.log(trigger);
-		if(trigger){
+	//if(trigger){
+		while(trigger){
 			player.resources.push({id:getId(),
 					type:'humanitary',
 					state:1
 					});
 			context.bonusHumanitary++
-		}
-		//while(trigger){
+	//}
+
 			
-		//	trigger = getChance()>context.woundChance[periodType]?false:true;
-		//}
+			trigger = getChance()>context.humanitaryHelpChance?false:true;
+		}
 	})
 	return context;
 }
 function mercenaryHelp(context){
 	context.players.map(player=>{
+		if(player.state<0)return;
 		let bjzi;
 		let trigger = getChance()>context.mercenaryHelpChance?false:true;
 		//console.log(trigger);
@@ -207,6 +264,15 @@ function getChance(){
 	return Math.floor(Math.random()*100);
 }
 
+import Chart from 'chart.js';
+
+	let ctx_main;
+	let mainChart;	
+	let ctx_middle;
+	let personChart;
+	let ctx_person;
+	let middleChart;
+
 export default {
   name: 'HelloWorld',
   data () {
@@ -214,6 +280,7 @@ export default {
       msg: 'Welcome to Your Vue.js App',
 	  woundChance_war:50,
 	  woundChance_piece:10,
+	  cureChance:10,
 	  humanitaryHelpChance:10,
 	  mercenaryHelpChance:1,
 	  startBjzi:10,
@@ -252,22 +319,73 @@ export default {
                  field: 'dead',
                  label: 'Всего мертвых персонажей'
                 },
-				]
+				],
+	   ctx_main:document.getElementById('MainChart'),
+	   mainChart:null,
+	   ctx_middle:document.getElementById('Middle'),
+	   personChart:null,
+	   ctx_person:document.getElementById('Persons'),
+	   middleChart:null
     }
   },
   mounted(){
-	let simulation = new Simulation(this.woundChance_war,this.woundChance_piece,this.humanitaryHelpChance,this.mercenaryHelpChance,this.startBjzi,this.startHumanitary,this.startGold);
-	console.log(simulation);
+	let simulation = new Simulation(this.woundChance_war,this.woundChance_piece,this.humanitaryHelpChance,this.mercenaryHelpChance,this.startBjzi,this.startHumanitary,this.startGold,this.cureChance);
+	//console.log(simulation);
 	simulation.start();
+	//console.log(statistic);
+	this.drawCharts();
   },
   methods:{
+  
 	startSimulation(){
 		statistic=[];
-		let simulation = new Simulation(this.woundChance_war,this.woundChance_piece,this.humanitaryHelpChance,this.mercenaryHelpChance,this.startBjzi,this.startHumanitary,this.startGold);
-		console.log(simulation);
+		let simulation = new Simulation(this.woundChance_war,this.woundChance_piece,this.humanitaryHelpChance,this.mercenaryHelpChance,this.startBjzi,this.startHumanitary,this.startGold,this.cureChance);
+		//console.log(simulation);
 		simulation.start();
 		this.rows=statistic;
+		
+		this.drawCharts();
+		
 		this.$forceUpdate();
+	},
+	
+	drawCharts(){
+		this.ctx_main = document.getElementById('MainChart');
+		if(this.mainChart)this.mainChart.destroy();
+		this.mainChart = new Chart(this.ctx_main,{
+				type:'line',
+				data:{labels: statistic.map(el=>el.period+' '+el.periodType)
+					,datasets:[
+						{label:'Спутники',data: statistic.map(el=>el.bjzi),borderColor:'#ff0000',fill:false},
+						{label:'Добавлено спутников',data: statistic.map(el=>el.bonusBjzi),borderColor:'#ff9900',fill:false},
+						{label:'Гуманитарка',data: statistic.map(el=>el.humanitary),borderColor:'#0000ff',fill:false},
+						{label:'Добавлено гуманитарки',data: statistic.map(el=>el.bonusHumanitary),borderColor:'#0099ff',fill:false},
+					]},
+				options:{}
+			})
+			
+		this.ctx_middle = document.getElementById('Middle');
+		if(this.middleChart)this.middleChart.destroy();
+		this.middleChart = new Chart(this.ctx_middle,{
+				type:'line',
+				data:{labels: statistic.map(el=>el.period+' '+el.periodType)
+					,datasets:[
+						{label:'Спутники среднее',data: statistic.map(el=>el.bjziMiddle),borderColor:'#ff0000',fill:false},
+						{label:'Гуманитарка среднее',data: statistic.map(el=>el.humanitaryMiddle),borderColor:'#0000ff',fill:false},
+					]},
+				options:{}
+			})
+		this.ctx_person = document.getElementById('Persons');
+		if(this.personChart)this.personChart.destroy();
+		this.personChart = new Chart(this.ctx_person,{
+				type:'line',
+				data:{labels: statistic.map(el=>el.period+' '+el.periodType)
+					,datasets:[
+						{label:'Живые персонажи',data: statistic.map(el=>el.live),borderColor:'#00ff00',fill:false},
+						{label:'Мертвые персонажи',data: statistic.map(el=>el.dead),borderColor:'#000000',fill:false},
+				]},
+			options:{}
+		})
 	}
   }
 }

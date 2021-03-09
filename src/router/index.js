@@ -13,6 +13,7 @@ import graph from '@/components/graph'
 import stories from '@/components/stories'
 import notFound from '@/components/notFound'
 import forbidden from '@/components/forbidden'
+import simulation from '@/components/simulation'
 
 Vue.use(Router) 
 
@@ -82,6 +83,15 @@ let router = new Router({
       path: '/stories',
       name: 'stories',
       component: stories,
+	  meta:{
+			requireAuth:true,
+			requireAdmin:true
+		}
+    },
+	{
+      path: '/simulation',
+      name: 'simulation',
+      component: simulation,
 	  meta:{
 			requireAuth:true,
 			requireAdmin:true

@@ -107,10 +107,11 @@ class Simulation{
 		let bjziMiddle=this.players.map(player=>player.resources.filter(resource=>resource.type=='bjzi').length).reduce((sum,cur)=>sum+cur,0)/this.players.length;
 		let humanitary=this.players.map(player=>player.resources.filter(resource=>resource.type=='humanitary').length).reduce((sum,cur)=>sum+cur,0);
 		let humanitaryMiddle=this.players.map(player=>player.resources.filter(resource=>resource.type=='humanitary').length).reduce((sum,cur)=>sum+cur,0)/this.players.length;
+		let woundsMiddle=this.players.map(player=>player.wounds).reduce((sum,cur)=>sum+cur,0)/this.players.length;
 		let live=this.players.filter(player=>player.state>0).length;
 		let dead=this.players.filter(player=>player.state<0).length;
 		let gold=this.players.map(player=>player.resources.filter(resource=>resource.type=='gold').length).reduce((sum,cur)=>sum+cur,0);
-		return {period:period.id,periodType:period.type,bjzi:bjzi,bjziMiddle:bjziMiddle,bonusBjzi:this.bonusBjzi,humanitary:humanitary,bonusHumanitary:this.bonusHumanitary,live:live,dead:dead,gold:gold,humanitaryMiddle:humanitaryMiddle}
+		return {period:period.id,periodType:period.type,bjzi:bjzi,bjziMiddle:bjziMiddle,bonusBjzi:this.bonusBjzi,humanitary:humanitary,bonusHumanitary:this.bonusHumanitary,live:live,dead:dead,gold:gold,humanitaryMiddle:humanitaryMiddle,woundsMiddle:woundsMiddle}
 	}
 }
 
@@ -139,13 +140,17 @@ function wound(context,periodType){
 		let bjzi;
 		let humanitary=player.resources.filter(resource=>resource.type=='humanitary');
 		let cured;
-		let wounded = getChance()>context.woundChance[periodType]?false:true;
+		let wounded = getChance()>context.woundChance[periodType]*(player.resources.filter(resource=>resource.type=='bjzi').length/context.startBjzi+0.1)?false:true;
+		let n=1;
 		while(wounded){
+			//if(n==100)return context;
+			player.wounds++;
 			cured = getChance()>context.cureChance?false:true;
 			if(!cured){
+				
 				bjzi = player.resources.filter(resource=>resource.type=='bjzi');
 				if(bjzi.length>0){
-					player.resources=player.resources.filter(resource=>!(resource.id==bjzi[0].id&&resource.type=='bjzi'))	
+					player.resources=player.resources.filter(resource=>!(resource.id==bjzi[0].id&&resource.type=='bjzi'));
 				}else{
 					player.state=-1;
 				}
@@ -161,19 +166,23 @@ function wound(context,periodType){
 					player.state=-1;
 				}
 			}
-			wounded = getChance()>context.woundChance[periodType]?false:true;
+			wounded = getChance()>context.woundChance[periodType]*(player.resources.filter(resource=>resource.type=='bjzi').length/context.startBjzi+0.1)?false:true;
+			n++;
 		}
 	})
 	return context;
 }
 function humanitaryHelp(context){
 	context.players.map(player=>{
+		player.wounds=0;
 		if(player.state<0)return;
 		let humanitary;
 		let trigger = getChance()>context.humanitaryHelpChance?false:true;
 		//console.log(trigger);
 	//if(trigger){
+		let n=1;
 		while(trigger){
+			if(n==2)return context;
 			player.resources.push({id:getId(),
 					type:'humanitary',
 					state:1
@@ -183,6 +192,7 @@ function humanitaryHelp(context){
 
 			
 			trigger = getChance()>context.humanitaryHelpChance?false:true;
+			n++;
 		}
 	})
 	return context;
@@ -245,12 +255,12 @@ function setPlayers(context){
 	//console.log(bjzi)
 	
 	for(let i=0;i<100;i++){
-		let player={id:i,resources:bjzi.concat(humanitary).concat(gold),state:1,side:'acheans'}
+		let player={id:i,resources:bjzi.concat(humanitary).concat(gold),state:1,side:'acheans',wounds:0}
 		players.push(player);
 	}
 	
 	for(let i=100;i<200;i++){
-	let player={id:i,resources:bjzi.concat(humanitary).concat(gold),state:1,side:'troy'}
+	let player={id:i,resources:bjzi.concat(humanitary).concat(gold),state:1,side:'troy',wounds:0}
 	players.push(player);
 	}
 	return players;
@@ -278,13 +288,13 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-	  woundChance_war:50,
-	  woundChance_piece:10,
-	  cureChance:10,
-	  humanitaryHelpChance:10,
+	  woundChance_war:70,
+	  woundChance_piece:30,
+	  cureChance:5,
+	  humanitaryHelpChance:70,
 	  mercenaryHelpChance:1,
 	  startBjzi:10,
-	  startHumanitary:10,
+	  startHumanitary:4,
 	  startGold:1,
 	  rows:statistic,
 	  columns:[{
@@ -318,7 +328,10 @@ export default {
                 },{
                  field: 'dead',
                  label: 'Всего мертвых персонажей'
-                },
+                },{
+				 field: 'woundsMiddle',
+				 label: 'Ранений в среднем на персонажа'
+				}
 				],
 	   ctx_main:document.getElementById('MainChart'),
 	   mainChart:null,
@@ -372,6 +385,7 @@ export default {
 					,datasets:[
 						{label:'Спутники среднее',data: statistic.map(el=>el.bjziMiddle),borderColor:'#ff0000',fill:false},
 						{label:'Гуманитарка среднее',data: statistic.map(el=>el.humanitaryMiddle),borderColor:'#0000ff',fill:false},
+						{label:'Среднее количество ранений на персонажа',data: statistic.map(el=>el.woundsMiddle),borderColor:'#00ffff',fill:false},
 					]},
 				options:{}
 			})

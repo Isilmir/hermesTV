@@ -14,6 +14,7 @@ import stories from '@/components/stories'
 import notFound from '@/components/notFound'
 import forbidden from '@/components/forbidden'
 import simulation from '@/components/simulation'
+import honor from '@/components/honor'
 
 Vue.use(Router) 
 
@@ -95,6 +96,16 @@ let router = new Router({
 	  meta:{
 			requireAuth:true,
 			requireAdmin:true
+		}
+    },
+	{
+      path: '/honor',
+      name: 'honor',
+      component: honor,
+	  meta:{
+			requireAuth:false,
+			requireAdmin:false,
+			guest:true
 		}
     },
 	{

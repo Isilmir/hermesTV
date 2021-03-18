@@ -303,6 +303,7 @@ document.getElementById('printform-wrapper').style.display='none';
                 //console.log(event.detail[0]);
             },
 	async sendMail(){
+		this.sendError=false;
 		this.sendButtonDisable=true;
 		//console.log('sending mail');
 		await setTimeout(()=>{/*document.getElementById('loader_')*/this.loader_.classList.toggle('hidden');},0)

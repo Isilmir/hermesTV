@@ -31,7 +31,7 @@
 				</div>
             </b-tab-item>
         </b-tabs>
-		<div style="color:red;" v-if="sendError">При отправке письма произошла ошибка! <br>Просьба самостоятельно отправить сохраненный файл на почту hermes.tv.troy@gmail.com указав в теме "{{user.id}} {{user.name}}"</div>
+		<div style="color:red;" v-if="sendError">При отправке письма произошла ошибка! <br>Попробуйте отправить еще раз. Если ошибка повторится, то просьба самостоятельно отправить сохраненный файл на почту hermes.tv.troy@gmail.com указав в теме "{{user.id}} {{user.name}}"</div>
 <b-button @click="sendMail" :disabled="sendButtonDisable">Отправить список спутников в редакцию Гермес-ТВ</b-button>
 	<div style="display:none" id="printform-wrapper">
 	<!--<div id="printform-wrapper">-->

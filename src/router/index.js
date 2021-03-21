@@ -15,6 +15,7 @@ import notFound from '@/components/notFound'
 import forbidden from '@/components/forbidden'
 import simulation from '@/components/simulation'
 import honor from '@/components/honor'
+import players from '@/components/players'
 
 Vue.use(Router) 
 
@@ -106,6 +107,15 @@ let router = new Router({
 			requireAuth:false,
 			requireAdmin:false,
 			guest:true
+		}
+    },
+	{
+      path: '/players',
+      name: 'players',
+      component: players,
+	  meta:{
+			requireAuth:true,
+			requireAdmin:true
 		}
     },
 	{

@@ -2,11 +2,7 @@
 <div>
 <img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
 Управление персонажами<br><br>
-<!--<div style="display:flex;margin-left:50px">
-<b-field label="Глубина построения связей">
-            <b-slider v-model="deep" :min="0" :max="10" style="width:300px;" indicator :tooltip="false"></b-slider>
-</b-field>
-</div>-->
+
 <b-tabs v-model="activeTab" type="is-boxed" position="is-centered">
 
 <!--Персонажи-->
@@ -264,51 +260,14 @@ export default {
 		
 	}
 	,methods:{
-		/*async showStory(story,index){
-			this.currentStory=[];
-			 this.isOpen = index;
-			 //console.log(index,story);
-			 let response = await this.getGraph(story.id,story.objectType);
-			 //console.log(response);
-			 let nodes=[];
-			  response.filter(el=>{if(!el.from.id){return;}nodes.push({id:el.from.id,name:el.from.name,objectType:el.from.objectType,description:el.description})})
-			  response.filter(el=>{if(!el.to.id){return;}nodes.push({id:el.to.id,name:el.to.name,objectType:el.to.objectType,description:el.description})})
-				nodes = nodes.filter(el=>el);
-				let nodesPure=[]
-				nodes.map(el=>{if(nodesPure.filter(ell=>ell.id==el.id).length>0){return;}else{nodesPure.push(el)}})
-				//console.log('nodesPure',nodesPure)
-			let players =  nodesPure.filter(el=>el.objectType=='player')
-			
-			 this.currentStory=[{
-			 id:story.id,
-			 objectType:story.objectType,
-			 description:story.description,
-			 longDescription:story.longDescription,
-			 players:players
-			 }];
-			 this.newPlayer={};
-			this.newPlayerName='';
-			 console.log('currentStory',this.currentStory);
-			 this.$forceUpdate();
-		}*/
+
 		async showPlayer(player,index){
 			this.currentPlayer=[];
 			 this.isOpenPlayer = index;
 			 //console.log(index,player);
 			 
 			 let response = await this.getPlayer(player.id);
-			 //console.log('player',response,this.players.filter(el=>el.id==player.id));
-			 /*
-			 let nodes=[];
-			  response.filter(el=>{if(!el.from.id){return;}nodes.push({id:el.from.id,name:el.from.name,objectType:el.from.objectType,description:el.description})})
-			  response.filter(el=>{if(!el.to.id){return;}nodes.push({id:el.to.id,name:el.to.name,objectType:el.to.objectType,description:el.description})})
-				nodes = nodes.filter(el=>el);
-				let nodesPure=[]
-				nodes.map(el=>{if(nodesPure.filter(ell=>ell.id==el.id).length>0){return;}else{nodesPure.push(el)}});
-				//console.log('nodesPure',nodesPure)
-			let players =  nodesPure.filter(el=>el.objectType=='player').filter(el=>el.id!=player.id);
-			let stories =  nodesPure.filter(el=>el.objectType=='story');
-			*/
+
 			
 			 this.currentPlayer=response;//this.players.filter(el=>el.id==player.id)
 			 this.currentPlayer[0].deeds.sort((a,b)=>{
@@ -316,17 +275,7 @@ export default {
 									if (a.date == b.date) return 0; // если равны
 									if (a.date < b.date) return 1; // если первое значение меньше второго
 									})
-			 /*
-			 [{
-			 id:player.id,
-			 objectType:player.objectType,
-			 name:player.name,
-			 players:players,
-			 stories:stories
-			 }];
-			this.newPlayer={};
-			this.newPlayerName='';
-			*/
+
 			this.newDeed={type:'',
 				description:'',
 				honor:''
@@ -335,23 +284,7 @@ export default {
 			 this.newDeedName=''
 			 this.$forceUpdate();
 		}
-		/*,async fetchStories(){
-			this.loader_.classList.toggle('hidden');
-			let stories;
-			try{
-			stories = await axios.get('https://blooming-refuge-12227.herokuapp.com/getStories',
-			{
-				headers: {
-				  'Content-Type': 'application/json',
-				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-				}
-			});
-			}catch(e){
-				console.log(e.message);
-			}
-			this.stories=stories.data;
-			this.loader_.classList.toggle('hidden');
-		}*/
+
 		,async fetchPlayers(){
 			this.loader_.classList.toggle('hidden');
 			let players;
@@ -390,29 +323,7 @@ export default {
 			this.loader_.classList.toggle('hidden');
 			//console.log ('players',this.players);
 		}
-		/*,async getGraph(id,type){
-			this.loader_.classList.toggle('hidden');
-			let response;
-			try{
-				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/getGraph',{
-					id:id,
-					type:type,
-					deep:1
-				},
-			{
-				headers: {
-				  'Content-Type': 'application/json',
-				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-				}
-			});
-			}catch(e){
-			this.loader_.classList.toggle('hidden');
-			console.log(e.message);
-			}
-			this.loader_.classList.toggle('hidden');
-			//console.log(response);
-			return response.data;
-		}*/
+
 		,async getPlayer(id){
 			this.loader_.classList.toggle('hidden');
 			let response;
@@ -432,210 +343,11 @@ export default {
 			//console.log(response);
 			return response.data;
 		}
-		/*, async saveStory(curStory){
-			console.log('сохраняем сюжет',curStory);
-			if(!curStory.description){
-				this.$buefy.toast.open({
-                    message: 'Не заполнено название сюжета!',
-                    type: 'is-danger'
-                })
-				return;
-			}
-			if(!curStory.longDescription){
-				this.$buefy.toast.open({
-                    message: 'Не заполнено описание сюжета!',
-                    type: 'is-danger'
-                })
-				return;
-			}
-			let response;
-			try{
-				
-				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateStory',{
-					id:null,
-					description:curStory.description,
-					longDescription:curStory.longDescription
-				},
-				{
-					headers: {
-					  'Content-Type': 'application/json',
-					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-					}
-				});
-				
-			}catch(e){
-				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
-				return;
-			}
-			//response.data.findIndex(el=>el.id=)
-			await this.fetchStories();
-			//this.stories.findIndex(el=>el.id==response.data.id)
-			this.isOpen=this.stories.findIndex(el=>el.id==response.data.id);
-			this.showStory(this.stories[this.stories.findIndex(el=>el.id==response.data.id)],this.isOpen);
-			this.newStory={};
-		}*/
-		/*, async updateStory(curStory,obj){
-			console.log('апдейтим сюжет',curStory,obj);
-			if(!curStory.description){
-				this.$buefy.toast.open({
-                    message: 'Не заполнено название сюжета!',
-                    type: 'is-danger'
-                })
-				return;
-			}
-			if(!curStory.longDescription){
-				this.$buefy.toast.open({
-                    message: 'Не заполнено описание сюжета!',
-                    type: 'is-danger'
-                })
-				return;
-			}
-			let response;
-			try{
-				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateStory',{
-					id:curStory.id,
-					description:curStory.description,
-					longDescription:curStory.longDescription
-				},
-				{
-					headers: {
-					  'Content-Type': 'application/json',
-					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-					}
-				});
-			}catch(e){
-				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
-				return;
-			}
-			await this.fetchStories();
-			if(obj.objectType=='player'){
-			this.showPlayer(obj,this.isOpenPlayer)
-			}
-			if(obj.objectType=='story'){
-			this.showStory(this.stories[this.stories.findIndex(el=>el.id==response.data.id)],this.isOpen)
-			}
-		}*/
+
 		, async testBug(arg){
 			console.log('testbug',arg)
 		}
-		/*,async deleteLink(from,to,obj){
-			console.log('удаляем связь',from,to);
-			let response;
-			try{
-				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/deleteLink',{
-						from:{
-							id:from.id,
-							type:from.type
-						},
-						to:{
-							id:to.id,
-							type:to.type
-						}
-				},
-				{
-					headers: {
-					  'Content-Type': 'application/json',
-					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-					}
-				});
-			}catch(e){
-				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
-				return;
-			}
-			if(obj.objectType=='player'){
-			await this.fetchPlayers();
-			this.showPlayer(this.players[this.players.findIndex(el=>el.id==obj.id)],this.isOpenPlayer)
-			}
-			if(obj.objectType=='story'){
-			await this.fetchStories();
-			this.showStory(this.stories[this.stories.findIndex(el=>el.id==obj.id)],this.isOpen)
-			}
-		}*/
-		/*,async addLink(from,to,description,obj){
-			console.log('добавляем связь',from,to,description);
-			let response;
-			try{
-				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateLink',{
-						from:{
-							id:from.id,
-							type:from.objectType
-						},
-						to:{
-							id:to.id,
-							type:to.objectType
-						},
-						description:description
-				},
-				{
-					headers: {
-					  'Content-Type': 'application/json',
-					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-					}
-				});
-			}catch(e){
-				console.log(e);
-				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
-				return;
-			}
-			if(obj.objectType=='player'){
-			await this.fetchPlayers();
-			this.showPlayer(this.players[this.players.findIndex(el=>el.id==obj.id)],this.isOpenPlayer)
-			}
-			if(obj.objectType=='story'){
-			await this.fetchStories();
-			this.showStory(this.stories[this.stories.findIndex(el=>el.id==obj.id)],this.isOpen)
-			}
-		}*/
-		/*,async updateLink(from,to,description,obj){
-			console.log('изменяем связь',from,to,description);
-			let response;
-			try{
-				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateLink',{
-						from:{
-							id:from.id,
-							type:from.type
-						},
-						to:{
-							id:to.id,
-							type:to.type
-						},
-						description:description
-				},
-				{
-					headers: {
-					  'Content-Type': 'application/json',
-					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-					}
-				});
-			}catch(e){
-				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
-				return;
-			}
-			if(obj.objectType=='player'){
-			await this.fetchPlayers();
-			this.showPlayer(this.players[this.players.findIndex(el=>el.id==obj.id)],this.isOpenPlayer);
-			}
-			if(obj.objectType=='story'){
-			await this.fetchStories();
-			this.showStory(this.stories[this.stories.findIndex(el=>el.id==obj.id)],this.isOpen);
-			}
-		}*/
+		
 		,async addDeed(player,deed){
 			if(!deed.type){
 				this.$buefy.toast.open({

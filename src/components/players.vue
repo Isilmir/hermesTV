@@ -107,8 +107,49 @@
         </b-collapse>
 
 </b-tab-item>
-<b-tab-item label="Массовое начисление">
-	Тут будет форма для начисления славы нескольким персонажам 
+<b-tab-item label="Массовое начисление славы">
+	<div class="deeds_mass_add ">
+		<div class="deeds_mass_add_content deeds_mass_add_players">
+			<b-field :label="player.name" v-for="player in mass_players_deed.players" :key="player.id"></b-field><hr>
+			<b-field label="Добавить персонажа"></b-field>
+			<b-autocomplete
+				v-model="newPlayerName"
+				placeholder="Начните вводить имя персонажа"
+				:keep-first="false"
+				:open-on-focus="true"
+				:data="filteredPlayers"
+				field="name"
+				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				@select="option => {mass_players_deed.players.push({name:option.name,id:option.id,honor:option.honor,objectType:option.objectType,realName:option.realName,sideId:option.sideId,squadId:option.squadId,stateId:option.stateId,updatedAt:option.updatedAt});console.log('!!!',option);}"
+				:clearable="true"
+				style="min-width:10px"
+			></b-autocomplete>
+		</div>
+		<div class="deeds_mass_add_content deeds_mass_add_type">
+			<b-autocomplete
+												v-model="newDeedName_mass"
+												placeholder="Начните вводить тип деяния"
+												:keep-first="false"
+												:open-on-focus="true"
+												:data="filteredDeedTypes_mass"
+												field="description"
+												@input="option => {console.log(newDeedName_mass,option,filteredDeedTypes_mass)}"
+												@select="option => {mass_players_deed.type = option;mass_players_deed.honor = option.defaultHonor;console.log(option);}"
+												:clearable="true"
+												style="min-width:10px"
+											></b-autocomplete><br>
+											<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
+											<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+		</div>
+		<!--<div class="deeds_mass_add_content deeds_mass_add_description">
+			<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
+		</div>-->
+		<div class="deeds_mass_add_content deeds_mass_add_honor">
+			<!--<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>-->
+			<b-button @click="addMassDeed(mass_players_deed)" type="is-success" style="max-width:100px">✔</b-button>
+			<b-button v-if="mass_players_deed.type||mass_players_deed.description||mass_players_deed.honor||mass_players_deed.players.length>0" @click="mass_players_deed={type:'',description:'',honor:'',players:[]};newPlayerName='';newDeedName_mass=''" type="is-warning" style="max-width:100px">Сбросить</b-button>
+		</div>
+	</div>
 </b-tab-item>
 <b-tab-item label="Типы Деяний">
 	<div class="" style="display:flex;justify-content: space-around;">
@@ -164,18 +205,23 @@ export default {
 				honor:''
 				},
 	  newDeedName:'',
+	  newDeedName_mass:'',
 	  newPlayerName:'',
 	  newDeedType:{name:'',
 					description:'',
 					defaultHonor:0,
 					visible:false},
 	  selected:null,
+	  mass_players_deed:{type:'',
+				description:'',
+				honor:'',
+				players:[]},
 	  newStory:{}
     }
   }
   ,computed: {
         filteredPlayers() {
-            return this.players.filter(player => {
+            return this.players.filter(player=>!this.mass_players_deed.players.filter(el=>el.id==player.id).length>0).filter(player => {
                 return (
                     player.name
                         .toString()
@@ -194,7 +240,19 @@ export default {
                         .indexOf(this.newDeedName.toLowerCase()) >= 0
                 )
             })
+        },
+		filteredDeedTypes_mass() {
+			//if(this.newDeedName=='')return this.deedTypes;
+            return this.deedTypes.filter(deedType => {
+                return (
+                    deedType.description
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.newDeedName_mass.toLowerCase()) >= 0
+                )
+            })
         }
+		
     }
   ,async mounted(){
 		this.console=console;
@@ -777,6 +835,56 @@ export default {
 			//await this.fetchPlayers();
 			await this.fetchDeedTypes();
 		}
+		,async addMassDeed(deed){
+			if(!deed.type){
+				this.$buefy.toast.open({
+                    message: 'Выберите тип деяния!',
+                    type: 'is-danger'
+                })
+				return;
+			}
+			if(deed.players.length<1){
+				this.$buefy.toast.open({
+                    message: 'Выберите хотя бы одного героя!',
+                    type: 'is-danger'
+                })
+				return;
+			}
+			console.log('добавляем деяние',deed);
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateDeed/mass',{
+						description:deed.description,
+						typeId:deed.type.id,
+						players:deed.players,
+						honor:deed.honor
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			mass_players_deed={type:'',description:'',honor:'',players:[]};newPlayerName='';
+			newDeedName_mass='';
+			this.$buefy.toast.open({
+                    message: `Деяние добавлено`,
+                    type: 'is-success'
+                })
+		}
 	},
 	components:{
 	}
@@ -875,5 +983,29 @@ z-index:1000
 .dropdown-content{
 z-index:1000
 }
-
+.deeds_mass_add{
+	display:grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.deeds_mass_add_content{
+	display:flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.deeds_mass_add_players{
+	grid-column: 1 / 2;
+	padding:10px;
+}
+.deeds_mass_add_type{
+	grid-column: 2 / 4;
+	padding:10px;
+}
+.deeds_mass_add_description{
+	grid-column: 3 / 4;
+	padding:10px;
+}
+.deeds_mass_add_honor{
+	grid-column: 4 / 5;
+	padding:10px;
+}
 </style>

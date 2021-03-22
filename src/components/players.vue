@@ -120,7 +120,7 @@
 				:data="filteredPlayers"
 				field="name"
 				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
-				@select="option => {mass_players_deed.players.push({name:option.name,id:option.id,honor:option.honor,objectType:option.objectType,realName:option.realName,sideId:option.sideId,squadId:option.squadId,stateId:option.stateId,updatedAt:option.updatedAt});console.log('!!!',option);}"
+				@select="option => {mass_players_deed.players.push({name:option.name,id:option.id});console.log('!!!',option);}"
 				:clearable="true"
 				style="min-width:10px"
 			></b-autocomplete>
@@ -850,14 +850,14 @@ export default {
                 })
 				return;
 			}
-			console.log('добавляем деяние',deed);
+			console.log('добавляем деяние',JSON.stringify(deed));
 			this.loader_.classList.toggle('hidden');
 			let response;
 			try{
-				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateDeed/mass',{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setDeed/mass',{
 						description:deed.description,
 						typeId:deed.type.id,
-						players:deed.players,
+						players:JSON.stringify(deed.players),
 						honor:deed.honor
 				},
 				{
@@ -878,8 +878,9 @@ export default {
 			}
 			this.loader_.classList.toggle('hidden');
 			//await this.fetchPlayers();
-			mass_players_deed={type:'',description:'',honor:'',players:[]};newPlayerName='';
-			newDeedName_mass='';
+			this.mass_players_deed={type:'',description:'',honor:'',players:[]};
+			this.newPlayerName='';
+			this.newDeedName_mass='';
 			this.$buefy.toast.open({
                     message: `Деяние добавлено`,
                     type: 'is-success'

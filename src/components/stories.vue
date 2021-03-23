@@ -54,7 +54,7 @@
 									<b-input v-model="curStory.players[playerIndex].name" maxlength="255" disabled></b-input>
 									<b-input v-model="curStory.players[playerIndex].description" maxlength="255" placeholder="Введите роль персонажа в сюжете"></b-input>
 									<b-button @click="updateLink({id:curStory.id,type:curStory.objectType},{id:player.id,type:player.objectType},player.description,story)" type="is-success">✔</b-button>
-									<b-button @click="deleteLink({id:curStory.id,type:curStory.objectType},{id:player.id,type:player.objectType},story)" type="is-danger">🞪</b-button>
+									<b-button @click="deleteLink({id:curStory.id,type:curStory.objectType},{id:player.id,type:player.objectType},story)" type="is-danger">☓</b-button>
 									</div>
 
 								<b-field label="Добавить персонажа">
@@ -171,7 +171,7 @@
 									<b-input v-model="curPlayer.players[playerIndex].name" maxlength="255" disabled></b-input>
 									<b-input v-model="curPlayer.players[playerIndex].description" maxlength="255" placeholder="Напишите что связывает персонажей"></b-input>
 									<b-button @click="updateLink({id:curPlayer.id,type:curPlayer.objectType},{id:player_.id,type:player_.objectType},player_.description,player)" type="is-success">✔</b-button>
-									<b-button @click="deleteLink({id:curPlayer.id,type:curPlayer.objectType},{id:player_.id,type:player_.objectType},player)" type="is-danger">🞪</b-button>
+									<b-button @click="deleteLink({id:curPlayer.id,type:curPlayer.objectType},{id:player_.id,type:player_.objectType},player)" type="is-danger">☓</b-button>
 									</div>
 								<b-field label="Добавить связь с персонажем">
 								</b-field>

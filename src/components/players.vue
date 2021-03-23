@@ -68,7 +68,7 @@
 												<b-input v-model="curPlayer.deeds[deedIndex].description" maxlength="255" placeholder="Описание деяния" ></b-input>
 												<b-input  v-model="curPlayer.deeds[deedIndex].honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
 												<b-button @click="updateDeed(curPlayer,{id:deed.id,type:deed.objectType,description:deed.description,type:deed.type,honor:deed.honor})" type="is-success">✔</b-button>
-												<b-button @click="deleteDeed(curPlayer,{id:deed.id,type:deed.objectType,description:deed.description,type:deed.type,honor:deed.honor})" type="is-danger">🞪</b-button>
+												<b-button @click="deleteDeed(curPlayer,{id:deed.id,type:deed.objectType,description:deed.description,type:deed.type,honor:deed.honor})" type="is-danger">☓</b-button>
 											</div>
 										<b-field label="Добавить деяние">
 										</b-field>
@@ -162,7 +162,7 @@
 		<b-input v-model="deed.defaultHonor" type="number" maxlength="255" ></b-input>
 		<b-switch v-model="deed.visible" >{{ deed.visible?`Видимое`:`Невидимое` }}</b-switch>
 		<b-button @click="updateDeedType(deed)" type="is-success">✔</b-button>
-		<b-button @click="deleteDeedType(deed)" type="is-danger">🞪</b-button>
+		<b-button @click="deleteDeedType(deed)" type="is-danger">☓</b-button>
 	</div>
 	<b-field label="Добавить новый тип деяния"></b-field>
 	<div class="" style="display:flex;justify-content: space-around;">

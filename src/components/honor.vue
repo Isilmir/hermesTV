@@ -1,6 +1,6 @@
 <template>
 <div class="b52" style="width:100%;">
-	<b style="font-size:200%">Табель корпорации Олимп</b><br><b>о деяниях смертных</b><br><br>
+	<b style="font-size:200%">Зал Славы</b><br><b></b><br><br>
 	<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
 	<div></div>
 	<div style="text-align:left;width:100%;">

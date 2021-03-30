@@ -168,7 +168,7 @@ a {
 	background:url(../assets/logo.png);
 }
 .deed{
-	border: 1px solid black;
+	//border: 1px solid black;
 	border-radius:10%;
 	//border:none;
 	width:35px;
@@ -196,16 +196,16 @@ a {
 	grid-column: 2 / 3;
 	grid-row: 2 / 3;
 	font-size:60%;
-	color:#555555;
+	color:#ffffff;
 	font: bold;
 }
 .table{
 	max-width:100px;
 }
 .bad{
-	background-color:#ff0000
+	background-color:#bb0000
 }
 .good{
-	background-color:#00ff00
+	background-color:#00bb00
 }
 </style>

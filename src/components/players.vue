@@ -22,8 +22,8 @@
                     role="button"
                 >
                     <p class="card-header-title" style="display:flex;justify-content:space-between">
-                        {{ player.name }} <!--<router-link :to="`/graph?id=${player.id}&type=${player.objectType}&deep=${deep}`" target="_blank">посмотреть граф</router-link>-->
-						<span>Слава: {{player.honor}}</span>
+                        {{ player.name }} ({{player.sideDescription}})<!--<router-link :to="`/graph?id=${player.id}&type=${player.objectType}&deep=${deep}`" target="_blank">посмотреть граф</router-link>-->
+						<span><span :class="`isactive ${player.active?'green':'red'}`">{{player.active?'Видимый':'Невидимый'}}</span> Слава: {{player.honor}}</span>
                     </p>
                     <a class="card-header-icon">
                         <b-icon
@@ -35,7 +35,7 @@
             <div class="card-content">
                 <div class="content">
                     <div v-if="isOpenPlayer == index" v-for="curPlayer in currentPlayer">
-					
+						<b-switch v-model="curPlayer.active" @input="playerActivation(curPlayer)">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>
 						<b-tabs type="is-boxed" position="is-left">
 							<b-tab-item label="Деяния">
 							<b-field label="Всего славы у персонажа" position="is-right"><span style="font-size:200%">{{curPlayer.honor}}</span></b-field><hr>
@@ -66,6 +66,7 @@
 												<b-input :value="curPlayer.deeds[deedIndex].date.match(/\d\d\d\d-\d\d-\d\d/)[0]" maxlength="255" placeholder="Дата начисления" disabled></b-input>
 												<b-input :value="curPlayer.deeds[deedIndex].date.match(/\d\d:\d\d:\d\d/)[0]" maxlength="255" placeholder="Дата начисления" disabled></b-input>
 												<b-input v-model="curPlayer.deeds[deedIndex].description" maxlength="255" placeholder="Описание деяния" ></b-input>
+												<!--<textarea class="story_textarea" v-model="curPlayer.deeds[deedIndex].description"></textarea>-->
 												<b-input  v-model="curPlayer.deeds[deedIndex].honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
 												<b-button @click="updateDeed(curPlayer,{id:deed.id,type:deed.objectType,description:deed.description,type:deed.type,honor:deed.honor})" type="is-success">✔</b-button>
 												<b-button @click="deleteDeed(curPlayer,{id:deed.id,type:deed.objectType,description:deed.description,type:deed.type,honor:deed.honor})" type="is-danger">☓</b-button>
@@ -106,7 +107,8 @@
 <b-tab-item label="Массовое начисление славы">
 	<div class="deeds_mass_add ">
 		<div class="deeds_mass_add_content deeds_mass_add_players">
-			<b-field :label="player.name" v-for="player in mass_players_deed.players" :key="player.id"></b-field><hr>
+			<!--<b-field :label="player.name" v-for="player in mass_players_deed.players" :key="player.id"><span class="red delete-button">☓</span></b-field>-->
+			<!--<div :label="player.name" v-for="player in mass_players_deed.players" :key="player.id">{{player.name}} <span class="red delete-button" @click="removePlayer(player)">☓</span></div><hr>-->
 			<b-field label="Добавить персонажа"></b-field>
 			<b-autocomplete
 				v-model="newPlayerName"
@@ -115,11 +117,38 @@
 				:open-on-focus="true"
 				:data="filteredPlayers"
 				field="name"
-				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"ИГРОТЕХНИКА
 				@select="option => {mass_players_deed.players.push({name:option.name,id:option.id});console.log('!!!',option);}"
 				:clearable="true"
 				style="min-width:10px"
-			></b-autocomplete>
+			></b-autocomplete><br>
+			<b-field label="Добавить всех персонажей стороны"></b-field>
+			<b-autocomplete
+				v-model="sideName"
+				placeholder="Начните вводить название стороны"
+				:keep-first="false"
+				:open-on-focus="true"
+				:data="filteredSides"
+				field="description"
+				@input="option => {console.log(sideName,option,filteredSides)}"
+				@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.sideId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
+				:clearable="true"
+				style="min-width:10px"
+			></b-autocomplete><br>
+			<b-field label="Добавить всех персонажей отряда"></b-field>
+			<b-autocomplete
+				v-model="squadName"
+				placeholder="Начните вводить название отряда"
+				:keep-first="false"
+				:open-on-focus="true"
+				:data="filteredSquads"
+				field="name"
+				@input="option => {console.log(sideName,option,filteredSides)}"
+				@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.squadId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
+				:clearable="true"
+				style="min-width:10px"
+			></b-autocomplete><hr>
+			<div :label="player.name" v-for="player in mass_players_deed.players" :key="player.id">{{player.name}} <span class="red delete-button" @click="removePlayer(player)">☓</span></div>
 		</div>
 		<div class="deeds_mass_add_content deeds_mass_add_type">
 			<b-autocomplete
@@ -203,6 +232,8 @@ export default {
 	  newDeedName:'',
 	  newDeedName_mass:'',
 	  newPlayerName:'',
+	  sideName:'',
+	  squadName:'',
 	  newDeedType:{name:'',
 					description:'',
 					defaultHonor:0,
@@ -212,7 +243,8 @@ export default {
 				description:'',
 				honor:'',
 				players:[]},
-	  newStory:{}
+	  newStory:{},
+	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}]
     }
   }
   ,computed: {
@@ -226,6 +258,28 @@ export default {
                 )
             })
         },
+		filteredSides() {
+			return this.dictionaries.filter(el=>el.dict=='sides')[0].data.filter(side => {
+				console.log(side);
+                return (
+                    side.description
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.sideName.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredSquads() {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => {
+				console.log(squad);
+                return (
+                    squad.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.squadName.toLowerCase()) >= 0
+                )
+            })
+		},
 		filteredDeedTypes() {
 			//if(this.newDeedName=='')return this.deedTypes;
             return this.deedTypes.filter(deedType => {
@@ -257,7 +311,8 @@ export default {
 		console.log(this.deedTypes);
 		//this.fetchStories();
 		await this.fetchPlayers();
-		
+		await this.fetchDictionaries();
+		console.log(this.dictionaries);
 	}
 	,methods:{
 
@@ -323,7 +378,27 @@ export default {
 			this.loader_.classList.toggle('hidden');
 			//console.log ('players',this.players);
 		}
-
+		,async fetchDictionaries(){
+			this.loader_.classList.toggle('hidden');
+			let dictionaries;
+			try{
+			dictionaries = await axios.post('https://blooming-refuge-12227.herokuapp.com/getDictionaries',{
+						"dicts":[]
+				},
+				{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e.message);
+			}
+			//console.log(players.data);
+			this.dictionaries=dictionaries.data;
+			this.loader_.classList.toggle('hidden');
+			//console.log ('dictionaries',this.dictionaries);
+		}
 		,async getPlayer(id){
 			this.loader_.classList.toggle('hidden');
 			let response;
@@ -597,6 +672,41 @@ export default {
                     message: `Деяние добавлено`,
                     type: 'is-success'
                 })
+		},
+		async playerActivation(player){
+			console.log('включаем/выключаем видимость',player);
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/objectActivation',{
+						id:player.id,
+						type:'player',
+						active:player.active
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			await this.showPlayer(this.players[this.players.findIndex(el=>el.id==player.id)],this.isOpenPlayer);
+			this.players[this.players.findIndex(el=>el.id==player.id)].active=this.currentPlayer[0].active;
+		},
+		async removePlayer(player){
+			//console.log(player);
+			this.mass_players_deed.players=this.mass_players_deed.players.filter(el=>el.id!=player.id);
 		}
 	},
 	components:{
@@ -712,6 +822,9 @@ z-index:1000
 .deeds_mass_add_type{
 	grid-column: 2 / 4;
 	padding:10px;
+	display:flex;
+	flex-direction: column;
+	justify-content: flex-start;
 }
 .deeds_mass_add_description{
 	grid-column: 3 / 4;
@@ -720,5 +833,31 @@ z-index:1000
 .deeds_mass_add_honor{
 	grid-column: 4 / 5;
 	padding:10px;
+	display:flex;
+	flex-direction: column;
+	justify-content: flex-start;
+}
+.isactive{
+	font-size:80%;
+}
+.red{
+	color:#cc0000;
+}
+.green{
+	color:#00aa00;
+}
+.deed_textarea {
+  background: rgba(0, 0, 0, 0);
+  border: 1px solid black;
+  padding: 10px;
+  outline: 0;
+  cursor: text;
+  resize: vertical;
+  width:100%;
+  height:100%;
+  //max-width: 500px;
+}
+.delete-button{
+	cursor: default;
 }
 </style>

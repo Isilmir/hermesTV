@@ -6,12 +6,66 @@
 <b-tabs v-model="activeTab" type="is-boxed" position="is-centered">
 
 <!--Персонажи-->
-
 <b-tab-item label="Персонажи">
+<div style="display:flex;margin-bottom:10px;justify-content:space-between;">
+ <b-field label="Сортировка" >
+            <div style="display:flex;">
+			<b-select placeholder="Select a name" v-model="playerSortProp">
+                <option
+                    v-for="option in [{id:'name',name:'Имя персонажа'},{id:'honor',name:'Слава'},{id:'squadName',name:'Название отряда'},{id:'sideDescription',name:'Сторона конфликта'}]"
+                    :value="option.id"
+                    :key="option.id">
+                    {{ option.name }}
+                </option>
+            </b-select><b-switch v-model="playerSortOrder" true-value="1" false-value="-1" passive-type='is-success' @input="isOpenPlayer=-1">{{ playerSortOrder>0?`Вверх`:`Вниз` }}</b-switch>
+			</div>
+        </b-field>
+<b-field label="Фильтры" >
+            <div style="display:flex;">
+			<b-autocomplete
+				v-model="filteredSideName"
+				placeholder="Сторона"
+				:keep-first="false"
+				:open-on-focus="true"
+				:data="filteredSides_forFilter"
+				field="description"
+				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				@select="option => {filters.sides=[{description:option.description,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
+				:clearable="true"
+				style="min-width:10px"
+			></b-autocomplete>
+			<b-autocomplete
+				v-model="filteredSquadName"
+				placeholder="Название отряда"
+				:keep-first="false"
+				:open-on-focus="true"
+				:data="filteredSquads_forFilter"
+				field="name"
+				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				@select="option => {filters.squads=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
+				:clearable="true"
+				style="min-width:10px"
+			></b-autocomplete>
+			<b-autocomplete
+				v-model="filteredPlayerName"
+				placeholder="Имя персонажа"
+				:keep-first="false"
+				:open-on-focus="true"
+				:data="filteredPlayers_forFilter"
+				field="name"
+				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
+				:clearable="true"
+				style="min-width:10px"
+			></b-autocomplete>
+			<b-button v-if="filters.players.length>0||filters.sides.length>0||filters.squads.length>0" @click="filters={sides:[],squads:[],players:[]};filteredPlayerName='';filteredSideName='';filteredSquadName='';isOpenPlayer=-1;" type="is-warning" style="max-width:100px;margin-left:10px">Сбросить</b-button>
+			</div>
+        </b-field>
+</div>
 <b-collapse
             class="card"
             animation="slide"
-            v-for="(player, index) of players"
+            v-for="(player, index) of playersWithFilters"
             :key="index"
             :open="isOpenPlayer == index"
             @open="showPlayer(player,index)" 
@@ -39,19 +93,40 @@
 						<b-tabs type="is-boxed" position="is-left">
 							<b-tab-item label="Деяния">
 							<b-field label="Всего славы у персонажа" position="is-right"><span style="font-size:200%">{{curPlayer.honor}}</span></b-field><hr>
+							<b-table :data="curPlayer.deeds" 
+										   :bordered="false" 
+										   :hoverable="true" 
+										   ref="table"
+
+										   style="text-align:left;
+												width:100%;"
+							>
+							<b-table-column field="type.description" label="Тип деяния" width="15%" v-slot="props">
+									<b-tag>{{ props.row.type.description }}</b-tag>
+							</b-table-column>
+							<b-table-column field="date" label="Дата"  v-slot="props">
+									<b-tag>{{ props.row.date.match(/\d\d\d\d-\d\d-\d\d/)[0] }}</b-tag>
+							</b-table-column>
+							<b-table-column field="date" label="Время" width="5%"  v-slot="props">
+									<b-tag>{{ props.row.date.match(/\d\d:\d\d:\d\d/)[0] }}</b-tag>
+							</b-table-column>
+							<b-table-column field="description" label="Описание деяния" width="50%"  v-slot="props">
+									<textarea class="story_textarea" v-model="props.row.description"></textarea>
+							</b-table-column>
+							<b-table-column field="honor" label="Слава" width="15%"  v-slot="props">
+									<b-input  v-model="props.row.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+							</b-table-column>
+							<b-table-column field="heroic" label="Героическое" width="10%"  v-slot="props">
+									<b-switch v-model="props.row.heroic" >{{ props.row.heroic?`Героическое`:`Не героическое` }}</b-switch>
+							</b-table-column>
+							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
+									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic})" type="is-success">✔</b-button>
+									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
+							</b-table-column>
+							</b-table>
 								<div class="player-deeds">
-									<!--<div class="player_stories">
-											<b-field label="Сюжеты в которых участвует персонаж">
-										</b-field>
-											<div class="player_in_story" v-for="(story,storyIndex) in curPlayer.stories" :key="story.id" style="display:flex;justify-content: space-around;">
-											<b-input v-model="curPlayer.stories[storyIndex].name" maxlength="255" disabled></b-input> →
-											<b-input v-model="curPlayer.stories[storyIndex].description" maxlength="255" disabled></b-input>
-											</div>
-									</div>-->
 									<div class="player_deeds_list">
-										<!--<b-field label="Связь с другими персонажами" v-if="curPlayer.deeds.length>0">
-										</b-field>-->
-										
+										<!--
 											<div class="" style="display:flex;justify-content: space-around;">
 												<b-field label="Тип деяния"></b-field>
 												<b-field label="Дата"></b-field>
@@ -59,18 +134,16 @@
 												<b-field label="Описание деяния"></b-field>
 												<b-field label="Слава"></b-field>
 												<b-field label=" "></b-field>
-												<!--<b-button @click="deleteLink({id:curPlayer.id,type:curPlayer.objectType},{id:deed.id,type:deed.objectType},player)" type="is-danger">🞪</b-button>-->
 											</div>
 											<div class="" v-for="(deed,deedIndex) in curPlayer.deeds" :key="deed.id" style="display:flex;justify-content: space-around;">
 												<b-input v-model="curPlayer.deeds[deedIndex].type.description" maxlength="255" disabled></b-input>
 												<b-input :value="curPlayer.deeds[deedIndex].date.match(/\d\d\d\d-\d\d-\d\d/)[0]" maxlength="255" placeholder="Дата начисления" disabled></b-input>
 												<b-input :value="curPlayer.deeds[deedIndex].date.match(/\d\d:\d\d:\d\d/)[0]" maxlength="255" placeholder="Дата начисления" disabled></b-input>
 												<b-input v-model="curPlayer.deeds[deedIndex].description" maxlength="255" placeholder="Описание деяния" ></b-input>
-												<!--<textarea class="story_textarea" v-model="curPlayer.deeds[deedIndex].description"></textarea>-->
 												<b-input  v-model="curPlayer.deeds[deedIndex].honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
 												<b-button @click="updateDeed(curPlayer,{id:deed.id,type:deed.objectType,description:deed.description,type:deed.type,honor:deed.honor})" type="is-success">✔</b-button>
 												<b-button @click="deleteDeed(curPlayer,{id:deed.id,type:deed.objectType,description:deed.description,type:deed.type,honor:deed.honor})" type="is-danger">☓</b-button>
-											</div>
+											</div>-->
 										<b-field label="Добавить деяние">
 										</b-field>
 										<div class="" style="display:flex;justify-content: space-around;">
@@ -81,14 +154,15 @@
 												:open-on-focus="true"
 												:data="filteredDeedTypes"
 												field="description"
-												@select="option => {newDeed.type = option;newDeed.honor = option.defaultHonor;console.log(newDeed)}"
+												@select="option => {newDeed.type = option;newDeed.honor = option.defaultHonor;newDeed.heroic=false;console.log(newDeed)}"
 												:clearable="true"
 												style="min-width:400px"
 											>
-											<!--addLink({id:curPlayer.id,objectType:curPlayer.objectType},{id:option.id,objectType:option.objectType},'',player);-->
 											</b-autocomplete>
-											<b-input v-model="newDeed.description" maxlength="255" placeholder="Описание деяния" style="min-width:400px"></b-input>
-											<b-input v-model="newDeed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+											<!--<b-input v-model="newDeed.description" maxlength="255" placeholder="Описание деяния" style="min-width:400px"></b-input>-->
+											<textarea class="story_textarea" v-model="newDeed.description" placeholder="Описание деяния" style="margin-left:10px;margin-right:10px"></textarea>
+											<b-input v-model="newDeed.honor" type="number" maxlength="255" placeholder="Очки Славы" style="margin-right:10px"></b-input>
+											<b-switch v-model="newDeed.heroic" >{{ newDeed.heroic?`Героическое`:`Не героическое` }}</b-switch>
 											<b-button @click="addDeed(curPlayer,newDeed)" type="is-success">✔</b-button>
 										</div>
 									</div>
@@ -117,7 +191,7 @@
 				:open-on-focus="true"
 				:data="filteredPlayers"
 				field="name"
-				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"ИГРОТЕХНИКА
+				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
 				@select="option => {mass_players_deed.players.push({name:option.name,id:option.id});console.log('!!!',option);}"
 				:clearable="true"
 				style="min-width:10px"
@@ -227,13 +301,17 @@ export default {
 	  newPlayer:{},
 	  newDeed:{type:'',
 				description:'',
-				honor:''
+				honor:'',
+				heroic:false
 				},
 	  newDeedName:'',
 	  newDeedName_mass:'',
 	  newPlayerName:'',
 	  sideName:'',
 	  squadName:'',
+	  filteredPlayerName:'',
+	  filteredSideName:'',
+	  filteredSquadName:'',
 	  newDeedType:{name:'',
 					description:'',
 					defaultHonor:0,
@@ -244,7 +322,10 @@ export default {
 				honor:'',
 				players:[]},
 	  newStory:{},
-	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}]
+	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}],
+	  filters:{sides:[],squads:[],players:[]},
+	  playerSortProp:'name',
+	  playerSortOrder:1
     }
   }
   ,computed: {
@@ -258,9 +339,22 @@ export default {
                 )
             })
         },
+		filteredPlayers_forFilter() {
+            return this.players.filter(player=>(this.filters.sides.filter(el=>el.id==player.sideId).length>0||this.filters.sides.length==0)
+											 &&(this.filters.squads.filter(el=>el.id==player.squadId).length>0||this.filters.squads.length==0)
+										)
+							   .filter(player => {
+                return (
+                    player.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.filteredPlayerName.toLowerCase()) >= 0
+                )
+            })
+        },
 		filteredSides() {
 			return this.dictionaries.filter(el=>el.dict=='sides')[0].data.filter(side => {
-				console.log(side);
+				//console.log(side);
                 return (
                     side.description
                         .toString()
@@ -269,14 +363,40 @@ export default {
                 )
             })
 		},
+		filteredSides_forFilter() {
+			return this.dictionaries.filter(el=>el.dict=='sides')[0].data.filter(side => {
+				//console.log(side);
+                return (
+                    side.description
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.filteredSideName.toLowerCase()) >= 0
+                )
+            })
+		},
 		filteredSquads() {
 			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => {
-				console.log(squad);
+				//console.log(squad);
                 return (
                     squad.name
                         .toString()
                         .toLowerCase()
                         .indexOf(this.squadName.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredSquads_forFilter() {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data
+										.filter(squad=>(this.filters.sides.filter(el=>el.id==squad.sideId).length>0||this.filters.sides.length==0)
+										)
+			
+					.filter(squad => {
+				//console.log(squad);
+                return (
+                    squad.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.filteredSquadName.toLowerCase()) >= 0
                 )
             })
 		},
@@ -301,7 +421,19 @@ export default {
                         .indexOf(this.newDeedName_mass.toLowerCase()) >= 0
                 )
             })
-        }
+        },
+		//это фильтр по списку персонажей
+		playersWithFilters(){
+			return this.players.filter(player=>(this.filters.sides.filter(side=>side.id==player.sideId).length>0||this.filters.sides.length==0)
+											 &&(this.filters.squads.filter(squad=>squad.id==player.squadId).length>0||this.filters.squads.length==0)
+											 &&(this.filters.players.filter(player_=>player_.id==player.id).length>0||this.filters.players.length==0)
+										)
+							   .sort((a,b)=>{
+									if (a[this.playerSortProp] > b[this.playerSortProp]) return this.playerSortOrder; // если первое значение больше второго
+									if (a[this.playerSortProp] == b[this.playerSortProp]) return 0; // если равны
+									if (a[this.playerSortProp] < b[this.playerSortProp]) return this.playerSortOrder*-1; // если первое значение меньше второго
+									});
+		}
 		
     }
   ,async mounted(){
@@ -440,7 +572,8 @@ export default {
 						description:deed.description,
 						typeId:deed.type.id,
 						playerId:player.id,
-						honor:deed.honor
+						honor:deed.honor,
+						heroic:deed.heroic
 				},
 				{
 					headers: {
@@ -473,7 +606,8 @@ export default {
 						description:deed.description,
 						typeId:deed.type.id,
 						playerId:player.id,
-						honor:deed.honor
+						honor:deed.honor,
+						heroic:deed.heroic
 				},
 				{
 					headers: {
@@ -672,6 +806,7 @@ export default {
                     message: `Деяние добавлено`,
                     type: 'is-success'
                 })
+			await this.fetchPlayers();
 		},
 		async playerActivation(player){
 			console.log('включаем/выключаем видимость',player);

@@ -1,6 +1,6 @@
 <template>
 <div class="b52" style="width:100%;">
-	<b style="font-size:200%">Табель корпорации Олимп</b><br><b>о деяниях смертных</b><br><br>
+	<b style="font-size:200%">Зал Славы</b><br><b></b><br><br>
 	<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
 	<div></div>
 	<div style="text-align:left;width:100%;">
@@ -12,7 +12,7 @@
 			   style="text-align:left;
 					width:100%;"
 >
-		<b-table-column field="index" label="№" width="40" numeric v-slot="props">
+		<b-table-column field="index" label="№" width="5%" numeric v-slot="props">
                 {{ props.row.index }}
         </b-table-column>
 		<b-table-column
@@ -20,7 +20,7 @@
                 label="Герой"
 				centered
                 v-slot="props"
-				width="50%"
+				width="30%"
             >
                 {{ props.row.name }}
             </b-table-column>
@@ -35,7 +35,7 @@
                 field="honor"
                 label=""
                 v-slot="props"
-				width="10"
+				width="5%"
             >
                 <span v-if="props.row.honorChange>0" style="color:#229922;">▲</span>
 				<span v-if="props.row.honorChange<0" style="color:#992222;">▼</span>
@@ -44,7 +44,7 @@
                 field="deeds"
                 label="Деяния"
                 v-slot="props"
-				style="width:120"
+				width="60%"
             >
 			
 			<div class="flex-deeds">
@@ -54,7 +54,7 @@
 							position="is-bottom"  v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name">
 						<div :class="`deed ${deedGroup.degree}`">
 						<img
-							:src="require(`../assets/deeds/${deedGroup.name}.png`)"
+							:src="getImg(deedGroup)"
 							:class="`deed-img`"
 						> </img>
 						<span class="deed-count">{{ deedGroup.count }}</span>
@@ -85,6 +85,7 @@
 </template>
 <script>
 import axios from 'axios'
+
 export default {
   name: 'honor',
   data () {
@@ -116,6 +117,18 @@ export default {
 
 			//console.log(this.players);
 	loader_.classList.toggle('hidden');
+  },
+  methods:{
+	getImg(deedGroup){
+		let res
+		try{
+			res=require(`../assets/deeds/${deedGroup.name}.png`);
+		}
+		catch(e){
+			res=require(`../assets/deeds/feat.png`);
+		}
+		return res
+	}
   }
 }
 </script>
@@ -155,11 +168,11 @@ a {
 	background:url(../assets/logo.png);
 }
 .deed{
-	border: 1px solid black;
+	//border: 1px solid black;
 	border-radius:10%;
 	//border:none;
-	width:70px;
-	height:70px;
+	width:35px;
+	height:35px;
 	display:grid;
 	grid-template-rows:  2fr 1fr;
 	grid-template-columns: 2fr 1fr;
@@ -182,14 +195,17 @@ a {
 .deed-count{
 	grid-column: 2 / 3;
 	grid-row: 2 / 3;
+	font-size:60%;
+	color:#ffffff;
+	font: bold;
 }
 .table{
 	max-width:100px;
 }
 .bad{
-	background-color:#ff0000
+	background-color:#bb0000
 }
 .good{
-	background-color:#00ff00
+	background-color:#00bb00
 }
 </style>

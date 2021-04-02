@@ -2,9 +2,21 @@
 <div class="b52" style="width:100%;">
 	<b style="font-size:200%">Зал Славы</b><br><b></b><br><br>
 	<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
-	<div></div>
+	<div style="display:flex;flex-wrap: wrap;">
+	<b-autocomplete
+				v-model="filteredPlayerName"
+				placeholder="Начните вводить имя героя"
+				:open-on-focus="true"
+				:data="filteredPlayers_forFilter"
+				field="name"
+				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;}"
+				:clearable="true"
+				style="min-width:250px;max-width:300px; margin-right:10px"
+			></b-autocomplete>
+			<b-button v-if="filters.players.length>0||filters.sides.length>0||filters.squads.length>0" @click="filters={sides:[],squads:[],players:[]};filteredPlayerName='';filteredSideName='';filteredSquadName='';isOpenPlayer=-1;" type="is-warning" style="max-width:100px;">Сбросить</b-button>
+	</div><br>
 	<div style="text-align:left;width:100%;">
-	  <b-table :data="players" 
+	  <b-table :data="playersWithFilters" 
 			   :bordered="false" 
 			   :hoverable="true" 
 			   ref="table"
@@ -91,9 +103,99 @@ export default {
   name: 'honor',
   data () {
     return {
-      players: []
+      players: [],
+	  filteredPlayerName:'',
+	  filters:{sides:[],squads:[],players:[]},
+	  playerSortOrder:-1,
+	  playerSortProp:'honor'
     }
-  },
+  }
+  ,computed: {
+        filteredPlayers() {
+            return this.players.filter(player=>!this.mass_players_deed.players.filter(el=>el.id==player.id).length>0).filter(player => {
+                return (
+                    player.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.newPlayerName.toLowerCase()) >= 0
+                )
+            })
+        },
+		filteredPlayers_forFilter() {
+            return this.players.filter(player=>(this.filters.sides.filter(el=>el.id==player.sideId).length>0||this.filters.sides.length==0)
+											 &&(this.filters.squads.filter(el=>el.id==player.squadId).length>0||this.filters.squads.length==0)
+										)
+							   .filter(player => {
+                return (
+                    player.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.filteredPlayerName.toLowerCase()) >= 0
+                )
+            })
+        },
+		filteredSides() {
+			return this.dictionaries.filter(el=>el.dict=='sides')[0].data.filter(side => {
+				//console.log(side);
+                return (
+                    side.description
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.sideName.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredSides_forFilter() {
+			return this.dictionaries.filter(el=>el.dict=='sides')[0].data.filter(side => {
+				//console.log(side);
+                return (
+                    side.description
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.filteredSideName.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredSquads() {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => {
+				//console.log(squad);
+                return (
+                    squad.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.squadName.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredSquads_forFilter() {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data
+										.filter(squad=>(this.filters.sides.filter(el=>el.id==squad.sideId).length>0||this.filters.sides.length==0)
+										)
+			
+					.filter(squad => {
+				//console.log(squad);
+                return (
+                    squad.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.filteredSquadName.toLowerCase()) >= 0
+                )
+            })
+		},
+		//это фильтр по списку персонажей
+		playersWithFilters(){
+			return this.players.filter(player=>(this.filters.sides.filter(side=>side.id==player.sideId).length>0||this.filters.sides.length==0)
+											 &&(this.filters.squads.filter(squad=>squad.id==player.squadId).length>0||this.filters.squads.length==0)
+											 &&(this.filters.players.filter(player_=>player_.id==player.id).length>0||this.filters.players.length==0)
+										)
+							   .sort((a,b)=>{
+									if (a[this.playerSortProp] > b[this.playerSortProp]) return this.playerSortOrder; // если первое значение больше второго
+									if (a[this.playerSortProp] == b[this.playerSortProp]) return 0; // если равны
+									if (a[this.playerSortProp] < b[this.playerSortProp]) return this.playerSortOrder*-1; // если первое значение меньше второго
+									});
+		}
+		
+    },
   async mounted(){
 	loader_.classList.toggle('hidden');
 	let players;

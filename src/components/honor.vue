@@ -22,7 +22,8 @@
                 v-slot="props"
 				width="30%"
             >
-                {{ props.row.name }}
+			<span v-if="props.row.stateId!=3">{{props.row.name}}</span>
+			<s v-if="props.row.stateId==3">{{props.row.name}}</s>
             </b-table-column>
 			<!--<b-table-column
                 field="honor"

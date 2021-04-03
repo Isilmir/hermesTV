@@ -20,7 +20,7 @@
 			   :bordered="false" 
 			   :hoverable="true" 
 			   ref="table"
-
+				:mobile-cards="false"
 			   style="text-align:left;
 					width:100%;"
 >

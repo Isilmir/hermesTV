@@ -76,7 +76,7 @@
                     role="button"
                 >
                     <p class="card-header-title" style="display:flex;justify-content:space-between">
-                        {{ player.name }} ({{player.sideDescription}})<!--<router-link :to="`/graph?id=${player.id}&type=${player.objectType}&deep=${deep}`" target="_blank">посмотреть граф</router-link>-->
+                        <span><span v-if="player.stateId!=3">{{player.name}}</span><s v-if="player.stateId==3">{{player.name}}</s> ({{player.sideDescription}})</span> <!--<router-link :to="`/graph?id=${player.id}&type=${player.objectType}&deep=${deep}`" target="_blank">посмотреть граф</router-link>-->
 						<span><span :class="`isactive ${player.active?'green':'red'}`">{{player.active?'Видимый':'Невидимый'}}</span> Слава: {{player.honor}}</span>
                     </p>
                     <a class="card-header-icon">

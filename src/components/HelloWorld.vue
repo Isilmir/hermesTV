@@ -3,8 +3,13 @@
 	<div></div>
 	<div style="text-align:left;">
 	  <B>Гермес-ТВ</B><br><br>
-		<div>Cайт сейчас находится на реконструкции но вы можете оказать помощь в тестировании.</div><br>
-		<b>Сканер qr-кодов</b>
+		<div>Вас приветствует корпорация Олимп!<br>Cайт сейчас находится на реконструкции и мы приносим свои извинения за доставленные неудобства.</div><br>
+		<br>
+		<b>Ссылки</b>
+		<ol>
+		<li><router-link :to="`/honor`">Зал славы корпорации Олимп</router-link></li>
+		</ol>
+		<!--<b>Сканер qr-кодов</b>
 		<ol>
 			<li>Откройте на вашем ПК (или любом другом устройстве с большим экраном) ссылку <a href="https://hermestv.herokuapp.com/qrView">https://hermestv.herokuapp.com/qrView</a> .
 	<br>Там будет некоторое количество кодов для нескольких типов игровых объектов (да, там есть проблема с кодировкой, но не это сейчас главное).</li>
@@ -28,7 +33,7 @@
 			<li>Отправьте изображения спутников в редакцию Гермес-ТВ.</li>
 			<li>Если у вас есть возможность, распечатайте печатную форму спутника</li>
 			<li>Добавьте результаты в таблицу на гуглодиске: <a href="https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0">https://docs.google.com/spreadsheets/d/1Hap_DP8qtkNoYHHFwW-pCZYW98pQD1I6hxikPbSquDQ/edit#gid=0</a></li>
-		</ol>
+		</ol>-->
 	</div>
 	<div></div>
 </div>

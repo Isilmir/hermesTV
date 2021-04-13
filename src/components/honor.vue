@@ -64,7 +64,7 @@
 				<!--<div class="deed-container" v-for="deedGroup in props.row.deedGroups" >
 					<div class="deed-container-wrapper">-->
 					<b-tooltip :label="deedGroup.description"
-							position="is-left" multilined v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name">
+							position="is-left" multilined v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name"  style="font-family:'Arial';">
 						<div :class="`deed ${deedGroup.degree}`">
 						<img
 							:src="getImg(deedGroup)"

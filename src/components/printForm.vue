@@ -340,10 +340,11 @@ this.activeTab=0;
 		//let scale = 1;
 		let scale = 0.5;
 		let shift ={x:0,y:0};
-		let n=1;// порядковый номер печатной формы для расфасовки
+		let n=0;// порядковый номер печатной формы для расфасовки
+		let firstpage = true;
 
 		// добавляем игрока
-		pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url,'PNG',5,10,/*190*scale*/100,/*this.tabs.filter(el=>el.isPlayer)[0].img_height/this.tabs.filter(el=>el.isPlayer)[0].img_width*190*scale*/140,null,'SLOW');
+		//pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url,'PNG',5,10,/*190*scale*/100,/*this.tabs.filter(el=>el.isPlayer)[0].img_height/this.tabs.filter(el=>el.isPlayer)[0].img_width*190*scale*/140,null,'SLOW');
 		// пока решили отказаться от двусторонней печати
 		//pdf.addPage();
 		//pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url_back,'PNG',10,10,190*scale,this.tabs.filter(el=>el.isPlayer)[0].img_height_back/this.tabs.filter(el=>el.isPlayer)[0].img_width_back*190*scale,null,'SLOW');
@@ -353,7 +354,8 @@ this.activeTab=0;
 		//.filter(el=>el.img_url)// только для дебага. удалить после использования
 		.map(el=>{
 					if(n>=4)n=0;
-					if(n==0)pdf.addPage();
+					if(n==0&&!firstpage)pdf.addPage();
+					firstpage=false;
 					switch(n){
 					case 0:
 						shift.x=5;
@@ -378,6 +380,30 @@ this.activeTab=0;
 						//pdf.addPage();
 						//pdf.addImage(el.img_url_back,'PNG',10,10,190*scale,el.img_height_back/el.img_width_back*190*scale,null,'SLOW');
 						})
+				if(n>=4)n=0;
+				if(n==0)pdf.addPage();
+				switch(n){
+					case 0:
+						shift.x=5;
+						shift.y=10;
+						break;
+					case 1:
+						shift.x=5+100;
+						shift.y=10;
+						break;
+					case 2:
+						shift.x=5;
+						shift.y=150;
+						break;
+					case 3:
+						shift.x=5+100;
+						shift.y=150;
+						break;
+					}			
+		pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url,'PNG',shift.x,shift.y,/*190*scale*/100,/*this.tabs.filter(el=>el.isPlayer)[0].img_height/this.tabs.filter(el=>el.isPlayer)[0].img_width*190*scale*/140,null,'SLOW');
+		// пока решили отказаться от двусторонней печати
+		//pdf.addPage();
+		//pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url_back,'PNG',10,10,190*scale,this.tabs.filter(el=>el.isPlayer)[0].img_height_back/this.tabs.filter(el=>el.isPlayer)[0].img_width_back*190*scale,null,'SLOW');
 					
 		pdf.save(`${this.user.id}_${this.user.name}_printform.pdf`);
 
@@ -814,6 +840,7 @@ a {
 	display:flex;
 	flex-direction: column;
 	justify-content: flex-start;
+	color: #000;
 }
 .qr_desc__last{
 	//grid-column: 3 / 5;
@@ -829,12 +856,13 @@ a {
 }
 .qr_desc{
 	grid-column: 8 / 40;
-	grid-row: 136 / 137;
-	font-size:50%;
+	grid-row: 135 / 136;
+	font-size:65%;
 	color: #000;
     display:flex;
 	flex-direction: column;
 	justify-content: flex-start;
+	font-family:'Arial';
 }
 .dead__last{
 	//grid-column: 1 / 3;
@@ -874,6 +902,7 @@ a {
 	-ms-hyphens: auto;
     hyphens: auto;
 	align-items: center;
+	color: #000;
 }
 .holearea{
 	grid-column: 3 / 6;

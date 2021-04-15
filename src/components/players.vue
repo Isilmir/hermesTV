@@ -277,6 +277,10 @@
 		<b-button @click="addDeedType(newDeedType)" type="is-success">✔</b-button>
 	</div>
 </b-tab-item>
+<b-tab-item label="Синхронизация с JoinRPG">
+	Дата последней синхронизации: <b>{{lastUpdate}}</b><br>
+	<b-button @click="startJoinrpgSync()" type="is-success">Синхронизировать</b-button>
+</b-tab-item>
 </b-tabs>
 </div>
 </template>
@@ -325,7 +329,8 @@ export default {
 	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}],
 	  filters:{sides:[],squads:[],players:[]},
 	  playerSortProp:'name',
-	  playerSortOrder:1
+	  playerSortOrder:1,
+	  lastUpdate:''
     }
   }
   ,computed: {
@@ -445,6 +450,7 @@ export default {
 		await this.fetchPlayers();
 		await this.fetchDictionaries();
 		console.log(this.dictionaries);
+		await this.getLastUpdate();
 	}
 	,methods:{
 
@@ -842,6 +848,107 @@ export default {
 		async removePlayer(player){
 			//console.log(player);
 			this.mass_players_deed.players=this.mass_players_deed.players.filter(el=>el.id!=player.id);
+		}
+		,async getLastUpdate(){
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+			response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/getLastUpdate`// 'https://blooming-refuge-12227.herokuapp.com/getPlayers'
+			,{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			this.lastUpdate = response.data;
+		},
+		async startJoinrpgSync(){
+			this.loader_.classList.toggle('hidden');
+			let response;
+
+			// обновляем кэш персонажей
+			try{
+			response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/joinrpg/getPlayers?since=${this.lastUpdate}`// 'https://blooming-refuge-12227.herokuapp.com/getPlayers'
+			,{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			
+			// обновляем отряды
+			try{
+			response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/joinrpg/setSquads`// 'https://blooming-refuge-12227.herokuapp.com/getPlayers'
+			,{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+					
+                    message: `${e.message}`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			
+			// обновляем персонажей
+			try{
+			response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/joinrpg/setPlayers`// 'https://blooming-refuge-12227.herokuapp.com/getPlayers'
+			,{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `${e.message}`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			
+			this.loader_.classList.toggle('hidden');
+			
+			await this.fetchPlayers();
+			
+			this.$buefy.toast.open({
+				
+                    message: `Персонажи успешно синхронизированы`,
+                    type: 'is-success'
+                })
+			
+			
 		}
 	},
 	components:{

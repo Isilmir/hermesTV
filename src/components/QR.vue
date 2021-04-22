@@ -8,51 +8,108 @@
 	<b-tabs v-model="activeTab" type="is-boxed" position="is-centered">
 		<b-tab-item label="Персонажи">
 			<b-tabs v-model="activeTabPersons" position="is-centered" vertical>
-				<b-tab-item label="Сдать тело">
+				<b-tab-item label="Передать спутника">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectTransferSubject')" type="is-success">Герой, кому передаем</b-button>
+							<div v-for="obj in transferSubject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект не может провести похороны</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectTransferObject')" type="is-success">Спутник, которого передаем</b-button>
+							<div v-for="obj in transferObject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя передать</div>
+								<!--<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+										<span v-if="obj.stateId==3" class="red">Герой уже был похоронен!</span>
+										<span v-if="furnalSubject[0]&&obj.id==furnalSubject[0].id" class="red">Нельзя хоронить самого себя)</span>
+									</div>
+								</div>-->
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+										<span v-if="obj.utilized" class="red">Мертвого спутника нельзя передать!</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startTransfer" type="is-success" :disabled="!transferSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
+				<b-tab-item label="Провести похороны">
 					<div class="innerTabWrap">
 						<!--<input value="Сканировать" type="button" v-on:click="startScan('scanObject')"/>-->
 						<!--<b-button @click="startScan('scanObject')" type="is-success">Сканировать</b-button>-->
 						<!--<div>QR: {{ qr }}</div>-->
 						<!--<div>hasCamera: {{ hasCamera }}</div>-->
 						<div class="innerTabCenter">
-							<b-button @click="startScan('selectFurnalSubject')" type="is-success">Кто сдает</b-button>
+							<b-button @click="startScan('selectFurnalSubject')" type="is-success">Кто принес тело</b-button>
 							<div v-for="obj in furnalSubject">
 								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект не может провести похороны</div>
 								<div class="innerTab" v-if="obj.objectType=='player'">
-									<div class="innerTabRow">
-										<span class="innerTabRowPropName">Герой:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span>
-										<span class="innerTabRowPropVal">{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
 									</div>
 								</div>
 							</div>
 						</div>
 						<div class="innerTabCenter">
-							<b-button @click="startScan('selectFurnalObject')" type="is-success">Кого сдает</b-button>
+							<b-button @click="startScan('selectFurnalObject')" type="is-success">Чье тело хоронят</b-button>
 							<div v-for="obj in furnalObject">
 								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя похоронить</div>
 								<div class="innerTab" v-if="obj.objectType=='player'">
-									<div class="innerTabRow">
-										<span class="innerTabRowPropName">Герой:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span>
-										<span class="innerTabRowPropVal">{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+										<span v-if="obj.stateId==3" class="red">Герой уже был похоронен!</span>
+										<span v-if="furnalSubject[0]&&obj.id==furnalSubject[0].id" class="red">Нельзя хоронить самого себя)</span>
 									</div>
 								</div>
 								<div class="innerTab" v-if="obj.objectType=='bjzi'">
-									<div class="innerTabRow">
-										<span class="innerTabRowPropName">Спутник:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span>
-										<span class="innerTabRowPropVal">{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+										<span v-if="obj.utilized" class="red">Спутник уже был похоронен!</span>
 									</div>
 								</div>
 							</div>
 						</div>
-						<div class="innerTabCenter"><b-button @click="" type="is-success">Подтвердить</b-button></div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startFuneral" type="is-success" :disabled="!funeralSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
-				<b-tab-item label="Активировать объект">
+				<b-tab-item label="Видимость персонажа">
 					<div class="innerTab">
 						<!--<input value="Активировать" type="button" v-on:click="startScan('activateObject')"/>
 						<input value="Деактивировать" type="button" v-on:click="startScan('deactivateObject')"/>-->
-						<b-button @click="startScan('activateObject')" type="is-success">Активировать</b-button>
-						<b-button @click="startScan('deactivateObject')" type="is-danger">Деактивировать</b-button>
+						<b-button @click="startScan('activateObject')" type="is-success">Сделать видимым</b-button>
+						<b-button @click="startScan('deactivateObject')" type="is-danger">Сделать невидимым</b-button>
 						<!--<div>hasCamera: {{ hasCamera }}</div>-->
 						<div>result: {{ result }}</div>
 					</div>
@@ -89,7 +146,7 @@
 								<div class="innerTabRow"><span class="innerTabRowPropName">Канал поступления:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='bjziChannelTypes')[0].data.filter(el=>el.id==obj.bjziChannelTypeId)[0].description}}</span></div>
 								<div class="innerTabRow"><span class="innerTabRowPropName">Похороны:</span> <span class="innerTabRowPropVal"> {{obj.deathCaseId?dictionaries.filter(el=>el.dict=='deathCaseTypes')[0].data.filter(el=>el.id==obj.deathCaseId)[0]:'-'}}</span></div>
 								<div class="innerTabRow"><span class="innerTabRowPropName">Командир:</span> <span class="innerTabRowPropVal"> {{obj.playerName}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Сторона:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Сторона:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span></div>
 							</div>
 						</div>
 					</div>
@@ -128,9 +185,19 @@ export default {
 	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}],
 	  scannedObject:[],
 	  furnalSubject:[],
-	  furnalObject:[]
+	  furnalObject:[],
+	  transferSubject:[],
+	  transferObject:[]
     }
   },
+  computed: {
+        funeralSubmit() {
+            return this.furnalSubject[0]&&this.furnalObject[0]&&!this.furnalObject[0].utilized&&this.furnalObject[0].stateId!=3&&this.furnalSubject[0].id!=this.furnalObject[0].id
+        },
+		transferSubmit() {
+            return this.transferSubject[0]&&this.transferObject[0]&&!this.transferObject[0].utilized
+        }
+	},
   async mounted(){
 	this.hasCamera=await QrScanner.hasCamera();
 	this.loader_=document.getElementById('loader_');
@@ -285,9 +352,9 @@ export default {
 			case 'player':
 				this.furnalSubject.push(await this.getPlayer(obj.id));
 				break;
-			//case 'bjzi':
-			//	this.furnalSubject.push(await this.getBjziSingle(obj.id));
-			//	break;
+			case 'bjzi':
+				this.furnalSubject.push(await this.getBjziSingle(obj.id));
+				break;
 			default:
 				this.furnalSubject.push({objectType:'none'});
 		}
@@ -308,6 +375,35 @@ export default {
 				this.furnalObject.push({objectType:'none'});
 		}
 		console.log(this.furnalObject);
+		return;
+	},
+	async selectTransferSubject(obj){
+		//this.qr = JSON.stringify(obj);
+		this.transferSubject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.transferSubject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.transferSubject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.transferSubject.push({objectType:'none'});
+		}
+		console.log('transferSubject',this.transferSubject);
+		return;
+	},
+	async selectTransferObject(obj){
+		//this.qr = JSON.stringify(obj);
+		this.transferObject=[];
+		switch(obj.objectType){
+			case 'bjzi':
+				this.transferObject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.transferObject.push({objectType:'none'});
+		}
+		console.log('transferObject',this.transferObject);
 		return;
 	},
 	async onCloseModal(){
@@ -354,6 +450,92 @@ export default {
 			this.loader_.classList.toggle('hidden');
 			//console.log(response.data[0]);
 			return response.data[0];
+	},
+	async startFuneral(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Проводим похороны',{SUBJECT:{id:this.furnalSubject[0].id,type:this.furnalSubject[0].objectType},OBJECT:{id:this.furnalObject[0].id,type:this.furnalObject[0].objectType}});
+		
+		// 1. Добавить деяние субъекту
+		// 2. Перевести объект в мертвое состояние
+		
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeFuneral',{
+						SUBJECT:{
+							id:this.furnalSubject[0].id,
+							type:this.furnalSubject[0].objectType
+						},
+						OBJECT:{
+							id:this.furnalObject[0].id,
+							type:this.furnalObject[0].objectType
+						}
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Похороны успешно проведены`,
+                    type: 'is-success'
+        })
+		this.furnalObject=[];
+	},
+	async startTransfer(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Передаем спутника',{SUBJECT:{id:this.transferSubject[0].id,type:this.transferSubject[0].objectType},OBJECT:{id:this.transferObject[0].id,type:this.transferObject[0].objectType}});
+		
+		// 1. Добавить деяние субъекту
+		// 2. Перевести объект в мертвое состояние
+		
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeBjziTransfer',{
+						SUBJECT:{
+							id:this.transferSubject[0].id,
+							type:this.transferSubject[0].objectType
+						},
+						OBJECT:{
+							id:this.transferObject[0].id,
+							type:this.transferObject[0].objectType
+						}
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Спутник успешно передан`,
+                    type: 'is-success'
+        })
+		this.transferObject=[];
 	}
   }
 }
@@ -407,10 +589,22 @@ a {
 	justify-content: flex-start;
 }
 .innerTabCenter{
-	padding:10px;
+	border: 1px solid black;
+	border-radius: 5px 15px;
+	padding:5px;
+	margin:5px;
 	display:flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: flex-start;
 	align-items:center;
+}
+.innerTabFurnal{
+	display:flex;
+	justify-content: flex-start;
+	flex-direction: column;
+	align-items:flex-start;
+}
+.red{
+	color:red;
 }
 </style>

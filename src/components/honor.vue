@@ -21,6 +21,7 @@
 			   :hoverable="true" 
 			   ref="table"
 				:mobile-cards="false"
+				width="100%"
 			   style="text-align:left;
 					width:100%;"
 >
@@ -265,7 +266,7 @@ a {
 }
 .b52{
 	font-family:'B52';
-	font-size:150%;
+	font-size:130%;
 }
 .deed-video{
 	background:url(../assets/logo.png);
@@ -274,8 +275,8 @@ a {
 	//border: 1px solid black;
 	border-radius:10%;
 	//border:none;
-	width:35px;
-	height:35px;
+	width:30px;
+	height:30px;
 	display:grid;
 	grid-template-rows:  2fr 1fr;
 	grid-template-columns: 2fr 1fr;

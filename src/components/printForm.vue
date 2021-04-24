@@ -13,7 +13,7 @@
 			<img class="result-data" :src="res_src" ref="img"></img>
 		
 	</div>-->
-	<span><b-button v-if="user.side.id==16333" @click="testFaces">Загрузить фото автоматически</b-button>
+	<span v-if="user.side.id==16333"><b-button @click="testFaces">Загрузить фото автоматически</b-button>
 			<!--<b-switch v-model="male">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>-->
 			<b-switch v-model="sex" true-value="female" false-value="male" passive-type='is-success' >{{ sex }}</b-switch>
 	</span>

@@ -9,7 +9,7 @@
 				:open-on-focus="true"
 				:data="filteredPlayers_forFilter"
 				field="name"
-				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;}"
+				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log(playersWithFilters);}"
 				:clearable="true"
 				style="min-width:250px;max-width:300px; margin-right:10px"
 			></b-autocomplete>
@@ -65,7 +65,7 @@
 				<!--<div class="deed-container" v-for="deedGroup in props.row.deedGroups" >
 					<div class="deed-container-wrapper">-->
 					<b-tooltip :label="deedGroup.description"
-							position="is-left" multilined v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name"  style="font-family:'Arial';">
+							position="is-left" multilined v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name+deedGroup.description"  style="font-family:'Arial';">
 						<div :class="`deed ${deedGroup.degree}`">
 						<img
 							:src="getImg(deedGroup)"
@@ -199,6 +199,7 @@ export default {
     },
   async mounted(){
 	loader_.classList.toggle('hidden');
+	this.console=console;
 	let players;
 			try{
 			players = await axios.get('https://blooming-refuge-12227.herokuapp.com/getPlayers/honor',

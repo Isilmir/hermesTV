@@ -64,8 +64,21 @@
 			<div class="flex-deeds">
 				<!--<div class="deed-container" v-for="deedGroup in props.row.deedGroups" >
 					<div class="deed-container-wrapper">-->
-					<b-tooltip :label="deedGroup.description"
+					<b-tooltip 
 							position="is-left" multilined v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name+deedGroup.description"  style="font-family:'Arial';">
+						<template v-slot:content>
+							<div v-for="line in deedGroup.description.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
+							<!--<div class="has-margin-15">
+								Line2
+							</div>
+							<div class="has-margin-15">
+								Line3
+							</div>-->
+						</template>
 						<div :class="`deed ${deedGroup.degree}`">
 						<img
 							:src="getImg(deedGroup)"

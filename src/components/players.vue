@@ -632,6 +632,13 @@ export default {
                 })
 				return;
 			}
+			if(deed.description.length>255){
+				this.$buefy.toast.open({
+                    message: 'Длина описания должна быть не более 255 символов',
+                    type: 'is-danger'
+                })
+				return;
+			}
 			console.log('добавляем деяние',player,deed);
 			this.loader_.classList.toggle('hidden');
 			let response;

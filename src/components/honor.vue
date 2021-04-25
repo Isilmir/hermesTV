@@ -9,7 +9,7 @@
 				:open-on-focus="true"
 				:data="filteredPlayers_forFilter"
 				field="name"
-				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;}"
+				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log(playersWithFilters);}"
 				:clearable="true"
 				style="min-width:250px;max-width:300px; margin-right:10px"
 			></b-autocomplete>
@@ -21,6 +21,7 @@
 			   :hoverable="true" 
 			   ref="table"
 				:mobile-cards="false"
+				width="100%"
 			   style="text-align:left;
 					width:100%;"
 >
@@ -63,8 +64,21 @@
 			<div class="flex-deeds">
 				<!--<div class="deed-container" v-for="deedGroup in props.row.deedGroups" >
 					<div class="deed-container-wrapper">-->
-					<b-tooltip :label="deedGroup.description"
-							position="is-left" multilined v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name"  style="font-family:'Arial';">
+					<b-tooltip 
+							position="is-left" multilined v-for="deedGroup in props.row.deedGroups" :key="deedGroup.name+deedGroup.description"  style="font-family:'Arial';">
+						<template v-slot:content>
+							<div v-for="line in deedGroup.description.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
+							<!--<div class="has-margin-15">
+								Line2
+							</div>
+							<div class="has-margin-15">
+								Line3
+							</div>-->
+						</template>
 						<div :class="`deed ${deedGroup.degree}`">
 						<img
 							:src="getImg(deedGroup)"
@@ -198,6 +212,7 @@ export default {
     },
   async mounted(){
 	loader_.classList.toggle('hidden');
+	this.console=console;
 	let players;
 			try{
 			players = await axios.get('https://blooming-refuge-12227.herokuapp.com/getPlayers/honor',
@@ -265,7 +280,7 @@ a {
 }
 .b52{
 	font-family:'B52';
-	font-size:150%;
+	font-size:130%;
 }
 .deed-video{
 	background:url(../assets/logo.png);
@@ -274,8 +289,8 @@ a {
 	//border: 1px solid black;
 	border-radius:10%;
 	//border:none;
-	width:35px;
-	height:35px;
+	width:30px;
+	height:30px;
 	display:grid;
 	grid-template-rows:  2fr 1fr;
 	grid-template-columns: 2fr 1fr;

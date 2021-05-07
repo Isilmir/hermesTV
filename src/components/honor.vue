@@ -79,12 +79,12 @@
 								Line3
 							</div>-->
 						</template>
-						<div :class="`deed ${deedGroup.degree}`">
+						<div :class="`deed ${deedGroup.degree} ${deedGroup.heroic?'heroic':''}`">
 						<img
 							:src="getImg(deedGroup)"
 							:class="`deed-img`"
 						> </img>
-						<span class="deed-count">{{ deedGroup.count }}</span>
+						<span class="deed-count" v-if="!deedGroup.heroic">{{ deedGroup.count }}</span>
 						<!--<b-tooltip :label="deedGroup.description"
 							position="is-bottom">
 							<span  
@@ -325,5 +325,14 @@ a {
 }
 .good{
 	background-color:#00bb00
+}
+.heroic{
+	//border:2px solid #A06f1a
+}
+.bad.heroic{
+	//background-color:#DC143C
+}
+.good.heroic{
+	//background-color:#DAA520
 }
 </style>

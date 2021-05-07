@@ -254,12 +254,12 @@ function setPlayers(context){
 	
 	//console.log(bjzi)
 	
-	for(let i=0;i<100;i++){
+	for(let i=0;i<150;i++){
 		let player={id:i,resources:bjzi.concat(humanitary).concat(gold),state:1,side:'acheans',wounds:0}
 		players.push(player);
 	}
 	
-	for(let i=100;i<200;i++){
+	for(let i=150;i<300;i++){
 	let player={id:i,resources:bjzi.concat(humanitary).concat(gold),state:1,side:'troy',wounds:0}
 	players.push(player);
 	}

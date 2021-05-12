@@ -84,7 +84,7 @@
 							:src="getImg(deedGroup)"
 							:class="`deed-img`"
 						> </img>
-						<span class="deed-count" v-if="!deedGroup.heroic">{{ deedGroup.count }}</span>
+						<span :class="`deed-count ${deedGroup.heroic?'heroic':''}`" >{{ deedGroup.heroic?''/*'★'*/:deedGroup.count }}</span>
 						<!--<b-tooltip :label="deedGroup.description"
 							position="is-bottom">
 							<span  
@@ -327,6 +327,7 @@ a {
 	background-color:#00bb00
 }
 .heroic{
+	//color:#FFD700;
 	//border:2px solid #A06f1a
 }
 .bad.heroic{

@@ -2,8 +2,9 @@
 <div class="row">
 	<div></div>
 	<div style="text-align:left;">
-	  <B>Гермес-ТВ</B><br><br>
-		<div>Вас приветствует корпорация Олимп!<br>Cайт сейчас находится на реконструкции и мы приносим свои извинения за доставленные неудобства.</div><br>
+	  <B class="row-flex">Гермес-ТВ</B><br><br>
+		<div class="row-flex"><div style="min-width:100px"><img src="../assets/Olymp_small_logo.png"></div><div style="max-width:300px">Вас приветствует корпорация Олимп!<br><br>Cайт сейчас находится на реконструкции и мы приносим свои извинения за доставленные неудобства.</div>
+		</div><br>
 		<br>
 		<b>Ссылки</b>
 		<ol>
@@ -69,6 +70,10 @@ a {
 }
 .row{
   display: grid;
-  grid-template-columns: 1fr 1fr  1fr;
+  grid-template-columns: 1fr 3fr  1fr;
+}
+.row-flex{
+	display:flex;
+	justify-content:center;
 }
 </style>

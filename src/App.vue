@@ -22,11 +22,12 @@ export default {
 			console.log('выходим');
 			localStorage.removeItem('jwt');
 			localStorage.removeItem('user');
-			this.$router.push('/login')
+			this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
 		}
 	},
 	async mounted(){
 		console.log('mounted',this.user.name)
+		//console.log('путь',this.$route)
 	},
 	async beforeUpdate(){
 		//console.log('beforeUpdate',this.user.name,localStorage.getItem('user'))

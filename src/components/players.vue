@@ -138,7 +138,7 @@
 							</div>
 					<b-tabs type="is-boxed" position="is-centered">
 						<b-tab-item label="Медийные">
-							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34))" 
+							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==45))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -172,6 +172,39 @@
 						</b-tab-item>
 						<b-tab-item label="Боевые">
 							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==33||deed.type.id==32||deed.type.id==34)" 
+										   :bordered="false" 
+										   :hoverable="true" 
+										   ref="table"
+
+										   style="text-align:left;
+												width:100%;"
+							>
+							<b-table-column field="type.description" label="Тип деяния" width="15%" v-slot="props">
+									<b-tag>{{ props.row.type.description }}</b-tag>
+							</b-table-column>
+							<b-table-column field="date" label="Дата"  v-slot="props">
+									<b-tag>{{ props.row.date.match(/\d\d\d\d-\d\d-\d\d/)[0] }}</b-tag>
+							</b-table-column>
+							<b-table-column field="date" label="Время" width="5%"  v-slot="props">
+									<b-tag>{{ props.row.date.match(/\d\d:\d\d:\d\d/)[0] }}</b-tag>
+							</b-table-column>
+							<b-table-column field="description" label="Описание деяния" width="50%"  v-slot="props">
+									<textarea class="story_textarea" v-model="props.row.description"></textarea>
+							</b-table-column>
+							<b-table-column field="honor" label="Слава" width="15%"  v-slot="props">
+									<b-input  v-model="props.row.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+							</b-table-column>
+							<b-table-column field="heroic" label="Героическое" width="10%"  v-slot="props">
+									<b-switch v-model="props.row.heroic" >{{ props.row.heroic?`Героическое`:`Не героическое` }}</b-switch>
+							</b-table-column>
+							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
+									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic})" type="is-success">✔</b-button>
+									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
+							</b-table-column>
+							</b-table>
+						</b-tab-item>
+						<b-tab-item label="Ачивки">
+							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"

@@ -9,7 +9,7 @@
 				:open-on-focus="true"
 				:data="filteredPlayers_forFilter"
 				field="name"
-				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log(playersWithFilters);}"
+				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;}"
 				:clearable="true"
 				style="min-width:250px;max-width:300px; margin-right:10px"
 			></b-autocomplete>
@@ -79,7 +79,7 @@
 								Line3
 							</div>-->
 						</template>
-						<div :class="`deed ${deedGroup.degree} ${deedGroup.heroic?'heroic':''}`">
+						<div :class="`deed ${deedGroup.degree} ${deedGroup.heroic?'heroic':''} ${deedGroup.name=='death'?'achievment':''}`">
 						<img
 							:src="getImg(deedGroup)"
 							:class="`deed-img`"
@@ -335,5 +335,11 @@ a {
 }
 .good.heroic{
 	//background-color:#DAA520
+}
+.bad.achievment{
+	background-color:#DAA400;
+}
+.good.achievment{
+	background-color:#FFD700;
 }
 </style>

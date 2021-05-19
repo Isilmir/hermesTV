@@ -89,6 +89,7 @@
 																														||deedGroup.name=='lostHenchman'
 																														||deedGroup.name=='machinegun'
 																														||deedGroup.name=='sniper'
+																														||deedGroup.name=='medic'
 																								?'achievment':''}`">
 						<img
 							:src="getImg(deedGroup)"

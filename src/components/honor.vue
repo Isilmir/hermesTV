@@ -347,9 +347,13 @@ a {
 	//background-color:#DAA520
 }
 .bad.achievment{
-	background-color:#DAA400;
+	background-color:#999999;
 }
 .good.achievment{
-	background-color:#DAA400;
+	background-color:#999999;
+}
+
+.achievment .deed-count{
+	color:#ffffff;
 }
 </style>

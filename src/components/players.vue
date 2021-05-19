@@ -29,7 +29,7 @@
 				:open-on-focus="true"
 				:data="filteredSides_forFilter"
 				field="description"
-				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				_input="option => {console.log(newPlayerName,option,filteredPlayers)}"
 				@select="option => {filters.sides=[{description:option.description,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
 				:clearable="true"
 				style="min-width:10px"
@@ -41,7 +41,7 @@
 				:open-on-focus="true"
 				:data="filteredSquads_forFilter"
 				field="name"
-				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				_input="option => {console.log(newPlayerName,option,filteredPlayers)}"
 				@select="option => {filters.squads=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
 				:clearable="true"
 				style="min-width:10px"
@@ -53,7 +53,7 @@
 				:open-on-focus="true"
 				:data="filteredPlayers_forFilter"
 				field="name"
-				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				_input="option => {console.log(newPlayerName,option,filteredPlayers)}"
 				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
 				:clearable="true"
 				style="min-width:10px"
@@ -136,9 +136,9 @@
 										</div>
 									</div>
 							</div>
-					<b-tabs type="is-boxed" position="is-centered">
-						<b-tab-item label="Медийные">
-							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
+					<b-tabs type="is-boxed" position="is-centered" v-model="activeDeedGroup">
+						<template><b-tab-item label="Медийные" value="media">
+							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
 																||deed.type.id==53||deed.type.id==54||deed.type.id==55))" 
 										   :bordered="false" 
@@ -171,9 +171,9 @@
 									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
 							</b-table-column>
 							</b-table>
-						</b-tab-item>
-						<b-tab-item label="Боевые">
-							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==33||deed.type.id==32||deed.type.id==34)" 
+						</b-tab-item></template>
+						<template><b-tab-item label="Боевые" value="war">
+							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -204,8 +204,8 @@
 									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
 							</b-table-column>
 							</b-table>
-						</b-tab-item>
-						<b-tab-item label="Ачивки">
+						</b-tab-item></template>
+						<template><b-tab-item label="Ачивки"  value="achievment">
 							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
 																||deed.type.id==53||deed.type.id==54||deed.type.id==55)" 
@@ -239,7 +239,7 @@
 									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
 							</b-table-column>
 							</b-table>
-						</b-tab-item>
+						</b-tab-item></template>
 					</b-tabs>
 								<!--<div class="player-deeds">
 									<div class="player_deeds_list">
@@ -430,7 +430,8 @@ export default {
 	  filters:{sides:[],squads:[],players:[]},
 	  playerSortProp:'name',
 	  playerSortOrder:1,
-	  lastUpdate:''
+	  lastUpdate:'',
+	  activeDeedGroup:'media'
     }
   }
   ,computed: {
@@ -507,7 +508,24 @@ export default {
 		},
 		filteredDeedTypes() {
 			//if(this.newDeedName=='')return this.deedTypes;
-            return this.deedTypes.filter(deedType => {
+			//console.log(this.deedTypes,this.activeDeedGroup,this.deedTypes.filter(deedType=>{
+			//	(this.activeDeedGroup==0&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
+			//													||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
+			//													||deedType.id==53||deedType.id==54||deedType.id==55)))
+			//	||(this.activeDeedGroup==1&&(deedType.id==33||deedType.id==32||deedType.id==34))
+			//	||(this.activeDeedGroup==2&&deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
+			//													||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
+			//													||deedType.id==53||deedType.id==54||deedType.id==55)
+			//}));
+            return this.deedTypes.filter(deedType=>{
+				return(this.activeDeedGroup=='media'&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
+																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
+																||deedType.id==53||deedType.id==54||deedType.id==55)))
+				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35))
+				||(this.activeDeedGroup=='achievment'&&(deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
+																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
+																||deedType.id==53||deedType.id==54||deedType.id==55))
+			}).filter(deedType => {
                 return (
                     deedType.description
                         .toString()
@@ -574,8 +592,9 @@ export default {
 				honor:''
 				}
 			 console.log('currentPlayer',this.currentPlayer);
-			 this.newDeedName=''
+			 this.newDeedName='';
 			 this.$forceUpdate();
+			 //this.activeDeedGroup='media';
 		}
 
 		,async fetchPlayers(){

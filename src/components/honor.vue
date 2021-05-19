@@ -79,7 +79,17 @@
 								Line3
 							</div>-->
 						</template>
-						<div :class="`deed ${deedGroup.degree} ${deedGroup.heroic?'heroic':''} ${deedGroup.name=='death'?'achievment':''}`">
+						<div :class="`deed ${deedGroup.degree} ${deedGroup.heroic?'heroic':''} ${deedGroup.name=='death'||deedGroup.name=='stockpile'
+																														||deedGroup.name=='blockMerc'
+																														||deedGroup.name=='blockLicense'
+																														||deedGroup.name=='blockHumanitarianAid'
+																														||deedGroup.name=='blockHeavyArmament'
+																														||deedGroup.name=='blockHenchman'
+																														||deedGroup.name=='addHenchman'
+																														||deedGroup.name=='lostHenchman'
+																														||deedGroup.name=='machinegun'
+																														||deedGroup.name=='sniper'
+																								?'achievment':''}`">
 						<img
 							:src="getImg(deedGroup)"
 							:class="`deed-img`"
@@ -340,6 +350,6 @@ a {
 	background-color:#DAA400;
 }
 .good.achievment{
-	background-color:#FFD700;
+	background-color:#DAA400;
 }
 </style>

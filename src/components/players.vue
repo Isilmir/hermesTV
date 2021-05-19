@@ -138,7 +138,9 @@
 							</div>
 					<b-tabs type="is-boxed" position="is-centered">
 						<b-tab-item label="Медийные">
-							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==45))" 
+							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
+																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -204,7 +206,9 @@
 							</b-table>
 						</b-tab-item>
 						<b-tab-item label="Ачивки">
-							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45)" 
+							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
+																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"

@@ -90,6 +90,7 @@
 																														||deedGroup.name=='machinegun'
 																														||deedGroup.name=='sniper'
 																														||deedGroup.name=='medic'
+																														||deedGroup.name=='importantNote'
 																								?'achievment':''}`">
 						<img
 							:src="getImg(deedGroup)"

@@ -92,10 +92,15 @@
 																														||deedGroup.name=='medic'
 																														||deedGroup.name=='importantNote'
 																								?'achievment':''}`">
-						<img
+						<img v-if="!deedGroup.messageId"
 							:src="getImg(deedGroup)"
 							:class="`deed-img`"
 						> </img>
+						<router-link v-if="deedGroup.messageId" :to="`/message?id=${deedGroup.messageId}`"  target="_blank" :class="`deed-img`">
+						<img
+							:src="getImg(deedGroup)"
+						> </img>
+						</router-link>
 						<span :class="`deed-count ${deedGroup.heroic?'heroic':''}`" >{{ deedGroup.heroic?''/*'★'*/:deedGroup.count }}</span>
 						<!--<b-tooltip :label="deedGroup.description"
 							position="is-bottom">
@@ -225,18 +230,19 @@ export default {
   async mounted(){
 	loader_.classList.toggle('hidden');
 	this.console=console;
+	let headers = {};
+	headers['Content-Type']='application/json'
+	if(localStorage.getItem('jwt'))headers['Authorization']=`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
 	let players;
 			try{
 			players = await axios.get('https://blooming-refuge-12227.herokuapp.com/getPlayers/honor',
 			{
-				headers: {
-				  'Content-Type': 'application/json'
-				  //'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
-				}
+				headers: headers
 			});
 			}catch(e){
 				console.log(e.message);
 			}
+			console.log(players);
 			this.players=players.data
 									//.map(player=>{player.deedTypes=player.deeds.map(deed=>);return player;})
 									.sort((a,b)=>{
@@ -246,6 +252,7 @@ export default {
 									}).map((el,i)=>{el.index=i+1;return el;});
 
 			//console.log(this.players);
+			
 	loader_.classList.toggle('hidden');
   },
   methods:{

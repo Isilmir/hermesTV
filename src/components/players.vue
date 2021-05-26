@@ -12,7 +12,7 @@
             <div style="display:flex;">
 			<b-select placeholder="Select a name" v-model="playerSortProp">
                 <option
-                    v-for="option in [{id:'name',name:'Имя персонажа'},{id:'honor',name:'Слава'},{id:'squadName',name:'Название отряда'},{id:'sideDescription',name:'Сторона конфликта'}]"
+                    v-for="option in [{id:'name',name:'Имя персонажа'},{id:'honor',name:'Слава'},{id:'squadName',name:'Название отряда'},{id:'sideDescription',name:'Сторона конфликта'}]"соти
                     :value="option.id"
                     :key="option.id">
                     {{ option.name }}
@@ -140,7 +140,7 @@
 						<template><b-tab-item label="Медийные" value="media">
 							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
-																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57))" 
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -208,7 +208,7 @@
 						<template><b-tab-item label="Ачивки"  value="achievment">
 							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
-																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57)" 
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -277,6 +277,77 @@
             </div>
         </b-collapse>
 
+</b-tab-item>
+<b-tab-item label="Сообщения">
+<b-field label="Добавить сообщение">
+										</b-field>
+										<div class="" style="display:flex;justify-content: space-around;">
+											<b-autocomplete
+												v-model="newMessagePlayerName"
+												placeholder="Начните вводить имя игрока"
+												:keep-first="false"
+												:open-on-focus="true"
+												:data="filteredPlayers_message"
+												field="name"
+												@select="option => {newMessage.player = JSON.parse(JSON.stringify(option));console.log(newMessage)}"
+												:clearable="true"
+												style="min-width:400px"
+											></b-autocomplete>
+											<b-autocomplete
+												v-model="newMessageTypeDescription"
+												placeholder="Начните вводить тип деяния"
+												:keep-first="false"
+												:open-on-focus="true"
+												:data="filteredDeedTypes_message"
+												field="description"
+												@select="option => {newMessage.type = JSON.parse(JSON.stringify(option));console.log(newMessage)}"
+												:clearable="true"
+												style="min-width:400px"
+											>
+											</b-autocomplete>
+											<!--<b-input v-model="newDeed.description" maxlength="255" placeholder="Описание деяния" style="min-width:400px"></b-input>-->
+											<textarea class="story_textarea" v-model="newMessage.description" placeholder="Послание персонажу" style="margin-left:10px;margin-right:10px"></textarea>
+											<!--<b-input v-model="newDeed.honor" type="number" maxlength="255" placeholder="Очки Славы" style="margin-right:10px"></b-input>
+											<b-switch v-model="newDeed.heroic" >{{ newDeed.heroic?`Героическое`:`Не героическое` }}</b-switch>-->
+											<b-button @click="addMessage(newMessage)" type="is-success">✔</b-button>
+										</div>
+<b-table :data="messages" 
+		:bordered="false" 
+		:hoverable="true" 
+		ref="table"
+
+		style="text-align:left;
+		width:100%;"
+		>
+							<b-table-column field="player.name" label="Персонаж" width="15%" v-slot="props">
+									<b-tag>{{ props.row.player.name }}</b-tag>
+							</b-table-column>
+							<b-table-column field="deed.date" label="Дата" width="15%" v-slot="props">
+									<b-tag>{{ props.row.deed.date.match(/\d\d\d\d-\d\d-\d\d/)[0] }}</b-tag>
+							</b-table-column>
+							<b-table-column field="description" label="Сообщение" width="50%" v-slot="props">
+									<textarea class="story_textarea" v-model="props.row.description"></textarea>
+							</b-table-column>
+							<b-table-column field="type" label="Тип деяния"  v-slot="props">
+									<b-tag>{{ props.row.deed.deedType.description }}</b-tag>
+							</b-table-column>
+							<!--<b-table-column field="date" label="Время" width="5%"  v-slot="props">
+									<b-tag>{{ props.row.date.match(/\d\d:\d\d:\d\d/)[0] }}</b-tag>
+							</b-table-column>
+							<b-table-column field="description" label="Описание деяния" width="50%"  v-slot="props">
+									<textarea class="story_textarea" v-model="props.row.description"></textarea>
+							</b-table-column>
+							<b-table-column field="honor" label="Слава" width="15%"  v-slot="props">
+									<b-input  v-model="props.row.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+							</b-table-column>
+							<b-table-column field="heroic" label="Героическое" width="10%"  v-slot="props">
+									<b-switch v-model="props.row.heroic" >{{ props.row.heroic?`Героическое`:`Не героическое` }}</b-switch>
+							</b-table-column>-->
+							<b-table-column field="update" label=" " width="10%"  v-slot="props">
+									<b-button @click="updateMessage(props.row)" type="is-success">✔</b-button>
+									<b-button @click="deleteMessage({id:props.row.id})" type="is-danger">☓</b-button>
+							</b-table-column>
+							</b-table>
 </b-tab-item>
 <b-tab-item label="Массовое начисление славы">
 	<div class="deeds_mass_add ">
@@ -410,7 +481,7 @@ export default {
 				},
 	  newDeedName:'',
 	  newDeedName_mass:'',
-	  newPlayerName:'',
+	  newPlayerName:'',// тестовые значения для поисковых фильтров задавать только так - через отдельное корневое свойство. Иначе все сломается. Уж поверь.
 	  sideName:'',
 	  squadName:'',
 	  filteredPlayerName:'',
@@ -431,7 +502,15 @@ export default {
 	  playerSortProp:'name',
 	  playerSortOrder:1,
 	  lastUpdate:'',
-	  activeDeedGroup:'media'
+	  activeDeedGroup:'media',
+	  messages:[],
+	  newMessage:{
+				description:'',
+				type:{description:'',id:58},
+				player:{name:''}
+				},
+	  newMessagePlayerName:'',
+	  newMessageTypeDescription:''
     }
   }
   ,computed: {
@@ -455,6 +534,16 @@ export default {
                         .toString()
                         .toLowerCase()
                         .indexOf(this.filteredPlayerName.toLowerCase()) >= 0
+                )
+            })
+        },
+		filteredPlayers_message() {
+            return this.players.filter(player => {
+                return (
+                    player.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.newMessagePlayerName.toLowerCase()) >= 0
                 )
             })
         },
@@ -520,7 +609,7 @@ export default {
             return this.deedTypes.filter(deedType=>{
 				return(this.activeDeedGroup=='media'&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
-																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57)))
+																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57||deedType.id==58)))
 				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35))
 				||(this.activeDeedGroup=='achievment'&&(deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
@@ -531,6 +620,26 @@ export default {
                         .toString()
                         .toLowerCase()
                         .indexOf(this.newDeedName.toLowerCase()) >= 0
+                )
+            })
+        },
+		filteredDeedTypes_message() {
+			//if(this.newDeedName=='')return this.deedTypes;
+			//console.log(this.deedTypes,this.activeDeedGroup,this.deedTypes.filter(deedType=>{
+			//	(this.activeDeedGroup==0&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
+			//													||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
+			//													||deedType.id==53||deedType.id==54||deedType.id==55)))
+			//	||(this.activeDeedGroup==1&&(deedType.id==33||deedType.id==32||deedType.id==34))
+			//	||(this.activeDeedGroup==2&&deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
+			//													||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
+			//													||deedType.id==53||deedType.id==54||deedType.id==55)
+			//}));
+            return this.deedTypes.filter(deedType => {
+                return (
+                    deedType.description
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.newMessageTypeDescription.toLowerCase()) >= 0
                 )
             })
         },
@@ -563,11 +672,12 @@ export default {
 		this.console=console;
 		this.loader_=document.getElementById('loader_');
 		await this.fetchDeedTypes();
-		console.log(this.deedTypes);
+		//console.log(this.deedTypes);
 		//this.fetchStories();
 		await this.fetchPlayers();
 		await this.fetchDictionaries();
-		console.log(this.dictionaries);
+		await this.fetchMessages();
+		//console.log(this.dictionaries);
 		await this.getLastUpdate();
 	}
 	,methods:{
@@ -615,6 +725,29 @@ export default {
 			this.players=players.data.filter(player=>player.realName);
 			this.loader_.classList.toggle('hidden');
 			//console.log ('players',this.players);
+		}
+		,async fetchMessages(){
+			this.loader_.classList.toggle('hidden');
+			let messages;
+			try{
+			messages = await axios.get('https://blooming-refuge-12227.herokuapp.com/messages',
+			{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e.message);
+			}
+			//console.log(players.data);
+			this.messages=messages.data.sort((a,b)=>{
+									if (a.deed.date > b.deed.date) return -1; // если первое значение больше второго
+									if (a.deed.date == b.deed.date) return 0; // если равны
+									if (a.deed.date < b.deed.date) return 1; // если первое значение меньше второго
+									});
+			this.loader_.classList.toggle('hidden');
+			console.log ('messages',this.messages);
 		}
 		,async fetchDeedTypes(){
 			this.loader_.classList.toggle('hidden');
@@ -728,6 +861,60 @@ export default {
 			await this.showPlayer(this.players[this.players.findIndex(el=>el.id==player.id)],this.isOpenPlayer);
 			this.players[this.players.findIndex(el=>el.id==player.id)].honor=this.currentPlayer[0].honor;
 		}
+		,async addMessage(message){
+			if(!message.type.id){
+				this.$buefy.toast.open({
+                    message: 'Выберите тип деяния!',
+                    type: 'is-danger'
+                })
+				return;
+			}
+			if(!message.player.id){
+				this.$buefy.toast.open({
+                    message: 'Выберите персонажа!',
+                    type: 'is-danger'
+                })
+				return;
+			}
+			console.log('добавляем сообщение',message);
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateMessage',{
+						id:null,
+						description:message.description,
+						typeId:message.type.id,
+						playerId:message.player.id,
+						honor:null,
+						heroic:null
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			this.newMessage={
+				description:'',
+				type:{description:'',id:58},
+				player:{name:''}
+				};
+			this.newMessagePlayerName='';
+			this.newMessageTypeDescription='';
+			await this.fetchMessages();
+		}
 		,async updateDeed(player,deed){
 			console.log('изменяем деяние',player,deed);
 			this.loader_.classList.toggle('hidden');
@@ -761,6 +948,70 @@ export default {
 			//await this.fetchPlayers();
 			await this.showPlayer(this.players[this.players.findIndex(el=>el.id==player.id)],this.isOpenPlayer);
 			this.players[this.players.findIndex(el=>el.id==player.id)].honor=this.currentPlayer[0].honor;
+		},
+		async deleteMessage(message){
+			console.log('удаляем сообщение',message);
+			
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/deleteMessage',{
+						id:message.id
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			await this.fetchMessages();			
+		},
+		async updateMessage(message){
+			console.log('изменяем сообщение',message);
+			
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateMessage',{
+						id:message.id,
+						description:message.description,
+						deedDescription:message.deed.description,
+						typeId:message.deed.deedType.id,
+						playerId:message.player.id,
+						honor:message.honor,
+						heroic:message.heroic
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			await this.fetchMessages();
 		},
 		async deleteDeed(player,deed){
 			console.log('удаляем деяние',deed);

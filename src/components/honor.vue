@@ -91,6 +91,7 @@
 																														||deedGroup.name=='sniper'
 																														||deedGroup.name=='medic'
 																														||deedGroup.name=='importantNote'
+																														||deedGroup.name=='message'
 																								?'achievment':''}`">
 						<img v-if="!deedGroup.messageId"
 							:src="getImg(deedGroup)"

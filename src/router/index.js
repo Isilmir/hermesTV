@@ -16,6 +16,7 @@ import forbidden from '@/components/forbidden'
 import simulation from '@/components/simulation'
 import honor from '@/components/honor'
 import players from '@/components/players'
+import message from '@/components/message'
 
 Vue.use(Router) 
 
@@ -116,6 +117,14 @@ let router = new Router({
 	  meta:{
 			requireAuth:true,
 			requireAdmin:true
+		}
+    },
+	{
+      path: '/message',
+      name: 'message',
+      component: message,
+	  meta:{
+			requireAuth:true
 		}
     },
 	{

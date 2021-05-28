@@ -92,7 +92,8 @@
 																														||deedGroup.name=='medic'
 																														||deedGroup.name=='importantNote'
 																														||deedGroup.name=='message'
-																								?'achievment':''}`">
+																								?'achievment':''}`"
+								:style="deedGroup.color?`${'background-color:'+deedGroup.color}`:''">
 						<img v-if="!deedGroup.messageId"
 							:src="getImg(deedGroup)"
 							:class="`deed-img`"

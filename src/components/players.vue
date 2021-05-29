@@ -123,7 +123,7 @@
 												:open-on-focus="true"
 												:data="filteredDeedTypes"
 												field="description"
-												@select="option => {newDeed.type = option;newDeed.honor = option.defaultHonor;newDeed.heroic=false;console.log(newDeed)}"
+												@select="option => {newDeed.type = {defaultHonor:option.defaultHonor,description:option.description,id:option.id,name:option.name,visible:option.visible};newDeed.honor = option.defaultHonor;newDeed.heroic=false;console.log(newDeed)}"
 												:clearable="true"
 												style="min-width:400px"
 											>
@@ -132,6 +132,20 @@
 											<textarea class="story_textarea" v-model="newDeed.description" placeholder="Описание деяния" style="margin-left:10px;margin-right:10px"></textarea>
 											<b-input v-model="newDeed.honor" type="number" maxlength="255" placeholder="Очки Славы" style="margin-right:10px"></b-input>
 											<b-switch v-model="newDeed.heroic" >{{ newDeed.heroic?`Героическое`:`Не героическое` }}</b-switch>
+											<div>
+												<div :class="`deed`" :style="`background-color:${newDeed.color?newDeed.color:activeDeedGroup=='achievment'?'#999999':newDeed.honor>0?'#00bb00':'#bb0000'}`">
+													<img :class="`deed-img`"
+														:src="getImg(newDeed.type.name)" style="width:30px"
+													> </img>
+													<span :class="`deed-count`" >{{ newDeed.heroic?''/*'★'*/:1 }}</span>
+												</div>
+												<b-input placeholder="#9Ab"
+												  type="text"
+												  v-model="newDeed.color"
+												  validation-message="Only lowercase is allowed"
+												  pattern="#([0-9a-fA-F]{3}){1,2}">
+												</b-input>
+											</div>
 											<b-button @click="addDeed(curPlayer,newDeed)" type="is-success">✔</b-button>
 										</div>
 									</div>
@@ -140,7 +154,7 @@
 						<template><b-tab-item label="Медийные" value="media">
 							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
-																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58))" 
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -157,7 +171,7 @@
 							<b-table-column field="date" label="Время" width="5%"  v-slot="props">
 									<b-tag>{{ props.row.date.match(/\d\d:\d\d:\d\d/)[0] }}</b-tag>
 							</b-table-column>
-							<b-table-column field="description" label="Описание деяния" width="50%"  v-slot="props">
+							<b-table-column field="description" label="Описание деяния" width="45%"  v-slot="props">
 									<textarea class="story_textarea" v-model="props.row.description"></textarea>
 							</b-table-column>
 							<b-table-column field="honor" label="Слава" width="15%"  v-slot="props">
@@ -166,8 +180,22 @@
 							<b-table-column field="heroic" label="Героическое" width="10%"  v-slot="props">
 									<b-switch v-model="props.row.heroic" >{{ props.row.heroic?`Героическое`:`Не героическое` }}</b-switch>
 							</b-table-column>
+							<b-table-column field="color" label="Цвет" width="9%"  v-slot="props">
+								<div :class="`deed`" :style="`background-color:${props.row.color?props.row.color:props.row.honor>0?'#00bb00':'#bb0000'}`">
+									<img :class="`deed-img`"
+										:src="getImg(props.row.type.name)" style="width:30px"
+									> </img>
+									<span :class="`deed-count`" >{{ props.row.heroic?''/*'★'*/:1 }}</span>
+								</div>
+								<b-input placeholder="#9Ab"
+								  type="text"
+								  v-model="props.row.color"
+								  validation-message="Only lowercase is allowed"
+								  pattern="#([0-9a-fA-F]{3}){1,2}">
+								</b-input>
+							</b-table-column>
 							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
-									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic})" type="is-success">✔</b-button>
+									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic,color:props.row.color})" type="is-success">✔</b-button>
 									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
 							</b-table-column>
 							</b-table>
@@ -190,7 +218,7 @@
 							<b-table-column field="date" label="Время" width="5%"  v-slot="props">
 									<b-tag>{{ props.row.date.match(/\d\d:\d\d:\d\d/)[0] }}</b-tag>
 							</b-table-column>
-							<b-table-column field="description" label="Описание деяния" width="50%"  v-slot="props">
+							<b-table-column field="description" label="Описание деяния" width="45%"  v-slot="props">
 									<textarea class="story_textarea" v-model="props.row.description"></textarea>
 							</b-table-column>
 							<b-table-column field="honor" label="Слава" width="15%"  v-slot="props">
@@ -199,8 +227,22 @@
 							<b-table-column field="heroic" label="Героическое" width="10%"  v-slot="props">
 									<b-switch v-model="props.row.heroic" >{{ props.row.heroic?`Героическое`:`Не героическое` }}</b-switch>
 							</b-table-column>
+							<b-table-column field="color" label="Цвет" width="9%"  v-slot="props">
+								<div :class="`deed`" :style="`background-color:${props.row.color?props.row.color:props.row.honor>0?'#00bb00':'#bb0000'}`">
+									<img :class="`deed-img`"
+										:src="getImg(props.row.type.name)" style="width:30px"
+									> </img>
+									<span :class="`deed-count`" >{{ props.row.heroic?''/*'★'*/:1 }}</span>
+								</div>	
+								<b-input placeholder="#9Ab"
+								  type="text"
+								  v-model="props.row.color"
+								  validation-message="Only lowercase is allowed"
+								  pattern="#([0-9a-fA-F]{3}){1,2}">
+								</b-input>
+							</b-table-column>
 							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
-									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic})" type="is-success">✔</b-button>
+									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic,color:props.row.color})" type="is-success">✔</b-button>
 									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
 							</b-table-column>
 							</b-table>
@@ -208,7 +250,7 @@
 						<template><b-tab-item label="Ачивки"  value="achievment">
 							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
-																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58)" 
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -225,7 +267,7 @@
 							<b-table-column field="date" label="Время" width="5%"  v-slot="props">
 									<b-tag>{{ props.row.date.match(/\d\d:\d\d:\d\d/)[0] }}</b-tag>
 							</b-table-column>
-							<b-table-column field="description" label="Описание деяния" width="50%"  v-slot="props">
+							<b-table-column field="description" label="Описание деяния" width="45%"  v-slot="props">
 									<textarea class="story_textarea" v-model="props.row.description"></textarea>
 							</b-table-column>
 							<b-table-column field="honor" label="Слава" width="15%"  v-slot="props">
@@ -234,8 +276,22 @@
 							<b-table-column field="heroic" label="Героическое" width="10%"  v-slot="props">
 									<b-switch v-model="props.row.heroic" >{{ props.row.heroic?`Героическое`:`Не героическое` }}</b-switch>
 							</b-table-column>
+							<b-table-column field="color" label="Цвет" width="9%"  v-slot="props">
+								<div :class="`deed`" :style="`background-color:${props.row.color?props.row.color:'#999999'}`">
+									<img :class="`deed-img`"
+										:src="getImg(props.row.type.name)" style="width:30px"
+									> </img>
+									<span :class="`deed-count`" >{{ props.row.heroic?''/*'★'*/:1 }}</span>
+								</div>
+								<b-input placeholder="#9Ab"
+								  type="text"
+								  v-model="props.row.color"
+								  validation-message="Only lowercase is allowed"
+								  pattern="#([0-9a-fA-F]{3}){1,2}">
+								</b-input>
+							</b-table-column>
 							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
-									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic})" type="is-success">✔</b-button>
+									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic,color:props.row.color})" type="is-success">✔</b-button>
 									<b-button @click="deleteDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor})" type="is-danger">☓</b-button>
 							</b-table-column>
 							</b-table>
@@ -460,7 +516,7 @@
 import axios from 'axios'
 
 export default {
-  name: 'stories',
+  name: 'players',
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
@@ -474,7 +530,7 @@ export default {
 	  currentStory:[],
 	  currentPlayer:[],
 	  newPlayer:{},
-	  newDeed:{type:'',
+	  newDeed:{type:{},
 				description:'',
 				honor:'',
 				heroic:false
@@ -606,14 +662,15 @@ export default {
 			//													||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
 			//													||deedType.id==53||deedType.id==54||deedType.id==55)
 			//}));
+			console.log('filteredDeedTypes',this.newDeedName,this.newDeed)
             return this.deedTypes.filter(deedType=>{
 				return(this.activeDeedGroup=='media'&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
-																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57||deedType.id==58)))
+																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57||deedType.id==58||deedType.id==59||deedType.id==60)))
 				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35))
 				||(this.activeDeedGroup=='achievment'&&(deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
-																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57))
+																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57||deedType.id==59||deedType.id==60))
 			}).filter(deedType => {
                 return (
                     deedType.description
@@ -697,7 +754,7 @@ export default {
 									if (a.date < b.date) return 1; // если первое значение меньше второго
 									})
 
-			this.newDeed={type:'',
+			this.newDeed={type:{},
 				description:'',
 				honor:''
 				}
@@ -838,7 +895,8 @@ export default {
 						typeId:deed.type.id,
 						playerId:player.id,
 						honor:deed.honor,
-						heroic:deed.heroic
+						heroic:deed.heroic,
+						color:deed.color
 				},
 				{
 					headers: {
@@ -926,7 +984,8 @@ export default {
 						typeId:deed.type.id,
 						playerId:player.id,
 						honor:deed.honor,
-						heroic:deed.heroic
+						heroic:deed.heroic,
+						color:deed.color
 				},
 				{
 					headers: {
@@ -1326,7 +1385,17 @@ export default {
                 })
 			
 			
+		},
+		getImg(deedName){
+		let res
+		try{
+			res=require(`../assets/deeds/${deedName}.png`);
 		}
+		catch(e){
+			res=require(`../assets/deeds/feat.png`);
+		}
+		return res
+	}
 	},
 	components:{
 	}
@@ -1478,5 +1547,29 @@ z-index:1000
 }
 .delete-button{
 	cursor: default;
+}
+.deed{
+	//border: 1px solid black;
+	border-radius:10%;
+	//border:none;
+	width:30px;
+	height:30px;
+	display:grid;
+	grid-template-rows:  2fr 1fr;
+	grid-template-columns: 2fr 1fr;
+	//aspect-ratio: 1 / 1;
+	margin:5px;
+}
+.deed-img{
+	grid-column: 1 / 3;
+	grid-row: 1 / 3;
+	height:100%;
+}
+.deed-count{
+	grid-column: 2 / 3;
+	grid-row: 2 / 3;
+	font-size:60%;
+	color:#ffffff;
+	font: bold;
 }
 </style>

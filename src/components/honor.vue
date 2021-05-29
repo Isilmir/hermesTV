@@ -92,6 +92,8 @@
 																														||deedGroup.name=='medic'
 																														||deedGroup.name=='importantNote'
 																														||deedGroup.name=='message'
+																														||deedGroup.name=='PlakianThebes'
+																														||deedGroup.name=='wingsOfSteel'
 																								?'achievment':''}`"
 								:style="deedGroup.color?`${'background-color:'+deedGroup.color}`:''">
 						<img v-if="!deedGroup.messageId"

@@ -94,6 +94,8 @@
 																														||deedGroup.name=='message'
 																														||deedGroup.name=='PlakianThebes'
 																														||deedGroup.name=='wingsOfSteel'
+																														||deedGroup.name=='WaitReinforcements'
+																														||deedGroup.name=='gotReinforcements'
 																								?'achievment':''}`"
 								:style="deedGroup.color?`${'background-color:'+deedGroup.color}`:''">
 						<img v-if="!deedGroup.messageId"

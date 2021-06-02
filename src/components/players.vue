@@ -154,7 +154,8 @@
 						<template><b-tab-item label="Медийные" value="media">
 							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
-																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60))" 
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56
+																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60||deed.type.id==61||deed.type.id==62))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -250,7 +251,8 @@
 						<template><b-tab-item label="Ачивки"  value="achievment">
 							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
-																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60)" 
+																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56
+																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60||deed.type.id==61||deed.type.id==62)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -406,76 +408,83 @@
 							</b-table>
 </b-tab-item>
 <b-tab-item label="Массовое начисление славы">
-	<div class="deeds_mass_add ">
-		<div class="deeds_mass_add_content deeds_mass_add_players">
-			<!--<b-field :label="player.name" v-for="player in mass_players_deed.players" :key="player.id"><span class="red delete-button">☓</span></b-field>-->
-			<!--<div :label="player.name" v-for="player in mass_players_deed.players" :key="player.id">{{player.name}} <span class="red delete-button" @click="removePlayer(player)">☓</span></div><hr>-->
-			<b-field label="Добавить персонажа"></b-field>
-			<b-autocomplete
-				v-model="newPlayerName"
-				placeholder="Начните вводить имя персонажа"
-				:keep-first="false"
-				:open-on-focus="true"
-				:data="filteredPlayers"
-				field="name"
-				@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
-				@select="option => {mass_players_deed.players.push({name:option.name,id:option.id});console.log('!!!',option);}"
-				:clearable="true"
-				style="min-width:10px"
-			></b-autocomplete><br>
-			<b-field label="Добавить всех персонажей стороны"></b-field>
-			<b-autocomplete
-				v-model="sideName"
-				placeholder="Начните вводить название стороны"
-				:keep-first="false"
-				:open-on-focus="true"
-				:data="filteredSides"
-				field="description"
-				@input="option => {console.log(sideName,option,filteredSides)}"
-				@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.sideId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
-				:clearable="true"
-				style="min-width:10px"
-			></b-autocomplete><br>
-			<b-field label="Добавить всех персонажей отряда"></b-field>
-			<b-autocomplete
-				v-model="squadName"
-				placeholder="Начните вводить название отряда"
-				:keep-first="false"
-				:open-on-focus="true"
-				:data="filteredSquads"
-				field="name"
-				@input="option => {console.log(sideName,option,filteredSides)}"
-				@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.squadId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
-				:clearable="true"
-				style="min-width:10px"
-			></b-autocomplete><hr>
-			<div :label="player.name" v-for="player in mass_players_deed.players" :key="player.id">{{player.name}} <span class="red delete-button" @click="removePlayer(player)">☓</span></div>
-		</div>
-		<div class="deeds_mass_add_content deeds_mass_add_type">
-			<b-autocomplete
-												v-model="newDeedName_mass"
-												placeholder="Начните вводить тип деяния"
-												:keep-first="false"
-												:open-on-focus="true"
-												:data="filteredDeedTypes_mass"
-												field="description"
-												@input="option => {console.log(newDeedName_mass,option,filteredDeedTypes_mass)}"
-												@select="option => {mass_players_deed.type = option;mass_players_deed.honor = option.defaultHonor;console.log(option);}"
-												:clearable="true"
-												style="min-width:10px"
-											></b-autocomplete><br>
-											<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
-											<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
-		</div>
-		<!--<div class="deeds_mass_add_content deeds_mass_add_description">
-			<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
-		</div>-->
-		<div class="deeds_mass_add_content deeds_mass_add_honor">
-			<!--<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>-->
-			<b-button @click="addMassDeed(mass_players_deed)" type="is-success" style="max-width:100px">✔</b-button>
-			<b-button v-if="mass_players_deed.type||mass_players_deed.description||mass_players_deed.honor||mass_players_deed.players.length>0" @click="mass_players_deed={type:'',description:'',honor:'',players:[]};newPlayerName='';newDeedName_mass=''" type="is-warning" style="max-width:100px">Сбросить</b-button>
-		</div>
-	</div>
+	<b-tabs type="is-boxed" position="is-centered">
+		<b-tab-item label="Деяния">
+			<div class="deeds_mass_add ">
+				<div class="deeds_mass_add_content deeds_mass_add_players">
+					<!--<b-field :label="player.name" v-for="player in mass_players_deed.players" :key="player.id"><span class="red delete-button">☓</span></b-field>-->
+					<!--<div :label="player.name" v-for="player in mass_players_deed.players" :key="player.id">{{player.name}} <span class="red delete-button" @click="removePlayer(player)">☓</span></div><hr>-->
+					<b-field label="Добавить персонажа"></b-field>
+					<b-autocomplete
+						v-model="newPlayerName"
+						placeholder="Начните вводить имя персонажа"
+						:keep-first="false"
+						:open-on-focus="true"
+						:data="filteredPlayers"
+						field="name"
+						@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+						@select="option => {mass_players_deed.players.push({name:option.name,id:option.id});console.log('!!!',option);}"
+						:clearable="true"
+						style="min-width:10px"
+					></b-autocomplete><br>
+					<b-field label="Добавить всех персонажей стороны"></b-field>
+					<b-autocomplete
+						v-model="sideName"
+						placeholder="Начните вводить название стороны"
+						:keep-first="false"
+						:open-on-focus="true"
+						:data="filteredSides"
+						field="description"
+						@input="option => {console.log(sideName,option,filteredSides)}"
+						@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.sideId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
+						:clearable="true"
+						style="min-width:10px"
+					></b-autocomplete><br>
+					<b-field label="Добавить всех персонажей отряда"></b-field>
+					<b-autocomplete
+						v-model="squadName"
+						placeholder="Начните вводить название отряда"
+						:keep-first="false"
+						:open-on-focus="true"
+						:data="filteredSquads"
+						field="name"
+						@input="option => {console.log(sideName,option,filteredSides)}"
+						@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.squadId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
+						:clearable="true"
+						style="min-width:10px"
+					></b-autocomplete><hr>
+					<div :label="player.name" v-for="player in mass_players_deed.players" :key="player.id">{{player.name}} <span class="red delete-button" @click="removePlayer(player)">☓</span></div>
+				</div>
+				<div class="deeds_mass_add_content deeds_mass_add_type">
+					<b-autocomplete
+														v-model="newDeedName_mass"
+														placeholder="Начните вводить тип деяния"
+														:keep-first="false"
+														:open-on-focus="true"
+														:data="filteredDeedTypes_mass"
+														field="description"
+														@input="option => {console.log(newDeedName_mass,option,filteredDeedTypes_mass)}"
+														@select="option => {mass_players_deed.type = option;mass_players_deed.honor = option.defaultHonor;console.log(option);}"
+														:clearable="true"
+														style="min-width:10px"
+													></b-autocomplete><br>
+													<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
+													<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+				</div>
+				<!--<div class="deeds_mass_add_content deeds_mass_add_description">
+					<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
+				</div>-->
+				<div class="deeds_mass_add_content deeds_mass_add_honor">
+					<!--<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>-->
+					<b-button @click="addMassDeed(mass_players_deed)" type="is-success" style="max-width:100px">✔</b-button>
+					<b-button v-if="mass_players_deed.type||mass_players_deed.description||mass_players_deed.honor||mass_players_deed.players.length>0" @click="mass_players_deed={type:'',description:'',honor:'',players:[]};newPlayerName='';newDeedName_mass=''" type="is-warning" style="max-width:100px">Сбросить</b-button>
+				</div>
+			</div>
+		</b-tab-item>
+		<b-tab-item label="Субботнее подкрепление">
+			<b-button @click="makeReinforcementsAwaiting()" type="is-danger">Отправить подкрепления в Троаду</b-button>
+		</b-tab-item>
+	</b-tabs>
 </b-tab-item>
 <b-tab-item label="Типы Деяний">
 	<div class="" style="display:flex;justify-content: space-around;">
@@ -666,11 +675,13 @@ export default {
             return this.deedTypes.filter(deedType=>{
 				return(this.activeDeedGroup=='media'&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
-																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57||deedType.id==58||deedType.id==59||deedType.id==60)))
+																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56
+																||deedType.id==57||deedType.id==58||deedType.id==59||deedType.id==60||deedType.id==61||deedType.id==62)))
 				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35))
 				||(this.activeDeedGroup=='achievment'&&(deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
-																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56||deedType.id==57||deedType.id==59||deedType.id==60))
+																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56
+																||deedType.id==57||deedType.id==59||deedType.id==60||deedType.id==61||deedType.id==62))
 			}).filter(deedType => {
                 return (
                     deedType.description
@@ -1382,9 +1393,36 @@ export default {
 				
                     message: `Персонажи успешно синхронизированы`,
                     type: 'is-success'
+                });
+			
+			
+		},
+		async makeReinforcementsAwaiting(){
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeReinforcementsAwaiting',{},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				this.$buefy.toast.open({
+				
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
                 })
-			
-			
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.$buefy.toast.open({
+                    message: `Подкрепления отправлены!`,
+                    type: 'is-success'
+                });
+			this.loader_.classList.toggle('hidden');
 		},
 		getImg(deedName){
 		let res

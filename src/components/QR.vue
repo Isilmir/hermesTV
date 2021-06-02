@@ -104,6 +104,30 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startFuneral" type="is-success" :disabled="!funeralSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Отметить полученное подкрепление">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectReinforcementCheckSubject')" type="is-success">Герой, получивший подкрепление</b-button>
+							<div v-for="obj in reinforcementCheckSubject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект не может провести похороны</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startReinforcementCheck" type="is-success" :disabled="!reinforcementCheckSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
 				<b-tab-item label="Видимость персонажа">
 					<div class="innerTab">
 						<!--<input value="Активировать" type="button" v-on:click="startScan('activateObject')"/>
@@ -187,7 +211,8 @@ export default {
 	  furnalSubject:[],
 	  furnalObject:[],
 	  transferSubject:[],
-	  transferObject:[]
+	  transferObject:[],
+	  reinforcementCheckSubject:[]
     }
   },
   computed: {
@@ -196,6 +221,9 @@ export default {
         },
 		transferSubmit() {
             return this.transferSubject[0]&&this.transferObject[0]&&!this.transferObject[0].utilized
+        },
+		reinforcementCheckSubmit() {
+            return this.reinforcementCheckSubject[0]
         }
 	},
   async mounted(){
@@ -406,6 +434,22 @@ export default {
 		console.log('transferObject',this.transferObject);
 		return;
 	},
+	async selectReinforcementCheckSubject(obj){
+		//this.qr = JSON.stringify(obj);
+		this.reinforcementCheckSubject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.reinforcementCheckSubject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.reinforcementCheckSubject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.transferObject.push({objectType:'none'});
+		}
+		console.log('transferObject',this.transferObject);
+		return;
+	},
 	async onCloseModal(){
 		if(this.qrScanner){
 			this.qrScanner.stop();
@@ -536,6 +580,47 @@ export default {
                     type: 'is-success'
         })
 		this.transferObject=[];
+	},
+	async startReinforcementCheck(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Отмечаем полученное подкрепление',this.reinforcementCheckSubject);
+		let playerId;
+		switch(this.reinforcementCheckSubject[0].objectType){
+			case 'player':
+				playerId = this.reinforcementCheckSubject[0].id;
+				break;
+			case 'bjzi':
+				playerId = this.reinforcementCheckSubject[0].playerId;
+				break;
+		}
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeReinforcementsArrived',{
+						playerId:playerId
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				console.log(e);
+				console.log(e);
+				this.$buefy.toast.open({
+                    message: `Ошибка при обработке запроса: "${e.message}"`,
+                    type: 'is-danger'
+                })
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Получение подкрепления подтверждено`,
+                    type: 'is-success'
+        })
+		this.reinforcementCheckSubject=[];
 	}
   }
 }

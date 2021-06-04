@@ -309,6 +309,19 @@ export default {
 			});
 			}catch(e){
 				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			this.stories=stories.data;
 			this.loader_.classList.toggle('hidden');
@@ -326,6 +339,19 @@ export default {
 			});
 			}catch(e){
 				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			//console.log(players.data);
 			this.players=players.data;
@@ -350,6 +376,19 @@ export default {
 			}catch(e){
 			this.loader_.classList.toggle('hidden');
 			console.log(e.message);
+			//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			this.loader_.classList.toggle('hidden');
 			//console.log(response);
@@ -387,10 +426,19 @@ export default {
 				});
 				
 			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				return;
 			}
 			//response.data.findIndex(el=>el.id=)
@@ -430,10 +478,19 @@ export default {
 					}
 				});
 			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				return;
 			}
 			await this.fetchStories();
@@ -468,10 +525,19 @@ export default {
 					}
 				});
 			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				return;
 			}
 			if(obj.objectType=='player'){
@@ -505,12 +571,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				return;
 			}
 			if(obj.objectType=='player'){
@@ -544,10 +617,19 @@ export default {
 					}
 				});
 			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				return;
 			}
 			if(obj.objectType=='player'){

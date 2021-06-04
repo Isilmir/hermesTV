@@ -430,10 +430,19 @@ this.activeTab=0;
 		}
 	});
 		}catch(e){
+			//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 			this.$buefy.toast.open({
-					message: 'Ошибка при отправке письма!',
-					type: 'is-danger'
-				})
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			this.sendError=true;
 		}
 		console.log(res);
@@ -446,8 +455,9 @@ this.activeTab=0;
 	async addBJZI(bjzi){
 		//console.log(bjzi);
 		this.loader_.classList.toggle('hidden');
-		
-		const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
+		let res;
+		try{ 
+		 res = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
 			,{
 				id:null,
 				name:bjzi.name,
@@ -458,6 +468,20 @@ this.activeTab=0;
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
 			}
 		});
+		}catch(e){
+			if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+		}
 		// заменить math.random на получение id созданного в базе спутника
 		let id=res.data.id//Math.random()+'';
 		this.tabs.splice(this.tabs.length-1,2,{id:id,name:bjzi.name,label:bjzi.name,description:bjzi.description,disabled:true},{id:'new',label:'+',disabled:false});
@@ -478,7 +502,9 @@ this.activeTab=0;
 	async updateBJZI(bjzi){
 		//console.log('сохраняем данные bjzi',bjzi);
 		this.loader_.classList.toggle('hidden');
-		const res = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
+		let res;
+		try{
+		res		= await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateBjzi'//'http://192.168.0.181:5000/setOrUpdateBjzi'
 			,{
 				id:bjzi.id,
 				name:bjzi.name,
@@ -489,6 +515,20 @@ this.activeTab=0;
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
 			}
 		});
+		}catch(e){
+			if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+		}
 		this.tabs.filter(el=>el.id==bjzi.id)[0].label=bjzi.name;
 		this.tabs.filter(el=>el.id==bjzi.id)[0].disabled=true;
 		this.loader_.classList.toggle('hidden');
@@ -515,6 +555,18 @@ this.activeTab=0;
 			});
 			}catch(e){
 				console.log(e.message);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 		console.log(faces.data);
 		
@@ -551,6 +603,18 @@ this.activeTab=0;
 				});
 			}catch(e){
 				console.log(e.message);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			await this.onImageLoad_auto(face.data,this.tabs[tab_]);
 		}

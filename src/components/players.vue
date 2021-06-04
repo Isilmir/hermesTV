@@ -788,6 +788,19 @@ export default {
 			});
 			}catch(e){
 				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			//console.log(players.data);
 			this.players=players.data.filter(player=>player.realName);
@@ -807,6 +820,19 @@ export default {
 			});
 			}catch(e){
 				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			//console.log(players.data);
 			this.messages=messages.data.sort((a,b)=>{
@@ -830,6 +856,19 @@ export default {
 			});
 			}catch(e){
 				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			//console.log(players.data);
 			this.deedTypes=deedTypes.data;
@@ -851,6 +890,19 @@ export default {
 			});
 			}catch(e){
 				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			//console.log(players.data);
 			this.dictionaries=dictionaries.data;
@@ -871,6 +923,19 @@ export default {
 			}catch(e){
 			this.loader_.classList.toggle('hidden');
 			console.log(e.message);
+			//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 			}
 			this.loader_.classList.toggle('hidden');
 			//console.log(response);
@@ -916,12 +981,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -964,12 +1036,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1005,12 +1084,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1035,12 +1121,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1070,12 +1163,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1098,12 +1198,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1131,12 +1238,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1167,12 +1281,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1196,12 +1317,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Возможно деяния с этим типом еще остались у игроков.\nТекст ошибки: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `Возможно деяния с этим типом еще остались у игроков.\nТекст ошибки: ${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1241,12 +1369,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1278,12 +1413,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1308,12 +1450,19 @@ export default {
 				}
 			});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1335,12 +1484,19 @@ export default {
 				}
 			});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1355,12 +1511,19 @@ export default {
 				}
 			});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-					
-                    message: `${e.message}`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1375,12 +1538,19 @@ export default {
 				}
 			});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `${e.message}`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
@@ -1409,12 +1579,19 @@ export default {
 					}
 				});
 			}catch(e){
-				console.log(e);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
 				this.$buefy.toast.open({
-				
-                    message: `Ошибка при обработке запроса: "${e.message}"`,
-                    type: 'is-danger'
-                })
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
 				this.loader_.classList.toggle('hidden');
 				return;
 			}

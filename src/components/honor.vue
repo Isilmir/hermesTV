@@ -135,9 +135,11 @@
 </template>
 <script>
 import axios from 'axios'
+import jwt from 'jsonwebtoken'
 
 export default {
   name: 'honor',
+  props:['cert'],
   data () {
     return {
       players: [],
@@ -234,6 +236,7 @@ export default {
 		
     },
   async mounted(){
+	//console.log(jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }))
 	loader_.classList.toggle('hidden');
 	this.console=console;
 	let headers = {};
@@ -246,9 +249,14 @@ export default {
 				headers: headers
 			});
 			}catch(e){
-				console.log(e.message);
+				//console.log(e.message);
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				loader_.classList.toggle('hidden');
 			}
-			console.log(players);
+			//console.log(players);
 			this.players=players.data
 									//.map(player=>{player.deedTypes=player.deeds.map(deed=>);return player;})
 									.sort((a,b)=>{

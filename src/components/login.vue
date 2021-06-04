@@ -34,7 +34,7 @@ export default {
 		e.preventDefault();
 		let loginRes
 		try{
-			loginRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com'//'http://192.168.0.181:5000/'
+			loginRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com'//'https://blooming-refuge-12227.herokuapp.com'//'http://192.168.0.148:5000/'
 												,'/login',{user:this.user,password:this.password});
 		}catch(e){
 			console.log(e.statusCode,e.message);

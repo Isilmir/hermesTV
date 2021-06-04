@@ -2,7 +2,7 @@
   <div id="app">
     <!--<img src="./assets/logo.png">--><div class="header">{{user.name}} <a v-if="user.name!='Гость'" href="#" @click="logout">выйти</a></div>
     
-<router-view style="height:100%"/>
+<router-view style="height:100%" v-bind:cert="cert"/>
 
   </div>
 </template>
@@ -10,8 +10,10 @@
 <script>
 //import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
+import jwt from 'jsonwebtoken'
 export default {
   name: 'App',
+  props:['cert'],
   data () {
     return {
 	  user:localStorage.getItem('user')?JSON.parse(localStorage.getItem('user')):{name:'Гость'}
@@ -27,6 +29,7 @@ export default {
 	},
 	async mounted(){
 		console.log('mounted',this.user.name)
+		//console.log(jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }))
 		//console.log('путь',this.$route)
 	},
 	async beforeUpdate(){

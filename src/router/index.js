@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import axios from 'axios'
+import cert from '../rsa/publickey.json'
+import jwt from 'jsonwebtoken'
+
 import HelloWorld from '@/components/HelloWorld'
 import test from '@/components/Test'
 import qr from '@/components/QR'
@@ -156,6 +159,22 @@ router.beforeEach(async (to,from,next)=>{
 //console.log('from',from);
 	//if(to.path == '/login'){console.log('запревентали');next();return;}
 	//if(from.path == '/'){console.log('запревентали');next();return;}
+	if(localStorage.getItem('jwt')){
+		//console.log('beforeEach',localStorage.getItem('jwt'),cert);
+		try{
+			let token=jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),cert.publicKey,{ algorithms: ['RS256'] })
+			//console.log('beforeEach2',token);
+		}catch(e){
+			//console.log('beforeEach3',e);
+			localStorage.removeItem('jwt');
+			localStorage.removeItem('user');
+			next({
+                path: '/login',
+                params: { nextUrl: to.fullPath },
+				query: { nextUrl: to.fullPath || '/' }
+            });
+		}
+	}
 	if(to.matched.some(record => record.meta.requireAuth)) {
 		//console.log('requireAuth',to.matched.some(record => record.meta.requireAuth));
         if (!localStorage.getItem('jwt')) {

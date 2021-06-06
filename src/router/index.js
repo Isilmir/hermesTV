@@ -47,8 +47,8 @@ let router = new Router({
       name: 'qr',
 	component: qr,
 	  meta:{
-			requireAuth:true,
-			requireAdmin:true
+			requireAuth:true//,
+			//requireAdmin:true
 		}
 	},
 	{

@@ -8,7 +8,7 @@
 	<b-tabs v-model="activeTab" type="is-boxed" position="is-centered">
 		<b-tab-item label="Персонажи">
 			<b-tabs v-model="activeTabPersons" position="is-centered" vertical>
-				<b-tab-item label="Передать спутника">
+				<b-tab-item label="Передать спутника" v-if="permissions.filter(el=>el=='makeBjziTransfer'||el=='admin').length>0">
 					<div class="innerTabWrap">
 						<div class="innerTabCenter">
 							<b-button @click="startScan('selectTransferSubject')" type="is-success">Герой, кому передаем</b-button>
@@ -54,7 +54,7 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startTransfer" type="is-success" :disabled="!transferSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
-				<b-tab-item label="Провести похороны">
+				<b-tab-item label="Провести похороны" v-if="permissions.filter(el=>el=='makeFuneral'||el=='admin').length>0">
 					<div class="innerTabWrap">
 						<!--<input value="Сканировать" type="button" v-on:click="startScan('scanObject')"/>-->
 						<!--<b-button @click="startScan('scanObject')" type="is-success">Сканировать</b-button>-->
@@ -104,7 +104,7 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startFuneral" type="is-success" :disabled="!funeralSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
-				<b-tab-item label="Отметить полученное подкрепление">
+				<b-tab-item label="Отметить полученное подкрепление" v-if="permissions.filter(el=>el=='makeReinforcementsArrived'||el=='admin').length>0">
 					<div class="innerTabWrap">
 						<div class="innerTabCenter">
 							<b-button @click="startScan('selectReinforcementCheckSubject')" type="is-success">Герой, получивший подкрепление</b-button>
@@ -128,7 +128,7 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startReinforcementCheck" type="is-success" :disabled="!reinforcementCheckSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
-				<b-tab-item label="Видимость персонажа">
+				<b-tab-item label="Видимость персонажа" v-if="permissions.filter(el=>el=='test-action'||el=='admin').length>0">
 					<div class="innerTab">
 						<!--<input value="Активировать" type="button" v-on:click="startScan('activateObject')"/>
 						<input value="Деактивировать" type="button" v-on:click="startScan('deactivateObject')"/>-->
@@ -142,7 +142,7 @@
 		</b-tab-item>
 		<b-tab-item label="Общее">
 			<b-tabs v-model="activeTabCustom" position="is-centered" vertical>
-				<b-tab-item label="Информация по объекту">
+				<b-tab-item label="Информация по объекту"  v-if="permissions.filter(el=>el=='scanObject'||el=='admin').length>0">
 					<div class="innerTab">
 						<!--<input value="Сканировать" type="button" v-on:click="startScan('scanObject')"/>-->
 						<b-button @click="startScan('scanObject')" type="is-success">Сканировать</b-button>
@@ -191,9 +191,11 @@
 import axios from 'axios'
 import QrScanner from 'qr-scanner'
 import QrScannerWorkerPath from '!!file-loader!../../node_modules/qr-scanner/qr-scanner-worker.min.js';
+import jwt from 'jsonwebtoken'
 QrScanner.WORKER_PATH = QrScannerWorkerPath;
 export default {
   name: 'QR',
+  props:['cert'],
   data () {
     return {
       msg: 'QR-scanner',
@@ -212,7 +214,8 @@ export default {
 	  furnalObject:[],
 	  transferSubject:[],
 	  transferObject:[],
-	  reinforcementCheckSubject:[]
+	  reinforcementCheckSubject:[],
+	  permissions:[]
     }
   },
   computed: {
@@ -227,6 +230,17 @@ export default {
         }
 	},
   async mounted(){
+	console.log(jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }));
+	try{
+		this.permissions=jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }).permissions;
+	}catch(e){
+		this.$buefy.toast.open({
+								message: `Не удалось получить разрешения эмиссара на использование сканера`,
+								type: 'is-danger'
+								})
+	}
+	console.log(this.permissions);
+	//console.log('проверка',this.permissions.filter(el=>{console.log(el,el==('test-action'||'admin'));return el==('test-action'||'admin');}))
 	this.hasCamera=await QrScanner.hasCamera();
 	this.loader_=document.getElementById('loader_');
 	await this.fetchDictionaries();

@@ -26,7 +26,7 @@ export default {
     }
   },
    async mounted(){
-		console.log(localStorage);
+		//console.log(localStorage);
 		//console.log(this.$route,this.$router);
   },
   methods:{
@@ -37,7 +37,12 @@ export default {
 			loginRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com'//'https://blooming-refuge-12227.herokuapp.com'//'http://192.168.0.148:5000/'
 												,'/login',{user:this.user,password:this.password});
 		}catch(e){
-			console.log(e.statusCode,e.message);
+			//console.log(e.statusCode,e.message);
+			this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+			return;
 		}
 		if(loginRes.status==200){
 			localStorage.setItem('user',JSON.stringify(loginRes.data.user));

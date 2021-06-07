@@ -33,14 +33,14 @@
 							<b-button @click="startScan('selectTransferObject')" type="is-success">Спутник, которого передаем</b-button>
 							<div v-for="obj in transferObject">
 								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя передать</div>
-								<!--<div class="innerTab" v-if="obj.objectType=='player'">
-									<div class="innerTabFurnal">
+								<div class="innerTab" v-if="obj.objectType=='player'">Увы героя нельзя передать
+									<!--<div class="innerTabFurnal">
 										<span>{{obj.name}} (герой)</span>
 										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
 										<span v-if="obj.stateId==3" class="red">Герой уже был похоронен!</span>
 										<span v-if="furnalSubject[0]&&obj.id==furnalSubject[0].id" class="red">Нельзя хоронить самого себя)</span>
-									</div>
-								</div>-->
+									</div>-->
+								</div>
 								<div class="innerTab" v-if="obj.objectType=='bjzi'">
 									<div class="innerTabFurnal">
 										<span>{{obj.name}} (спутник)</span>
@@ -128,6 +128,41 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startReinforcementCheck" type="is-success" :disabled="!reinforcementCheckSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Создать нового персонажа из спутника" v-if="permissions.filter(el=>el=='makeNewPlayerFromBjzi'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectNewPlayer')" type="is-success">Спутник, готовый стать героем</b-button> 
+							<div v-for="obj in newPlayer">
+								<div class="innerTab" v-if="obj.objectType!='bjzi'">Увы из этого объекта нельзя сделать героя</div>
+								<!--<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>-->
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>Имя будущего героя: <b-input v-model="obj.name" maxlength="255" placeholder="Имя героя" style="margin-right:10px"></b-input></span>
+										<span>Отряд будущего героя: 
+										<b-autocomplete
+																		v-model="squadName"
+																		placeholder="Название отряда"
+																		:keep-first="false"
+																		:open-on-focus="true"
+																		:data="filteredSquads"
+																		field="name"
+																		@select="option => {obj.playerSquad=option.id}"
+																		:clearable="true"
+																		style="min-width:10px"
+																	></b-autocomplete></span><br>
+										<span><b-switch v-model="newPlayerTransfer"  passive-type='is-success' :disabled="transferDeny">{{ newPlayerTransfer?`Перенести оставшихся спутников`:`Только создать героя` }}</b-switch></span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startNewPlayerMaking" type="is-success" :disabled="!newPlayerSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
 				<b-tab-item label="Видимость персонажа" v-if="permissions.filter(el=>el=='test-action'||el=='admin').length>0">
 					<div class="innerTab">
 						<!--<input value="Активировать" type="button" v-on:click="startScan('activateObject')"/>
@@ -204,6 +239,7 @@ export default {
 	  hasCamera:'',
 	  qrScanner:null,
 	  result:'',
+	  squadName:'',
 	  scannerActive:false,
 	  activeTab: undefined,
 	  activeTabPersons: undefined,
@@ -215,6 +251,8 @@ export default {
 	  transferSubject:[],
 	  transferObject:[],
 	  reinforcementCheckSubject:[],
+	  newPlayer:[],
+	  newPlayerTransfer:false,
 	  permissions:[]
     }
   },
@@ -227,7 +265,28 @@ export default {
         },
 		reinforcementCheckSubmit() {
             return this.reinforcementCheckSubject[0]
-        }
+        },
+		newPlayerSubmit() {
+            return this.newPlayer[0]&&this.newPlayer[0].playerSquad;
+        },
+		filteredSquads() {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => {
+				//console.log(squad);
+                return (
+                    squad.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.squadName.toLowerCase()) >= 0
+                )
+            })
+		},
+		transferDeny(){
+			if(this.newPlayer.length>0){
+				return this.newPlayer[0].playerSide==16333?true:false;
+			}else{
+				return true;
+			}
+		}
 	},
   async mounted(){
 	console.log(jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }));
@@ -509,9 +568,39 @@ export default {
 				this.reinforcementCheckSubject.push(await this.getBjziSingle(obj.id));
 				break;
 			default:
-				this.transferObject.push({objectType:'none'});
+				this.reinforcementCheckSubject.push({objectType:'none'});
 		}
-		console.log('transferObject',this.transferObject);
+		console.log('reinforcementCheckSubject',this.reinforcementCheckSubject);
+		return;
+	},
+	async selectNewPlayer(obj){
+		//this.qr = JSON.stringify(obj);
+		this.newPlayer=[];
+		switch(obj.objectType){
+			//case 'player':
+			//	this.reinforcementCheckSubject.push(await this.getPlayer(obj.id));
+			//	break;
+			case 'bjzi':
+			try{
+				let bjzi = await this.getBjziSingle(obj.id);
+				if(bjzi.objectType=='bjzi'){
+					this.newPlayer.push(bjzi);
+					this.squadName=this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>el.id==this.newPlayer[0].playerSquad)[0].name
+					this.newPlayerTransfer=bjzi.playerSide==16333?false:true;
+				}else{
+					this.newPlayer.push({objectType:'none'});
+				}
+			}catch(e){
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+			}
+				break;
+			default:
+				this.newPlayer.push({objectType:'none'});
+		}
+		console.log('newPlayer',this.newPlayer);
 		return;
 	},
 	async onCloseModal(){
@@ -556,7 +645,7 @@ export default {
 			this.loader_.classList.toggle('hidden');
 			let response;
 			try{
-				response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/bjzi/${id}`,
+				response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/bjzi/${id}`,//192.168.0.148:5000
 			{
 				headers: {
 				  'Content-Type': 'application/json',
@@ -580,8 +669,8 @@ export default {
 					});
 			}
 			this.loader_.classList.toggle('hidden');
-			//console.log(response.data[0]);
-			return response.data[0];
+			console.log('!!!!',response.data[0]);
+			return response.data[0].isPlayer?response.data[0].player:response.data[0];
 	},
 	async startFuneral(){
 		this.loader_.classList.toggle('hidden');
@@ -729,6 +818,57 @@ export default {
                     type: 'is-success'
         })
 		this.reinforcementCheckSubject=[];
+	},
+	async startNewPlayerMaking(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Создаем нового героя',this.newPlayer);
+		if(this.newPlayer[0].playerSquad==16333){
+			this.loader_.classList.toggle('hidden');
+			this.$buefy.toast.open({
+                    message: `Нельзя выводить героя в игротехнику`,
+                    type: 'is-danger',
+					duration:5000
+                });
+			return;
+		}
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeNewPlayerFromBjzi',{
+						id:this.newPlayer[0].id,
+						squadId:this.newPlayer[0].playerSquad,
+						name:this.newPlayer[0].name,
+						transferBjzi:this.newPlayerTransfer
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Спутник успешно стал героем!`,
+                    type: 'is-success'
+        })
+		this.newPlayer=[];
+		this.newPlayerTransfer=false;
 	}
   }
 }

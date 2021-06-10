@@ -155,7 +155,7 @@
 							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
 																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56
-																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60||deed.type.id==61||deed.type.id==62))" 
+																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60||deed.type.id==61||deed.type.id==62||deed.type.id==63||deed.type.id==64))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -202,7 +202,7 @@
 							</b-table>
 						</b-tab-item></template>
 						<template><b-tab-item label="Боевые" value="war">
-							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35)" 
+							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==63||deed.type.id==64)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -676,8 +676,8 @@ export default {
 				return(this.activeDeedGroup=='media'&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
 																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56
-																||deedType.id==57||deedType.id==58||deedType.id==59||deedType.id==60||deedType.id==61||deedType.id==62)))
-				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35))
+																||deedType.id==57||deedType.id==58||deedType.id==59||deedType.id==60||deedType.id==61||deedType.id==62||deedType.id==63||deedType.id==64)))
+				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==63||deedType.id==64))
 				||(this.activeDeedGroup=='achievment'&&(deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
 																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56

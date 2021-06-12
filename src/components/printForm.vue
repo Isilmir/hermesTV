@@ -21,9 +21,24 @@
 			<b-tab-item :label="tab.label" v-for="tab in tabs" :key="tab.id" :disabled="tab.id=='new'&&tabs.length>maxSquadSize">
                 <div class="main">
 					<div class="entry-data">
-					<label>Имя: </label><input type="text" v-model="tab.name" :disabled="tab.disabled"><br><br>
-					<div v-if="!tab.isPlayer"><label>Напутствие: </label><input type="text" v-model="tab.description"  :disabled="tab.disabled"><br><br></div>
-					<div v-if="tab.id!='new'"><label>Фотография: </label><input type="file" @change="sync($event,tab)"/><label style="color:red;">   {{img_error}}</label></div>
+					<!--<label>Имя: </label><input type="text" v-model="tab.name" :disabled="tab.disabled">-->
+					<b-field label="Имя">
+					<b-input v-model="tab.name" type="text" maxlength="40" placeholder="Имя спутника" style="margin-right:10px" :disabled="tab.disabled"></b-input>
+					</b-field>
+					<!--<br><br>-->
+					<div v-if="!tab.isPlayer">
+					<!--<label>Напутствие: </label><input type="text" v-model="tab.description"  :disabled="tab.disabled">-->
+					<b-field label="Напутсвие">
+					<b-input v-model="tab.description" type="textarea" maxlength="135" placeholder="Пара теплых слов" style="margin-right:10px" :disabled="tab.disabled"></b-input>
+					</b-field>
+					<!--<br><br>-->
+					</div>
+					<div v-if="tab.id!='new'">
+					<!--<label>Фотография: </label>-->
+					<b-field label="Фотография">
+					<input type="file" @change="sync($event,tab)"/><!--<label style="color:red;">   {{img_error}}</label>-->
+					</b-field>
+					</div>
 					<div v-if="tab.id=='new'"><b-button @click="addBJZI(tab)" :disabled="!tab.name||!tab.description">Добавить спутника</b-button></div>
 					<div v-if="tab.id!='new'&&!tab.isPlayer&&tab.disabled"><br><b-button @click="tab.disabled=false">Изменить описание</b-button></div>
 					<div v-if="tab.id!='new'&&!tab.isPlayer&&!tab.disabled"><br><b-button @click="updateBJZI(tab)">Сохранить изменение</b-button></div>
@@ -62,12 +77,12 @@
 			<!--<div class="owner">Командир: <br> {{user.name}} <br>({{user.side.name}})</div>-->
 			<div class="holearea"><!--<span class="name_desc" v-if="isPlayer">герой</span><span class="name_desc" v-if="!isPlayer">спутник</span>--></div>
 		</div>
-		<div id="printform_back">
+		<!--<div id="printform_back">
 			<div class="desc" v-if="isPlayer">Отряд: <br>{{user.squad.name}}</div>
 			<div class="desc" v-if="!isPlayer">{{description}}</div>
 			<div class="owner" v-if="isPlayer">Сторона: <br>{{user.side.name}}</div>
 			<div class="owner" v-if="!isPlayer">Командир: <br> {{user.name}} <br>({{user.side.name}})</div>
-		</div>
+		</div>-->
 	</div>
 		<!--<br><br>-->
 	<!--<img :src="res_src" ref="img" height="50%"></img>-->
@@ -140,16 +155,15 @@ export default {
 	
 	this.loader_=document.getElementById('loader_');
 	this.loader_.classList.toggle('hidden');
-	const bjzi = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBjzi',//'http://192.168.0.181:5000/getBjzi', 
+	const bjzi = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBjzi',//'http://192.168.0.148:5000/getBjzi', 
 		{
 			headers: {
 			  'Content-Type': 'application/json',
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
 			}
 		});
-	
-	//console.log(res);
-	
+	console.log(bjzi);
+
 	this.tabs=[{id:this.user.id,name:this.user.name,label:`${this.user.name} (Командир)`,disabled:true,isPlayer:true}];
 	bjzi.data.map(el=>{this.tabs.push({id:el.id,name:el.name,label:el.name,description:el.description,disabled:true})})
 //,{id:2,name:'Иван',label:'Иван',description:'друг детства',disabled:true}
@@ -223,7 +237,16 @@ this.activeTab=0;
     },
 	selectImage (file) {
          this.file = file;
-	if(file.size>10000000){this.img_error='Размер файла превышает 10Мб!';console.log('Размер файла превышает 10Мб!');return;}
+	if(file.size>10000000){
+		this.img_error='Размер файла превышает 10Мб!';
+		console.log('Размер файла превышает 10Мб!');
+		this.$buefy.toast.open({
+                    message: 'Размер файла превышает 10Мб!',
+                    type: 'is-danger',
+					duration:5000
+                });
+		return;
+	}
          let reader = new FileReader();
          reader.onload = this.onImageLoad;
          reader.readAsDataURL(file);
@@ -420,7 +443,7 @@ this.activeTab=0;
 		  let res;
 		  
 		try{ 
-	res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.181:5000/sendMail'
+	res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.148:5000/sendMail'
 		, formData
 		, {
 		headers: {
@@ -444,7 +467,19 @@ this.activeTab=0;
 					duration:5000
                 });
 			this.sendError=true;
+			console.log(res);
+		//loader_.classList.toggle('hidden');
+		
+		//document.getElementById('loader_')
+		this.loader_.classList.toggle('hidden');
+		this.sendButtonDisable=false;
+		return;
 		}
+		this.$buefy.toast.open({
+                    message: `Файл успешно отправлен в редакцию`,
+                    type: 'is-success',
+					duration:5000
+                });
 		console.log(res);
 		//loader_.classList.toggle('hidden');
 		
@@ -546,7 +581,7 @@ this.activeTab=0;
 		console.log('тестируем автоматическую загрузку лиц');
 		let faces;
 		try{
-			faces = await axios.get('https://blooming-refuge-12227.herokuapp.com/faces', //'http://192.168.0.148:5000/faces',
+			faces = await axios.get('https://blooming-refuge-12227.herokuapp.com/faces',//'https://blooming-refuge-12227.herokuapp.com/faces', //'http://192.168.0.148:5000/faces',
 			{
 				headers: {
 				  'Content-Type': 'application/json',
@@ -594,7 +629,7 @@ this.activeTab=0;
 			console.log(this.tabs[tab_]);
 			let face;
 			try{
-				face = await axios.get(`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`, //`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,
+				face = await axios.get(`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`,//`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`, //`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,
 				{
 					headers: {
 					  'Content-Type': 'application/json',
@@ -682,19 +717,19 @@ this.activeTab=0;
 		//this.loader_.classList.toggle('hidden');
 		
 		//обработка обратной стороны
-		let screenshot_back= await html2canvas(document.getElementById('printform_back')
-			,{
-			  scale:1
-			}
-		);
-		
-		let domtoimage_screenshot_back= await domtoimage.toPng(document.getElementById('printform_back'), { quality: 1 });
-document.getElementById('printform-wrapper').style.display='none';
-		let url_back = screenshot_back.toDataURL();
-		this.res_content=url_back;
-		tab.img_url_back=domtoimage_screenshot_back;//url;
-		tab.img_width_back=screenshot_back.width;
-		tab.img_height_back=screenshot_back.height;
+		//let screenshot_back= await html2canvas(document.getElementById('printform_back')
+		//	,{
+		//	  scale:1
+		//	}
+		//);
+		//
+		//let domtoimage_screenshot_back= await domtoimage.toPng(document.getElementById('printform_back'), { quality: 1 });
+		//document.getElementById('printform-wrapper').style.display='none';
+		//let url_back = screenshot_back.toDataURL();
+		//this.res_content=url_back;
+		//tab.img_url_back=domtoimage_screenshot_back;//url;
+		//tab.img_width_back=screenshot_back.width;
+		//tab.img_height_back=screenshot_back.height;
 		this.$forceUpdate();
 		this.loader_.classList.toggle('hidden');
     }

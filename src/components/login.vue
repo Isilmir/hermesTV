@@ -1,5 +1,6 @@
 <template>
 <div class="row">
+<img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
 	<div></div>
 	<div style="text-align:left;">
 		<h1>Авторизация</h1><br>
@@ -26,12 +27,14 @@ export default {
     }
   },
    async mounted(){
+   this.loader_=document.getElementById('loader_');
 		//console.log(localStorage);
 		//console.log(this.$route,this.$router);
   },
   methods:{
 	async handleSubmit(e){
 		e.preventDefault();
+		this.loader_.classList.toggle('hidden');
 		let loginRes
 		try{
 			loginRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com'//'https://blooming-refuge-12227.herokuapp.com'//'http://192.168.0.148:5000/'
@@ -42,8 +45,10 @@ export default {
                     message: `${e.response?e.response.data:e.message}`,
                     type: 'is-danger'
                 });
+			this.loader_.classList.toggle('hidden');
 			return;
 		}
+		this.loader_.classList.toggle('hidden');
 		if(loginRes.status==200){
 			localStorage.setItem('user',JSON.stringify(loginRes.data.user));
 			localStorage.setItem('jwt',JSON.stringify(loginRes.data.token));

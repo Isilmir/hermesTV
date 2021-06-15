@@ -15,8 +15,9 @@
 	</div>-->
 	<span v-if="user.side.id==16333"><b-button @click="testFaces">Загрузить фото автоматически</b-button>
 			<!--<b-switch v-model="male">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>-->
-			<b-switch v-model="sex" true-value="female" false-value="male" passive-type='is-success' >{{ sex }}</b-switch>
+			<b-switch v-model="sex" true-value="female" false-value="male" passive-type='is-success' >{{ sex }}</b-switch><br>
 	</span>
+	<span v-if="tabs.length>1">Спутников: {{tabs.length-2}}/{{maxSquadSize-1}}</span>
 		<b-tabs v-model="activeTab" type="is-boxed">
 			<b-tab-item :label="tab.label" v-for="tab in tabs" :key="tab.id" :disabled="tab.id=='new'&&tabs.length>maxSquadSize">
                 <div class="main">
@@ -155,7 +156,9 @@ export default {
 	
 	this.loader_=document.getElementById('loader_');
 	this.loader_.classList.toggle('hidden');
-	const bjzi = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBjzi',//'http://192.168.0.148:5000/getBjzi', 
+	let bjzi
+	try{
+	bjzi = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBjzi',//'http://192.168.0.148:5000/getBjzi', 
 		{
 			headers: {
 			  'Content-Type': 'application/json',
@@ -163,7 +166,29 @@ export default {
 			}
 		});
 	console.log(bjzi);
-
+	
+	}catch(e){
+			//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+			this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+			console.log(res);
+		//loader_.classList.toggle('hidden');
+		
+		//document.getElementById('loader_')
+		this.loader_.classList.toggle('hidden');
+		return;
+		}
+	
 	this.tabs=[{id:this.user.id,name:this.user.name,label:`${this.user.name} (Командир)`,disabled:true,isPlayer:true}];
 	bjzi.data.map(el=>{this.tabs.push({id:el.id,name:el.name,label:el.name,description:el.description,disabled:true})})
 //,{id:2,name:'Иван',label:'Иван',description:'друг детства',disabled:true}

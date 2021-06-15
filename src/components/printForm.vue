@@ -453,7 +453,7 @@ this.activeTab=0;
 		//pdf.addPage();
 		//pdf.addImage(this.tabs.filter(el=>el.isPlayer)[0].img_url_back,'PNG',10,10,190*scale,this.tabs.filter(el=>el.isPlayer)[0].img_height_back/this.tabs.filter(el=>el.isPlayer)[0].img_width_back*190*scale,null,'SLOW');
 					
-		pdf.save(`${this.user.id}_${this.user.name}_printform.pdf`);
+		pdf.save(`${this.user.id}_${this.user.name}_[${this.user.squad.name}]_[${this.user.side.name}].pdf`);
 
 		// отправляем форму для пересылки по почте
 	
@@ -462,7 +462,7 @@ this.activeTab=0;
 		  const formData = new FormData();
 		  formData.append('attach', blob, `${this.user.id}_${this.user.name}_printform.pdf`);
 		  formData.append('userId', this.user.id);// взять userid из роута
-			formData.append('userName', this.user.name);// взять username из роута
+			formData.append('userName', `${this.user.name} [${this.user.squad.name}] [${this.user.side.name}]`);// взять username из роута
 
 		  // Post the form, just make sure to set the 'Content-Type' header
 		  let res;

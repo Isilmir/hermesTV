@@ -513,6 +513,17 @@
 		<b-button @click="addDeedType(newDeedType)" type="is-success">✔</b-button>
 	</div>
 </b-tab-item>
+<b-tab-item label="Конфиг">
+	<div v-for="storage in configStorages" :label="storage">
+		<b-field :label="storage"></b-field>
+		<div class="" v-for="configVar in config.filter(el=>el.storage==storage)" :key="configVar.id" style="display:flex;justify-content: space-around; align-items:flex-start">
+				<b-input v-model="configVar.description" maxlength="255" disabled width="500" type="text"></b-input>
+				<!--<b-input v-model="configVar.key_" maxlength="255" disabled></b-input>-->
+				<b-field :label="configVar.valueType" label-position="on-border"><b-input v-model="configVar.value" :type="'text'" ></b-input><br></b-field>
+				<b-button @click="updateConfig(configVar)" type="is-success">✔</b-button>
+		</div>
+	</div>
+</b-tab-item>
 <b-tab-item label="Синхронизация с JoinRPG">
 	Дата последней синхронизации: <b>{{lastUpdate}}</b><br>
 	<b-button @click="startJoinrpgSync()" type="is-success">Синхронизировать</b-button>
@@ -575,7 +586,9 @@ export default {
 				player:{name:''}
 				},
 	  newMessagePlayerName:'',
-	  newMessageTypeDescription:''
+	  newMessageTypeDescription:'',
+	  config:[],
+	  configStorages:[]
     }
   }
   ,computed: {
@@ -747,6 +760,7 @@ export default {
 		await this.fetchMessages();
 		//console.log(this.dictionaries);
 		await this.getLastUpdate();
+		await this.getConfig();
 	}
 	,methods:{
 
@@ -1469,6 +1483,93 @@ export default {
 			this.loader_.classList.toggle('hidden');
 			//await this.fetchPlayers();
 			this.lastUpdate = response.data;
+		},
+		async getConfig(){
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+			response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/getConfig`// 'https://blooming-refuge-12227.herokuapp.com/getPlayers'
+			,{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			this.config = response.data;
+			this.configStorages=[];
+			this.config.map(el=>{
+				//console.log(el.storage,this.configStorages.filter(storage=>storage==el.storage));
+				if(this.configStorages.filter(storage=>storage==el.storage).length==0){this.configStorages.push(el.storage)}
+			})
+			//console.log('config',this.config,this.configStorages);
+		},
+		async updateConfig(configVar){
+			console.log('изменяем конфиг',configVar,configVar.valueType=='decimal',+configVar.value,isNaN(+configVar.value));
+			this.loader_.classList.toggle('hidden');
+			if(configVar.valueType=='decimal'&&isNaN(+configVar.value)){
+				this.$buefy.toast.open({
+                    message: `Значение должно быть десятичной дробью!`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateConfig',{
+						id:configVar.id,
+						description:configVar.description,
+						storage:configVar.storage,
+						key_:configVar.key_,
+						value:configVar.value,
+						valueType:configVar.valueType
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			await this.getConfig();
 		},
 		async startJoinrpgSync(){
 			this.loader_.classList.toggle('hidden');

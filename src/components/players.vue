@@ -145,6 +145,10 @@
 												  validation-message="Only lowercase is allowed"
 												  pattern="#([0-9a-fA-F]{3}){1,2}">
 												</b-input>
+												<!--<b-input
+												  type="color"
+												  v-model="newDeed.color">
+												</b-input>-->
 											</div>
 											<b-button @click="addDeed(curPlayer,newDeed)" type="is-success">✔</b-button>
 										</div>
@@ -194,6 +198,10 @@
 								  validation-message="Only lowercase is allowed"
 								  pattern="#([0-9a-fA-F]{3}){1,2}">
 								</b-input>
+								<!--<b-input
+								  type="color"
+								  v-model="props.row.color">
+								</b-input>-->
 							</b-table-column>
 							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
 									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic,color:props.row.color})" type="is-success">✔</b-button>
@@ -241,6 +249,10 @@
 								  validation-message="Only lowercase is allowed"
 								  pattern="#([0-9a-fA-F]{3}){1,2}">
 								</b-input>
+								<!--<b-input
+								  type="color"
+								  v-model="props.row.color">
+								</b-input>-->
 							</b-table-column>
 							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
 									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic,color:props.row.color})" type="is-success">✔</b-button>
@@ -291,6 +303,10 @@
 								  validation-message="Only lowercase is allowed"
 								  pattern="#([0-9a-fA-F]{3}){1,2}">
 								</b-input>
+								<!--<b-input
+								  type="color"
+								  v-model="props.row.color">
+								</b-input>-->
 							</b-table-column>
 							<b-table-column field="honor" label=" " width="10%"  v-slot="props">
 									<b-button @click="updateDeed(curPlayer,{id:props.row.id,type:props.row.objectType,description:props.row.description,type:props.row.type,honor:props.row.honor,heroic:props.row.heroic,color:props.row.color})" type="is-success">✔</b-button>

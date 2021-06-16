@@ -104,6 +104,51 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startFuneral" type="is-success" :disabled="!funeralSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Утилизировать просроченные тела" v-if="permissions.filter(el=>el=='removeTrash'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<!--<div class="innerTabCenter">
+							<b-button @click="startScan('selectFurnalSubject')" type="is-success">Кто принес тело</b-button>
+							<div v-for="obj in furnalSubject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект не может провести похороны</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>-->
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectTrashObject')" type="is-success">Чье тело сдают</b-button>
+							<div v-for="obj in trashObject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя сдать</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+										<span v-if="obj.stateId==3" class="red">Герой уже был похоронен!</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+										<span v-if="obj.utilized" class="red">Спутник уже был похоронен!</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startTrash" type="is-success" :disabled="!trashSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
 				<b-tab-item label="Отметить полученное подкрепление" v-if="permissions.filter(el=>el=='makeReinforcementsArrived'||el=='admin').length>0">
 					<div class="innerTabWrap">
 						<div class="innerTabCenter">
@@ -248,6 +293,7 @@ export default {
 	  scannedObject:[],
 	  furnalSubject:[],
 	  furnalObject:[],
+	  trashObject:[],
 	  transferSubject:[],
 	  transferObject:[],
 	  reinforcementCheckSubject:[],
@@ -259,6 +305,9 @@ export default {
   computed: {
         funeralSubmit() {
             return this.furnalSubject[0]&&this.furnalObject[0]&&!this.furnalObject[0].utilized&&this.furnalObject[0].stateId!=3&&this.furnalSubject[0].id!=this.furnalObject[0].id
+        },
+		trashSubmit() {
+            return this.trashObject[0]&&!this.trashObject[0].utilized&&this.trashObject[0].stateId!=3
         },
 		transferSubmit() {
             return this.transferSubject[0]&&this.transferObject[0]&&!this.transferObject[0].utilized
@@ -528,6 +577,22 @@ export default {
 		console.log(this.furnalObject);
 		return;
 	},
+	async selectTrashObject(obj){
+		//this.qr = JSON.stringify(obj);
+		this.trashObject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.trashObject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.trashObject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.trashObject.push({objectType:'none'});
+		}
+		console.log(this.trashObject);
+		return;
+	},
 	async selectTransferSubject(obj){
 		//this.qr = JSON.stringify(obj);
 		this.transferSubject=[];
@@ -720,6 +785,56 @@ export default {
                     type: 'is-success'
         })
 		this.furnalObject=[];
+	},
+	async startTrash(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Проводим утилизацию тела',{SUBJECT:{id:100101,type:'player'},OBJECT:{id:this.trashObject[0].id,type:this.trashObject[0].objectType}});
+		
+		// 1. Добавить деяние субъекту
+		// 2. Перевести объект в мертвое состояние
+		
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeFuneral',{
+						SUBJECT:{
+							id:100101,
+							type:'player'
+						},
+						OBJECT:{
+							id:this.trashObject[0].id,
+							type:this.trashObject[0].objectType
+						},
+						expired:true
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Тело утилизировано`,
+                    type: 'is-success'
+        })
+		this.trashObject=[];
 	},
 	async startTransfer(){
 		this.loader_.classList.toggle('hidden');

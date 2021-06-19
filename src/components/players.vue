@@ -12,7 +12,7 @@
             <div style="display:flex;">
 			<b-select placeholder="Select a name" v-model="playerSortProp">
                 <option
-                    v-for="option in [{id:'name',name:'Имя персонажа'},{id:'honor',name:'Слава'},{id:'squadName',name:'Название отряда'},{id:'sideDescription',name:'Сторона конфликта'}]"соти
+                    v-for="option in [{id:'name',name:'Имя персонажа'},{id:'honor',name:'Слава'},{id:'squadName',name:'Название отряда'},{id:'sideDescription',name:'Сторона конфликта'}]"
                     :value="option.id"
                     :key="option.id">
                     {{ option.name }}
@@ -352,6 +352,46 @@
         </b-collapse>
 
 </b-tab-item>
+<b-tab-item label="Стратегия">
+	<b-button @click="fetchWarProgress()" type="is-info">Обновить</b-button>
+	<b-table v-if="warProgress.length>0" :data="warProgress" :bordered="false" :hoverable="true" ref="table" style="text-align:left; width:100%;">
+							<b-table-column field="type.description" label="cycleId" width="50" v-slot="props">
+									<b-tag>{{ props.row.cycleId }}</b-tag>
+							</b-table-column>
+							<b-table-column v-for="checkpoint in warProgress[0].checkpoints" field="type.description" :label="checkpoint.checkpointName" width="50">
+							<template v-slot:header="{ column }">
+								<div>{{ column.label }}</div>
+								<b-select placeholder="Статус точки" v-model="dictionaries.filter(el=>el.dict=='checkpoints')[0].data.filter(el => el.id==checkpoint.checkpointId)[0].stateId" 
+											v-if="dictionaries.filter(el=>el.dict=='checkpointStates')[0]"
+											@input="setCheckpointState(checkpoint.checkpointId,dictionaries.filter(el=>el.dict=='checkpoints')[0].data.filter(el => el.id==checkpoint.checkpointId)[0].stateId)"
+											>
+									<option
+										v-for="option in dictionaries.filter(el=>el.dict=='checkpointStates')[0].data"
+										:value="option.id"
+										:key="option.id"
+										@input="setCheckpointState(checkpoint.checkpointId,option.id)"
+										>
+										{{ option.name }}
+									</option>
+								</b-select>
+								<!--<b-tooltip :label="column.label" append-to-body dashed>
+									{{ column.label }}
+								</b-tooltip>-->
+							</template>
+							<template v-slot="props">
+							<div :class="`checkpoint_state_${props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].checkpointStateId}`"  style="width:100px">
+									<!--<b-tag style="width:50px">{{ props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].warProgressId }}</b-tag><br>-->
+									<span v-if="dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0]">{{ dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name }}</span>
+									<br>
+									<b-tooltip label="Начислить славу"
+									position="is-top">
+									<b-button v-if="props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].ishonorgiven===false" @click="setHonorforCheckpoint(props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].warProgressId)" type="is-primary is-light" style="width:25px;height:25px;">✔</b-button>
+									</b-tooltip>
+							</div>
+							</template>
+							</b-table-column>
+							</b-table>
+</b-tab-item>
 <b-tab-item label="Сообщения">
 <b-field label="Добавить сообщение">
 										</b-field>
@@ -604,7 +644,8 @@ export default {
 	  newMessagePlayerName:'',
 	  newMessageTypeDescription:'',
 	  config:[],
-	  configStorages:[]
+	  configStorages:[],
+	  warProgress:[]
     }
   }
   ,computed: {
@@ -772,6 +813,7 @@ export default {
 		//console.log(this.deedTypes);
 		//this.fetchStories();
 		await this.fetchPlayers();
+		await this.fetchWarProgress();
 		await this.fetchDictionaries();
 		await this.fetchMessages();
 		//console.log(this.dictionaries);
@@ -871,7 +913,61 @@ export default {
 									if (a.deed.date < b.deed.date) return 1; // если первое значение меньше второго
 									});
 			this.loader_.classList.toggle('hidden');
-			console.log ('messages',this.messages);
+			//console.log ('messages',this.messages);
+		}
+		,async fetchWarProgress(){
+			this.loader_.classList.toggle('hidden');
+			let warProgress;
+			try{
+			warProgress = await axios.get('https://blooming-refuge-12227.herokuapp.com/getWarProgress',
+			{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+			}
+			//console.log(players.data);
+			this.warProgress=[];
+			warProgress.data.forEach(el=>{
+				if(this.warProgress.filter(cycle=>cycle.cycleId==el.cycleId).length==0){
+					this.warProgress.push({cycleId:el.cycleId,
+					startTime:el.startTime,
+					endTime:el.endTime,
+					cycleType:el.cycleType,
+					checkpoints:[]});
+				}
+			});
+			this.warProgress.forEach((cycle,cycleIndex)=>{
+				warProgress.data.forEach(el=>{
+				if(cycle.cycleId==el.cycleId){
+					this.warProgress[cycleIndex].checkpoints.push({checkpointId:el.checkpointId,
+					checkpointName:el.checkpointName,
+					warProgressId:el.warProgressId,
+					checkpointStateId:el.checkpointStateId,
+					squadId:el.squadId,
+					ishonorgiven:el.ishonorgiven});
+				}
+			});
+			});
+			//this.warProgress = warProgress.data;
+			this.loader_.classList.toggle('hidden');
+			console.log ('warProgress',this.warProgress);
 		}
 		,async fetchDeedTypes(){
 			this.loader_.classList.toggle('hidden');
@@ -1717,8 +1813,84 @@ export default {
                     type: 'is-success'
                 });
 			this.loader_.classList.toggle('hidden');
-		},
-		getImg(deedName){
+		}
+		,async setCheckpointState(checkpointId,stateId){
+			console.log('изменяем статус точки',checkpointId,stateId);
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setCheckpointState',{
+						id:checkpointId,
+						stateId:stateId
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			await this.fetchWarProgress();
+		}
+		,async setHonorforCheckpoint(id){
+			console.log('начисляем славу за точку',id);
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setHonorforCheckpoint',{
+						id:id
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			this.$buefy.toast.open({
+                    message: `Слава начислена`,
+                    type: 'is-success',
+					duration:3000
+                });
+			//await this.fetchPlayers();
+			await this.fetchWarProgress();
+		}
+		,getImg(deedName){
 		let res
 		try{
 			res=require(`../assets/deeds/${deedName}.png`);
@@ -1903,5 +2075,14 @@ z-index:1000
 	font-size:60%;
 	color:#ffffff;
 	font: bold;
+}
+.checkpoint_state_1{
+	background-color:#55bb55
+}
+.checkpoint_state_2{
+	background-color:#bbbb55
+}
+.checkpoint_state_3{
+	background-color:#bb5555
 }
 </style>

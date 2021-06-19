@@ -606,7 +606,7 @@ this.activeTab=0;
 		console.log('тестируем автоматическую загрузку лиц');
 		let faces;
 		try{
-			faces = await axios.get('https://blooming-refuge-12227.herokuapp.com/faces',//'https://blooming-refuge-12227.herokuapp.com/faces', //'http://192.168.0.148:5000/faces',
+			faces = await axios.get('http://192.168.0.148:5000/faces',//'https://blooming-refuge-12227.herokuapp.com/faces', //'http://192.168.0.148:5000/faces',
 			{
 				headers: {
 				  'Content-Type': 'application/json',
@@ -654,7 +654,7 @@ this.activeTab=0;
 			console.log(this.tabs[tab_]);
 			let face;
 			try{
-				face = await axios.get(`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`,//`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`, //`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,
+				face = await axios.get(`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,//`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`, //`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,
 				{
 					headers: {
 					  'Content-Type': 'application/json',

@@ -381,10 +381,16 @@
 							<template v-slot="props">
 							<div :class="`checkpoint_state_${props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].checkpointStateId}`"  style="width:100px">
 									<!--<b-tag style="width:50px">{{ props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].warProgressId }}</b-tag><br>-->
-									<span v-if="dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0]">{{ dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name }}</span>
+									<span v-if="dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0]">{{ dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name }}
+									<b-tooltip :label="`${dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name}`"
+									position="is-top">
+									<img :class="`deed-img`"
+														:src="getSquadLogo(props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)" style="width:40px;height:40px;"
+													> </img></b-tooltip>
+									</span>
 									<br>
 									<b-tooltip label="Начислить славу"
-									position="is-top">
+									position="is-bottom">
 									<b-button v-if="props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].ishonorgiven===false" @click="setHonorforCheckpoint(props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].warProgressId)" type="is-primary is-light" style="width:25px;height:25px;">✔</b-button>
 									</b-tooltip>
 							</div>
@@ -1882,24 +1888,34 @@ export default {
 				return;
 			}
 			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			await this.fetchWarProgress();
 			this.$buefy.toast.open({
                     message: `Слава начислена`,
                     type: 'is-success',
 					duration:3000
                 });
-			//await this.fetchPlayers();
-			await this.fetchWarProgress();
 		}
 		,getImg(deedName){
-		let res
-		try{
-			res=require(`../assets/deeds/${deedName}.png`);
+			let res
+			try{
+				res=require(`../assets/deeds/${deedName}.png`);
+			}
+			catch(e){
+				res=require(`../assets/deeds/feat.png`);
+			}
+			return res
 		}
-		catch(e){
-			res=require(`../assets/deeds/feat.png`);
+		,getSquadLogo(squadId){
+			let res
+			try{
+				res=require(`../assets/squads/squad_${squadId}.png`);
+			}
+			catch(e){
+				res=require(`../assets/squads/default.png`);
+			}
+			return res
 		}
-		return res
-	}
 	},
 	components:{
 	}

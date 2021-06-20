@@ -238,7 +238,8 @@
 																			@select="option => {obj.cycleId=option.id;obj.cycleType=dictionaries.filter(el=>el.dict=='cycleTypes')[0].data.filter(cT=>cT.id==option.cycleTypeId)[0].description}"
 																			:clearable="true"
 																			style="min-width:10px"
-																		></b-autocomplete><span>{{obj.cycleType}}</span></span>
+																		></b-autocomplete>
+										<span>{{obj.cycleType}}</span></span>
 										</div>
 										<div class="innerTabCenter">
 											<span>Выбрать точку: 
@@ -253,7 +254,7 @@
 																			:clearable="true"
 																			style="min-width:10px"
 																		></b-autocomplete>
-																		<div :class="`checkpoint_state_${obj.checkpointState}`">{{dictionaries.filter(el=>el.dict=='checkpointStates')[0].data.filter(cT=>cT.id==obj.checkpointState)[0]?dictionaries.filter(el=>el.dict=='checkpointStates')[0].data.filter(cT=>cT.id==obj.checkpointState)[0].name:''}}</div>
+											<div :class="`checkpoint_state_${obj.checkpointState}`">{{dictionaries.filter(el=>el.dict=='checkpointStates')[0].data.filter(cT=>cT.id==obj.checkpointState)[0]?dictionaries.filter(el=>el.dict=='checkpointStates')[0].data.filter(cT=>cT.id==obj.checkpointState)[0].name:''}}</div>
 											</span>
 										</div>
 										<div class="innerTabCenter">
@@ -268,13 +269,29 @@
 																		@select="option => {obj.squadId=option.id}"
 																		:clearable="true"
 																		style="min-width:10px"
-																	></b-autocomplete></span><br></div>
+																	></b-autocomplete>
+										<img :class="`deed-img`"
+														:src="getSquadLogo(obj.squadId)" style="width:40px;height:40px;"
+														v-if="obj.squadId"
+													> </img></span></div>
 									</div>
 								</div>
 							</div>
 							
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startWarProgress" type="is-success" :disabled="!warProgressSubmit">Подтвердить</b-button></div>
+					</div>
+					<hr>
+					<span>Эмблемы отрядов</span><br>
+					<span>(можно нажимать на картинки)</span>
+					<div class="innerTabWrap">
+						<b-field :label="squad.name" v-for="squad in dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==15680||squad.sideId==16333)})"
+								style="margin:10px;padding:2px; border:1px solid black; border-radius:5px"
+						>
+						<img :class="`deed-img`"
+														:src="getSquadLogo(squad.squadId)" style="width:80px;height:80px;"
+														@click="() => {$buefy.toast.open({message: `Выбрано: ${squad.name}`,type: 'is-success'});warProgressObject[0].squadId=squad.id;squadName_warProgress=squad.name}"
+													> </img> </b-field>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Видимость персонажа" v-if="permissions.filter(el=>el=='test-action'||el=='admin').length>0">
@@ -1108,7 +1125,7 @@ export default {
 		console.log('Отмечаем стратегическую точку',this.warProgressObject[0]);
 		
 		this.loader_.classList.toggle('hidden');
-		let response;
+		/*let response;
 			try{
 				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateWarProgress',{
 						id:null,
@@ -1138,14 +1155,27 @@ export default {
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
-		
+		*/
 		this.loader_.classList.toggle('hidden');
 		this.$buefy.toast.open({
                     message: `Стратегическая точка отмечена`,
                     type: 'is-success'
         })
-		this.warProgressObject=[{cycleId:null,checkpointId:null, squadId:null, cycleType:null, checkpointState:null,squadLogo:null}];
+		this.warProgressObject=[{cycleId:this.warProgressObject[0].cycleId,checkpointId:null, squadId:null, cycleType:null, checkpointState:null,squadLogo:null}];
+		this.squadName_warProgress=''
+	    this.checkpointName_warProgress=''
+	    //this.cycleName_warProgress=''
 	}
+	,getSquadLogo(squadId){
+			let res
+			try{
+				res=require(`../assets/squads/squad_${squadId}.png`);
+			}
+			catch(e){
+				res=require(`../assets/squads/default.png`);
+			}
+			return res
+		}
   }
 }
 </script>

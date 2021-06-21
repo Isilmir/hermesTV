@@ -208,6 +208,92 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startNewPlayerMaking" type="is-success" :disabled="!newPlayerSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Стратегические точки" v-if="permissions.filter(el=>el=='setOrUpdateWarProgress'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							
+							<div v-for="obj in warProgressObject">
+								
+								<div class="innerTab">
+									<div class="innerTabFurnal">
+										<span>Текущий цикл: <b-tag>{{
+				dictionaries.filter(el=>el.dict=='gameCycles')[0].data.filter(cycle=>(new Date())>(new Date(cycle.startTime))&&(new Date())<(new Date(cycle.endTime))).length>0
+				?
+				dictionaries.filter(el=>el.dict=='gameCycles')[0].data
+				.map(cycle=>{cycle.label=`${cycle.id} (${(new Date(cycle.startTime)).getHours()}:${(''+(new Date(cycle.startTime)).getMinutes()).length<2?'0':''}${(new Date(cycle.startTime)).getMinutes()} - ${(new Date(cycle.endTime)).getHours()}:${(''+(new Date(cycle.endTime)).getMinutes()).length<2?'0':''}${(new Date(cycle.endTime)).getMinutes()})`;return cycle})
+				.filter(cycle=>(new Date())>(new Date(cycle.startTime))&&(new Date())<(new Date(cycle.endTime)))
+				[0].label
+				:
+				'Игра еще не идет'
+}}
+										</b-tag></span>
+										<div class="innerTabCenter">
+											<span>Выбрать цикл: <b-autocomplete
+																			v-model="cycleName_warProgress"
+																			placeholder="Номер цикла"
+																			:keep-first="false"
+																			:open-on-focus="true"
+																			:data="filteredCycles_warProgress"
+																			field="label"
+																			@select="option => {obj.cycleId=option.id;obj.cycleType=dictionaries.filter(el=>el.dict=='cycleTypes')[0].data.filter(cT=>cT.id==option.cycleTypeId)[0].description}"
+																			:clearable="true"
+																			style="min-width:10px"
+																		></b-autocomplete>
+										<span>{{obj.cycleType}}</span></span>
+										</div>
+										<div class="innerTabCenter">
+											<span>Выбрать точку: 
+											<b-autocomplete
+																			v-model="checkpointName_warProgress"
+																			placeholder="Название точки"
+																			:keep-first="false"
+																			:open-on-focus="true"
+																			:data="filteredСheckpoints_warProgress"
+																			field="name"
+																			@select="option => {obj.checkpointId=option.id;obj.checkpointState=option.stateId}"
+																			:clearable="true"
+																			style="min-width:10px"
+																		></b-autocomplete>
+											<div :class="`checkpoint_state_${obj.checkpointState}`">{{dictionaries.filter(el=>el.dict=='checkpointStates')[0].data.filter(cT=>cT.id==obj.checkpointState)[0]?dictionaries.filter(el=>el.dict=='checkpointStates')[0].data.filter(cT=>cT.id==obj.checkpointState)[0].name:''}}</div>
+											</span>
+										</div>
+										<div class="innerTabCenter">
+										<span>Выбрать отряд: 
+										<b-autocomplete
+																		v-model="squadName_warProgress"
+																		placeholder="Название отряда"
+																		:keep-first="false"
+																		:open-on-focus="true"
+																		:data="filteredSquads_warProgress"
+																		field="name"
+																		@select="option => {obj.squadId=option.id}"
+																		:clearable="true"
+																		style="min-width:10px"
+																	></b-autocomplete>
+										<img :class="`deed-img`"
+														:src="getSquadLogo(obj.squadId)" style="width:40px;height:40px;"
+														v-if="obj.squadId"
+													> </img></span></div>
+									</div>
+								</div>
+							</div>
+							
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startWarProgress" type="is-success" :disabled="!warProgressSubmit">Подтвердить</b-button></div>
+					</div>
+					<hr>
+					<span>Эмблемы отрядов</span><br>
+					<span>(можно нажимать на картинки)</span>
+					<div class="innerTabWrap">
+						<b-field :label="squad.name" v-for="squad in dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==15680||squad.sideId==16333)})"
+								style="margin:10px;padding:2px; border:1px solid black; border-radius:5px"
+						>
+						<img :class="`deed-img`"
+														:src="getSquadLogo(squad.squadId)" style="width:80px;height:80px;"
+														@click="() => {$buefy.toast.open({message: `Выбрано: ${squad.name}`,type: 'is-success'});warProgressObject[0].squadId=squad.id;squadName_warProgress=squad.name}"
+													> </img> </b-field>
+					</div>
+				</b-tab-item>
 				<b-tab-item label="Видимость персонажа" v-if="permissions.filter(el=>el=='test-action'||el=='admin').length>0">
 					<div class="innerTab">
 						<!--<input value="Активировать" type="button" v-on:click="startScan('activateObject')"/>
@@ -285,11 +371,14 @@ export default {
 	  qrScanner:null,
 	  result:'',
 	  squadName:'',
+	  squadName_warProgress:'',
+	  checkpointName_warProgress:'',
+	  cycleName_warProgress:'',
 	  scannerActive:false,
 	  activeTab: undefined,
 	  activeTabPersons: undefined,
 	  activeTabCustom:undefined,
-	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}],
+	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]},{dict:'checkpoints',data:[{name:''}]},{dict:'gameCycles',data:[{id:''}]},{dict:'checkpointStates',data:[{name:''}]},{dict:'cycleTypes',data:[{description:''}]}],
 	  scannedObject:[],
 	  furnalSubject:[],
 	  furnalObject:[],
@@ -297,6 +386,7 @@ export default {
 	  transferSubject:[],
 	  transferObject:[],
 	  reinforcementCheckSubject:[],
+	  warProgressObject:[{cycleId:null,checkpointId:null, squadId:null, cycleType:null, checkpointState:null,squadLogo:null}],
 	  newPlayer:[],
 	  newPlayerTransfer:false,
 	  permissions:[]
@@ -318,14 +408,59 @@ export default {
 		newPlayerSubmit() {
             return this.newPlayer[0]&&this.newPlayer[0].playerSquad;
         },
+		warProgressSubmit() {
+            return this.warProgressObject[0]&&this.warProgressObject[0].cycleId&&this.warProgressObject[0].checkpointId&&this.warProgressObject[0].squadId;
+        },
 		filteredSquads() {
-			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==16333)}).filter(squad => {
 				//console.log(squad);
                 return (
                     squad.name
                         .toString()
                         .toLowerCase()
                         .indexOf(this.squadName.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredSquads_warProgress() {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==15680||squad.sideId==16333)}).filter(squad => {
+				//console.log(squad);
+                return (
+                    squad.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.squadName_warProgress.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredСheckpoints_warProgress() {
+			return this.dictionaries.filter(el=>el.dict=='checkpoints')[0].data.filter(checkpoint => {
+				//console.log(squad);
+                return (
+                    checkpoint.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.checkpointName_warProgress.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredCycles_warProgress() {
+			return this.dictionaries.filter(el=>el.dict=='gameCycles')[0].data
+				.map(cycle=>{cycle.label=`${cycle.id} (${(new Date(cycle.startTime)).getHours()}:${(''+(new Date(cycle.startTime)).getMinutes()).length<2?'0':''}${(new Date(cycle.startTime)).getMinutes()} - ${(new Date(cycle.endTime)).getHours()}:${(''+(new Date(cycle.endTime)).getMinutes()).length<2?'0':''}${(new Date(cycle.endTime)).getMinutes()})`;return cycle})
+				//это условие открыть на игре!!!
+				//.filter(cycle=>(new Date())>(new Date(cycle.startTime)))
+				.sort((a,b)=>{
+									if (a.endTime > b.endTime) return -1; // если первое значение больше второго
+									if (a.endTime == b.endTime) return 0; // если равны
+									if (a.endTime < b.endTime) return 1; // если первое значение меньше второго
+									})
+				.filter(cycle => {
+				//console.log(squad);
+                return (
+                    (''+cycle.label)
+                        .toString()
+                        .toLowerCase()
+                        .indexOf((''+this.cycleName_warProgress).toLowerCase()) >= 0
                 )
             })
 		},
@@ -353,6 +488,7 @@ export default {
 	this.loader_=document.getElementById('loader_');
 	await this.fetchDictionaries();
 	console.log(this.dictionaries)
+	console.log(this.dictionaries.filter(el=>el.dict=='gameCycles')[0].data[0].startTime,(new Date(this.dictionaries.filter(el=>el.dict=='gameCycles')[0].data[0].startTime)).getHours())
 	//const videoElem = document.getElementById('videoElem');
 	//console.log(videoElem)
 	//this.qrScanner = new QrScanner(videoElem, result => {this.result = result;console.log('decoded qr code:', result);return result;});
@@ -984,7 +1120,62 @@ export default {
         })
 		this.newPlayer=[];
 		this.newPlayerTransfer=false;
+	},
+	async startWarProgress(){
+		console.log('Отмечаем стратегическую точку',this.warProgressObject[0]);
+		
+		this.loader_.classList.toggle('hidden');
+		/*let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateWarProgress',{
+						id:null,
+						cycleId:this.warProgressObject[0].cycleId,
+						checkpointId:this.warProgressObject[0].checkpointId,
+						squadId:this.warProgressObject[0].squadId
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		*/
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Стратегическая точка отмечена`,
+                    type: 'is-success'
+        })
+		this.warProgressObject=[{cycleId:this.warProgressObject[0].cycleId,checkpointId:null, squadId:null, cycleType:null, checkpointState:null,squadLogo:null}];
+		this.squadName_warProgress=''
+	    this.checkpointName_warProgress=''
+	    //this.cycleName_warProgress=''
 	}
+	,getSquadLogo(squadId){
+			let res
+			try{
+				res=require(`../assets/squads/squad_${squadId}.png`);
+			}
+			catch(e){
+				res=require(`../assets/squads/default.png`);
+			}
+			return res
+		}
   }
 }
 </script>
@@ -1054,5 +1245,14 @@ a {
 }
 .red{
 	color:red;
+}
+.checkpoint_state_1{
+	background-color:#55bb55
+}
+.checkpoint_state_2{
+	background-color:#bbbb55
+}
+.checkpoint_state_3{
+	background-color:#bb5555
 }
 </style>

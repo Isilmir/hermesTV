@@ -52,7 +52,7 @@
 				</div>
             </b-tab-item>
         </b-tabs>
-		<div style="color:red;" v-if="sendError">При отправке письма произошла ошибка! <br>Попробуйте отправить еще раз. Если ошибка повторится, то просьба самостоятельно отправить сохраненный файл на почту hermes.tv.troy@gmail.com указав в теме "{{user.id}} {{user.name}}"</div>
+		<div style="color:red;" v-if="sendError">При отправке письма произошла ошибка! <br>Попробуйте отправить еще раз. Если ошибка повторится, то просьба самостоятельно отправить сохраненный файл на почту hermes.tv.troy@gmail.com указав в теме "{{user.id}} {{user.name}} [{{this.user.squad.name}}] [{{this.user.side.name}}]"</div>
 <b-button @click="sendMail" :disabled="sendButtonDisable">Отправить список спутников в редакцию Гермес-ТВ</b-button>
 	<div style="display:none" id="printform-wrapper">
 	<!--<div id="printform-wrapper">-->
@@ -606,7 +606,7 @@ this.activeTab=0;
 		console.log('тестируем автоматическую загрузку лиц');
 		let faces;
 		try{
-			faces = await axios.get('https://blooming-refuge-12227.herokuapp.com/faces',//'https://blooming-refuge-12227.herokuapp.com/faces', //'http://192.168.0.148:5000/faces',
+			faces = await axios.get('http://192.168.0.148:5000/faces',//'https://blooming-refuge-12227.herokuapp.com/faces', //'http://192.168.0.148:5000/faces',
 			{
 				headers: {
 				  'Content-Type': 'application/json',
@@ -654,7 +654,7 @@ this.activeTab=0;
 			console.log(this.tabs[tab_]);
 			let face;
 			try{
-				face = await axios.get(`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`,//`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`, //`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,
+				face = await axios.get(`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,//`https://blooming-refuge-12227.herokuapp.com/faces/${this.tabs[tab_].img}?sex=${this.sex}`, //`http://192.168.0.148:5000/faces/${this.tabs[tab_].img}?sex=${this.sex}`,
 				{
 					headers: {
 					  'Content-Type': 'application/json',

@@ -358,7 +358,7 @@
 							<b-table-column field="type.description" label="cycleId" width="50" v-slot="props">
 									<b-tag>{{ props.row.cycleId }}</b-tag>
 							</b-table-column>
-							<b-table-column v-for="checkpoint in warProgress[0].checkpoints" field="type.description" :label="checkpoint.checkpointName" width="50">
+							<b-table-column v-for="checkpoint in warProgress[0].checkpoints" field="type.description" :key="checkpoint.checkpointId" :label="checkpoint.checkpointName" width="50">
 							<template v-slot:header="{ column }">
 								<div>{{ column.label }}</div>
 								<b-select placeholder="Статус точки" v-model="dictionaries.filter(el=>el.dict=='checkpoints')[0].data.filter(el => el.id==checkpoint.checkpointId)[0].stateId" 

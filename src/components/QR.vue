@@ -285,11 +285,11 @@
 					<span>Эмблемы отрядов</span><br>
 					<span>(можно нажимать на картинки)</span>
 					<div class="innerTabWrap">
-						<b-field :label="squad.name" v-for="squad in dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==15680||squad.sideId==16333)})"
+						<b-field :label="squad.name" v-for="squad in dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==15680||squad.sideId==16333)})" :key="squad.id"
 								style="margin:10px;padding:2px; border:1px solid black; border-radius:5px"
 						>
 						<img :class="`deed-img`"
-														:src="getSquadLogo(squad.squadId)" style="width:80px;height:80px;"
+														:src="getSquadLogo(squad.id)" style="width:80px;height:80px;"
 														@click="() => {$buefy.toast.open({message: `Выбрано: ${squad.name}`,type: 'is-success'});warProgressObject[0].squadId=squad.id;squadName_warProgress=squad.name}"
 													> </img> </b-field>
 					</div>
@@ -322,7 +322,7 @@
 								<div class="innerTabRow"><span class="innerTabRowPropName">Id:</span> <span class="innerTabRowPropVal"> {{obj.id}}</span></div>
 								<div class="innerTabRow"><span class="innerTabRowPropName">Имя:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span></div>
 								<div class="innerTabRow"><span class="innerTabRowPropName">Статус:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='states')[0].data.filter(el=>el.id==obj.stateId)[0].description}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Отряд:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>el.id==obj.squadId)[0].name}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Отряд:</span> <span class="innerTabRowPropVal"> {{obj.squadId?dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>el.id==obj.squadId)[0].name:'-'}}</span></div>
 								<div class="innerTabRow"><span class="innerTabRowPropName">Сторона:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span></div>
 								<div class="innerTabRow"><span class="innerTabRowPropName">Слава:</span> <span class="innerTabRowPropVal"> {{obj.honor}}</span></div>
 								<div class="innerTabRow"><span class="innerTabRowPropName">Видимый:</span> <span class="innerTabRowPropVal"> {{obj.active?'Да':'Нет'}}</span></div>
@@ -613,10 +613,25 @@ export default {
                 })
 		obj.activationToggle=true;
 		this.loader_.classList.toggle('hidden');
+		let obj_;
+		switch(obj.objectType){
+			case 'player':
+				obj_ = await this.getPlayer(obj.id);
+				break;
+			case 'bjzi':
+				obj_ = await this.getBjziSingle(obj.id);
+				break;
+			default:
+				this.$buefy.toast.open({
+                    message: `Неизвестный тип объекта`,
+                    type: 'is-danger'
+                });
+				return;
+		}
 		let actionRes
 		try{
 		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
-			,obj, {
+			,{id:obj_.id,objectType:obj_.objectType,activationToggle:true}, {
 			headers: {
 			  'Content-Type': 'application/json',
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
@@ -650,10 +665,25 @@ export default {
                 })
 		obj.activationToggle=false;
 		this.loader_.classList.toggle('hidden');
+		let obj_;
+		switch(obj.objectType){
+			case 'player':
+				obj_ = await this.getPlayer(obj.id);
+				break;
+			case 'bjzi':
+				obj_ = await this.getBjziSingle(obj.id);
+				break;
+			default:
+				this.$buefy.toast.open({
+                    message: `Неизвестный тип объекта`,
+                    type: 'is-danger'
+                });
+				return;
+		}
 		let actionRes 
 		try{
 		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
-			,obj, {
+			,{id:obj_.id,objectType:obj_.objectType,activationToggle:false}, {
 			headers: {
 			  'Content-Type': 'application/json',
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`

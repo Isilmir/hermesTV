@@ -541,6 +541,8 @@ this.activeTab=0;
                     type: 'is-danger',
 					duration:5000
                 });
+			this.loader_.classList.toggle('hidden');
+			return;
 		}
 		// заменить math.random на получение id созданного в базе спутника
 		let id=res.data.id//Math.random()+'';
@@ -588,6 +590,8 @@ this.activeTab=0;
                     type: 'is-danger',
 					duration:5000
                 });
+			this.loader_.classList.toggle('hidden');
+			return;
 		}
 		this.tabs.filter(el=>el.id==bjzi.id)[0].label=bjzi.name;
 		this.tabs.filter(el=>el.id==bjzi.id)[0].disabled=true;
@@ -627,6 +631,7 @@ this.activeTab=0;
                     type: 'is-danger',
 					duration:5000
                 });
+				return;
 			}
 		console.log(faces.data);
 		

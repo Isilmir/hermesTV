@@ -613,10 +613,25 @@ export default {
                 })
 		obj.activationToggle=true;
 		this.loader_.classList.toggle('hidden');
+		let obj_;
+		switch(obj.objectType){
+			case 'player':
+				obj_ = await this.getPlayer(obj.id);
+				break;
+			case 'bjzi':
+				obj_ = await this.getBjziSingle(obj.id);
+				break;
+			default:
+				this.$buefy.toast.open({
+                    message: `Неизвестный тип объекта`,
+                    type: 'is-danger'
+                });
+				return;
+		}
 		let actionRes
 		try{
 		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
-			,obj, {
+			,{id:obj_.id,objectType:obj_.objectType,activationToggle:true}, {
 			headers: {
 			  'Content-Type': 'application/json',
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
@@ -650,10 +665,25 @@ export default {
                 })
 		obj.activationToggle=false;
 		this.loader_.classList.toggle('hidden');
+		let obj_;
+		switch(obj.objectType){
+			case 'player':
+				obj_ = await this.getPlayer(obj.id);
+				break;
+			case 'bjzi':
+				obj_ = await this.getBjziSingle(obj.id);
+				break;
+			default:
+				this.$buefy.toast.open({
+                    message: `Неизвестный тип объекта`,
+                    type: 'is-danger'
+                });
+				return;
+		}
 		let actionRes 
 		try{
 		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
-			,obj, {
+			,{id:obj_.id,objectType:obj_.objectType,activationToggle:false}, {
 			headers: {
 			  'Content-Type': 'application/json',
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`

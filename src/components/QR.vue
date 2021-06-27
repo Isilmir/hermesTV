@@ -1155,7 +1155,7 @@ export default {
 		console.log('Отмечаем стратегическую точку',this.warProgressObject[0]);
 		
 		this.loader_.classList.toggle('hidden');
-		/*let response;
+		let response;
 			try{
 				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateWarProgress',{
 						id:null,
@@ -1185,7 +1185,7 @@ export default {
 				this.loader_.classList.toggle('hidden');
 				return;
 			}
-		*/
+		
 		this.loader_.classList.toggle('hidden');
 		this.$buefy.toast.open({
                     message: `Стратегическая точка отмечена`,

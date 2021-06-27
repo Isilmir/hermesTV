@@ -532,6 +532,7 @@
 													></b-autocomplete><br>
 													<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
 													<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+													<b-switch v-model="mass_players_deed.heroic" >{{ mass_players_deed.heroic?`Героическое`:`Не героическое` }}</b-switch>
 				</div>
 				<!--<div class="deeds_mass_add_content deeds_mass_add_description">
 					<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
@@ -633,6 +634,7 @@ export default {
 	  mass_players_deed:{type:'',
 				description:'',
 				honor:'',
+				heroic:false,
 				players:[]},
 	  newStory:{},
 	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}],
@@ -1484,7 +1486,7 @@ export default {
                 })
 				return;
 			}
-			console.log('добавляем деяние',JSON.stringify(deed));
+			console.log('массово добавляем деяние',deed);
 			this.loader_.classList.toggle('hidden');
 			let response;
 			try{
@@ -1492,7 +1494,8 @@ export default {
 						description:deed.description,
 						typeId:deed.type.id,
 						players:JSON.stringify(deed.players),
-						honor:deed.honor
+						honor:deed.honor,
+						heroic:deed.heroic
 				},
 				{
 					headers: {
@@ -1519,7 +1522,7 @@ export default {
 			}
 			this.loader_.classList.toggle('hidden');
 			//await this.fetchPlayers();
-			this.mass_players_deed={type:'',description:'',honor:'',players:[]};
+			this.mass_players_deed={type:'',description:'',honor:'',heroic:false,players:[]};
 			this.newPlayerName='';
 			this.newDeedName_mass='';
 			this.$buefy.toast.open({

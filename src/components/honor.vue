@@ -124,6 +124,24 @@
 						<!--<br>-->
 						</div>
 					</b-tooltip>
+					<!--отдельная иконка для транзакций-->
+					<b-tooltip 
+							position="is-left" multilined v-if="props.row.transactions.length>0" style="font-family:'Arial';">
+						<template v-slot:content>
+							<div v-for="line in props.row.transactions" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								<b>{{line.resource}}, {{line.quantity}} шт.</b> ({{line.god}})
+								</div>
+							</div>
+						</template>
+						<div :class="`deed`"
+								:style="`${'background-color: #ccaa00'}`">
+						<img
+							:src="getImg({name:'transaction'})"
+							:class="`deed-img`"
+						> </img>
+						</div>
+					</b-tooltip>
 				<!--	</div>
 				</div>-->
 			</div>
@@ -265,7 +283,14 @@ export default {
 									if (a.honor == b.honor) return 0; // если равны
 									if (a.honor < b.honor) return 1; // если первое значение меньше второго
 									}).map((el,i)=>{el.index=i+1;return el;});
-
+									
+			this.players.forEach(player=>{
+				player.transactions.sort((a,b)=>{
+									if (a.date > b.date) return -1; // если первое значение больше второго
+									if (a.date == b.date) return 0; // если равны
+									if (a.date < b.date) return 1; // если первое значение меньше второго
+									})
+			})
 			//console.log(this.players);
 			
 	loader_.classList.toggle('hidden');

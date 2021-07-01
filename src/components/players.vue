@@ -89,6 +89,7 @@
             <div class="card-content">
                 <div class="content">
                     <div v-if="isOpenPlayer == index" v-for="curPlayer in currentPlayer">
+						<div>Id: {{curPlayer.id}}</div><br>
 						<b-switch v-model="curPlayer.active" @input="playerActivation(curPlayer)">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>
 						<b-tabs type="is-boxed" position="is-left">
 							<b-tab-item label="Деяния">
@@ -342,9 +343,42 @@
 									</div>
 								</div>-->
 							</b-tab-item>
-							<!--<b-tab-item label="Ресурсы">
-								Тут будут ресурсы персонажа
-							</b-tab-item>-->
+							<b-tab-item label="Транзакции">
+								<b-table :data="curPlayer.transactions" 
+								:bordered="false" 
+								:hoverable="true" 
+								ref="table"
+
+								style="text-align:left;
+								width:100%;"
+								>
+									<b-table-column field="god" label="Олимпиец" width="5%" v-slot="props">
+											<b-tag>{{ props.row.god }}</b-tag>
+									</b-table-column>
+									<b-table-column field="date" label="Дата" width="5%" v-slot="props">
+											<b-tag>{{ props.row.date.match(/\d\d\d\d-\d\d-\d\d/)[0] }}</b-tag>
+									</b-table-column>
+									<b-table-column field="date" label="Время" width="5%"  v-slot="props">
+											<b-tag>{{ props.row.date.match(/\d\d:\d\d:\d\d/)[0] }}</b-tag>
+									</b-table-column>
+									<b-table-column field="resource" label="Ресурс" width="15%" v-slot="props">
+											<b-tag>{{ props.row.resource }}</b-tag>
+									</b-table-column>
+									<b-table-column field="quantity" label="Количество" width="15%"  v-slot="props">
+											<b-input  v-model="props.row.quantity" type="number" maxlength="255" placeholder="количество"></b-input>
+									</b-table-column>
+									<b-table-column field="gold" label="Получено золота" width="15%"  v-slot="props">
+											<b-input  v-model="props.row.gold" type="number" maxlength="255" placeholder="золото"></b-input>
+									</b-table-column>
+									<b-table-column field="description" label="Комментарий" width="50%" v-slot="props">
+											<textarea class="story_textarea" v-model="props.row.description"></textarea>
+									</b-table-column>
+									<b-table-column field="update" label=" " width="10%"  v-slot="props">
+											<b-button @click="updateTransaction(props.row)" type="is-success">✔</b-button>
+											<b-button @click="deleteTransaction({id:props.row.id,playerId:props.row.playerId})" type="is-danger">☓</b-button>
+									</b-table-column>
+								</b-table>
+							</b-tab-item>
 						</b-tabs>
 					</div>
                 </div>
@@ -579,13 +613,32 @@
 <b-tab-item label="Конфиг">
 	<div v-for="storage in configStorages" :label="storage">
 		<b-field :label="storage"></b-field>
-		<div class="" v-for="configVar in config.filter(el=>el.storage==storage)" :key="configVar.id" style="display:flex;justify-content: space-around; align-items:flex-start">
-				<b-input v-model="configVar.description" maxlength="255" disabled width="500" type="text"></b-input>
+		<!--<div class="" v-for="configVar in config.filter(el=>el.storage==storage)" :key="configVar.id" style="display:flex;justify-content: space-around; align-items:flex-start">
+				<b-input v-model="configVar.description" maxlength="255" disabled width="500" type="text"></b-input>-->
 				<!--<b-input v-model="configVar.key_" maxlength="255" disabled></b-input>-->
-				<b-field :label="configVar.valueType" label-position="on-border"><b-input v-model="configVar.value" :type="'text'" ></b-input><br></b-field>
+				<!--<b-field :label="configVar.valueType" label-position="on-border"><b-input v-model="configVar.value" :type="'text'" ></b-input><br></b-field>
 				<b-button @click="updateConfig(configVar)" type="is-success">✔</b-button>
-		</div>
+		</div>-->
+		<b-table :data="config.filter(el=>el.storage==storage)" 
+		:bordered="false" 
+		:hoverable="true" 
+		ref="table"
+		style="text-align:center;
+		width:100%;"
+		>
+							<b-table-column field="description" label="" width="35%" v-slot="props">
+									<b-tag>{{ props.row.description }}</b-tag>
+							</b-table-column>
+							<b-table-column field="valueType" label="" width="35%" v-slot="props">
+									<b-field :label="props.row.valueType" label-position="on-border"><b-input v-model="props.row.value" :type="'text'" ></b-input><br></b-field>
+							</b-table-column>
+							<b-table-column field="update" label=" " width="30%"  v-slot="props">
+									<b-button @click="updateConfig(props.row)" type="is-success">✔</b-button>
+							</b-table-column>
+		</b-table>
+		<hr>
 	</div>
+	
 </b-tab-item>
 <b-tab-item label="Синхронизация с JoinRPG">
 	Дата последней синхронизации: <b>{{lastUpdate}}</b><br>
@@ -844,6 +897,12 @@ export default {
 									if (a.date == b.date) return 0; // если равны
 									if (a.date < b.date) return 1; // если первое значение меньше второго
 									})
+
+			this.currentPlayer[0].transactions.sort((a,b)=>{
+								if (a.date > b.date) return -1; // если первое значение больше второго
+								if (a.date == b.date) return 0; // если равны
+								if (a.date < b.date) return 1; // если первое значение меньше второго
+								})
 
 			this.newDeed={type:{},
 				description:'',
@@ -1316,6 +1375,95 @@ export default {
 			this.loader_.classList.toggle('hidden');
 			//await this.fetchPlayers();
 			await this.fetchMessages();
+		},
+		async updateTransaction(transaction){
+			console.log('изменяем транзакцию',transaction);
+			//return;
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateTransaction',{
+						id:transaction.id,
+						playerId:transaction.playerId,
+						god:transaction.god,
+						resource:transaction.resource,
+						quantity:+transaction.quantity,
+						gold:+transaction.gold,
+						description:transaction.description
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			this.$buefy.toast.open({
+                    message: `Транзакция изменена`,
+                    type: 'is-success',
+					duration:5000
+                });
+			//await this.fetchPlayers();
+			//await this.fetchMessages();
+			await this.showPlayer(this.players[this.players.findIndex(el=>el.id==transaction.playerId)],this.isOpenPlayer);
+		},
+		async deleteTransaction(transaction){
+			console.log('удаляем транзакцию',transaction);
+			
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/deleteTransaction',{
+						id:transaction.id
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			this.$buefy.toast.open({
+                    message: `Транзакция удалена`,
+                    type: 'is-success',
+					duration:5000
+            });
+			//await this.fetchPlayers();
+			await this.showPlayer(this.players[this.players.findIndex(el=>el.id==transaction.playerId)],this.isOpenPlayer);
 		},
 		async deleteDeed(player,deed){
 			console.log('удаляем деяние',deed);

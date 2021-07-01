@@ -89,6 +89,7 @@
             <div class="card-content">
                 <div class="content">
                     <div v-if="isOpenPlayer == index" v-for="curPlayer in currentPlayer">
+						<div>Id: {{curPlayer.id}}</div><br>
 						<b-switch v-model="curPlayer.active" @input="playerActivation(curPlayer)">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>
 						<b-tabs type="is-boxed" position="is-left">
 							<b-tab-item label="Деяния">
@@ -612,13 +613,32 @@
 <b-tab-item label="Конфиг">
 	<div v-for="storage in configStorages" :label="storage">
 		<b-field :label="storage"></b-field>
-		<div class="" v-for="configVar in config.filter(el=>el.storage==storage)" :key="configVar.id" style="display:flex;justify-content: space-around; align-items:flex-start">
-				<b-input v-model="configVar.description" maxlength="255" disabled width="500" type="text"></b-input>
+		<!--<div class="" v-for="configVar in config.filter(el=>el.storage==storage)" :key="configVar.id" style="display:flex;justify-content: space-around; align-items:flex-start">
+				<b-input v-model="configVar.description" maxlength="255" disabled width="500" type="text"></b-input>-->
 				<!--<b-input v-model="configVar.key_" maxlength="255" disabled></b-input>-->
-				<b-field :label="configVar.valueType" label-position="on-border"><b-input v-model="configVar.value" :type="'text'" ></b-input><br></b-field>
+				<!--<b-field :label="configVar.valueType" label-position="on-border"><b-input v-model="configVar.value" :type="'text'" ></b-input><br></b-field>
 				<b-button @click="updateConfig(configVar)" type="is-success">✔</b-button>
-		</div>
+		</div>-->
+		<b-table :data="config.filter(el=>el.storage==storage)" 
+		:bordered="false" 
+		:hoverable="true" 
+		ref="table"
+		style="text-align:center;
+		width:100%;"
+		>
+							<b-table-column field="description" label="" width="35%" v-slot="props">
+									<b-tag>{{ props.row.description }}</b-tag>
+							</b-table-column>
+							<b-table-column field="valueType" label="" width="35%" v-slot="props">
+									<b-field :label="props.row.valueType" label-position="on-border"><b-input v-model="props.row.value" :type="'text'" ></b-input><br></b-field>
+							</b-table-column>
+							<b-table-column field="update" label=" " width="30%"  v-slot="props">
+									<b-button @click="updateConfig(props.row)" type="is-success">✔</b-button>
+							</b-table-column>
+		</b-table>
+		<hr>
 	</div>
+	
 </b-tab-item>
 <b-tab-item label="Синхронизация с JoinRPG">
 	Дата последней синхронизации: <b>{{lastUpdate}}</b><br>

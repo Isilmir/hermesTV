@@ -341,6 +341,94 @@
 						</div>
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Покупка ресурсов" v-if="permissions.filter(el=>el=='setOrUpdateTransaction'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectTradePlayer')" type="is-success">Герой, который хочет торговать</b-button> 
+							<div v-for="obj in tradePlayer">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы с этим объектом нельзя торговать</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+							<div class="flex-deeds">
+							<b-tooltip 
+							position="is-bottom" multilined v-for="deed in tradeDeeds" :key="deed.id"  style="font-family:'Arial';">
+							<template v-slot:content>
+							<div v-for="line in deed.description.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
+						</template>
+								<div :class="`deed`" :style="`background-color:${deed.deedTypeId==51
+																				||deed.deedTypeId==52
+																				||deed.deedTypeId==53
+																				||deed.deedTypeId==54
+																				||deed.deedTypeId==67?'#CCCCCC'
+																				:deed.deedTypeId==36
+																				||deed.deedTypeId==37
+																				||deed.deedTypeId==50?'#bb0000'
+																				:'#00bb00'}`">
+										<img :class="`deed-img`"
+											:src="getImg(deed.deedTypeName)" style="width:30px"
+										> </img>
+								</div>
+							</b-tooltip> 
+							</div>
+						</div>
+						<div class="innerTabCenter">
+											<span>Олимпиец: <b-autocomplete
+																			v-model="tradeGodName"
+																			placeholder="Олимпиец"
+																			:keep-first="false"
+																			:open-on-focus="true"
+																			:data="filteredTradeGodName"
+																			field=""
+																			@select="option => {transaction[0].god=option;transaction[0].resource=null;tradeResourceName='';transaction[0].gold=null;transaction[0].quantity=null;}"
+																			clearable
+																			style="min-width:300px"
+																		><template #empty>Нет подходящих олимпийцев</template></b-autocomplete>
+										<!--<span>{{transaction.god}}</span>--></span><br>
+						
+											<span>Ресурс: <b-autocomplete
+																			v-model="tradeResourceName"
+																			placeholder="Ресурс"
+																			:keep-first="false"
+																			:open-on-focus="true"
+																			:data="filteredTradeResourceName"
+																			field="resource"
+																			@select="option => {
+																								if(transaction[0].god=='Зевс'){transaction[0].gold=5;minTradeValue=5;maxTradeValue=999;transaction[0].quantity=+option.quantity*5;}
+																								else if(option.resource=='Гуманитарка командиру DBS (перемирие)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
+																								else if(option.resource=='Гуманитарка командиру UC'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
+																								else if(option.resource=='Гуманитарка командиру DBS (война)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
+																								else{transaction[0].gold=1;minTradeValue=1;maxTradeValue=999;transaction[0].quantity=+option.quantity;}
+																								transaction[0].resource=option.resource;tradeCurrentRate=+option.quantity;
+																								}"
+																			clearable
+																			style="min-width:300px"
+																		><template #empty>Нет подходящих ресурсов</template></b-autocomplete>
+										<!--<span>{{transaction[0].resource}}{{transaction[0].quantity}}</span>--></span>
+										<span v-if="transaction[0].resource">Установленный олимпом курс: <b>{{tradeCurrentRate}}</b></span><br>
+										<span>Количество ресурса: <b-numberinput v-model="transaction[0].quantity" :min="0" :controls="true" style="min-width:300px" :disabled="true" ></b-numberinput></span>
+										<span>Принятое золото: <b-numberinput @input="()=>{transaction[0].quantity=(+transaction[0].gold)*tradeCurrentRate}" v-model="transaction[0].gold" :min="minTradeValue" :max="maxTradeValue" :controls="true" style="min-width:300px" :disabled="true"></b-numberinput></span>
+										<span>Комментарий: <b-input v-model="transaction[0].description" type="textarea" maxlength="255" placeholder="Комментарий по сделке" style="min-width:300px"></b-input></span>
+										<!--<span>{{transaction[0].resource}}{{transaction[0].quantity}}</span>--></span>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startTrade" type="is-success" :disabled="!tradeSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
 			</b-tabs>
 		</b-tab-item>
 	</b-tabs>
@@ -389,7 +477,17 @@ export default {
 	  warProgressObject:[{cycleId:null,checkpointId:null, squadId:null, cycleType:null, checkpointState:null,squadLogo:null}],
 	  newPlayer:[],
 	  newPlayerTransfer:false,
-	  permissions:[]
+	  permissions:[],
+	  tradePlayer:[],
+	  tradeResources:[],
+	  tradeDeeds:[],
+	  tradeGods:[],
+	  tradeGodName:'',
+	  tradeResourceName:'',
+	  tradeCurrentRate:1,
+	  minTradeValue:0,
+	  maxTradeValue:999,
+	  transaction:[{playerId:null,god:null, resource:null, quantity:null, gold:null,description:null}]
     }
   },
   computed: {
@@ -410,6 +508,9 @@ export default {
         },
 		warProgressSubmit() {
             return this.warProgressObject[0]&&this.warProgressObject[0].cycleId&&this.warProgressObject[0].checkpointId&&this.warProgressObject[0].squadId;
+        },
+		tradeSubmit() {
+            return this.tradePlayer[0]&&this.transaction[0]&&this.transaction[0].god&&this.transaction[0].resource&&this.transaction[0].quantity&&this.transaction[0].gold!==null;
         },
 		filteredSquads() {
 			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==16333)}).filter(squad => {
@@ -461,6 +562,28 @@ export default {
                         .toString()
                         .toLowerCase()
                         .indexOf((''+this.cycleName_warProgress).toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredTradeGodName(){
+			return this.tradeGods.filter(god => {
+				//console.log(god);
+                return (
+                    god
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.tradeGodName.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredTradeResourceName(){
+			return this.tradeResources.filter(el=>el.god==this.transaction[0].god).filter(resource => {
+				//console.log(this.tradeResources.filter(el=>el.god==this.transaction[0].god));
+                return (
+                    resource.resource
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.tradeResourceName.toLowerCase()) >= 0
                 )
             })
 		},
@@ -834,6 +957,49 @@ export default {
 		console.log('newPlayer',this.newPlayer);
 		return;
 	},
+	async selectTradePlayer(obj){
+		//this.qr = JSON.stringify(obj);
+		this.tradePlayer=[];
+		let tradeResources;
+		switch(obj.objectType){
+			case 'player':
+				this.tradePlayer.push(await this.getPlayer(obj.id));
+				tradeResources=await this.getPlayerTradeResources(obj.id);
+				break;
+			case 'bjzi':
+				this.tradePlayer.push(await this.getBjziSingle(obj.id));
+				console.log('до case',this.tradePlayer);
+				switch(this.tradePlayer[0].objectType){
+					case 'player':
+						console.log('case player',this.tradePlayer[0].id);
+						tradeResources= await this.getPlayerTradeResources(this.tradePlayer[0].id);
+						break;
+					case 'bjzi':
+						console.log('case bjzi',this.tradePlayer[0].playerId);
+						tradeResources=await this.getPlayerTradeResources(this.tradePlayer[0].playerId);
+						break;
+				}
+				break;
+			default:
+				this.tradePlayer.push({objectType:'none'});
+		}
+		console.log('после case',this.tradePlayer,tradeResources);
+		this.tradeResources=[];
+		this.tradeDeeds=[];
+		this.tradeGods=[];
+		this.tradeResources=tradeResources.resources;
+		this.tradeDeeds=tradeResources.deeds;
+		this.transaction=[{playerId:null,god:this.transaction[0].god, resource:null, quantity:null, gold:null,description:null}];
+		this.tradeResourceName='';
+		tradeResources.resources.forEach(el=>{
+			if(this.tradeGods.filter(god=>god==el.god).length==0)this.tradeGods.push(el.god);
+		})
+		console.log('tradePlayer',this.tradePlayer);
+		console.log('tradeResources',this.tradeResources);
+		console.log('tradeDeeds',this.tradeDeeds);
+		console.log('tradeGods',this.tradeGods);
+		return;
+	},
 	async onCloseModal(){
 		if(this.qrScanner){
 			this.qrScanner.stop();
@@ -871,6 +1037,37 @@ export default {
 			this.loader_.classList.toggle('hidden');
 			//console.log(response);
 			return response.data[0];
+	},
+	async getPlayerTradeResources(id){
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/getTradeResources/${id}`,
+			{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+			this.loader_.classList.toggle('hidden');
+			console.log(e.message);
+			//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+			}
+			this.loader_.classList.toggle('hidden');
+			//console.log(response);
+			return response.data;
 	},
 	async getBjziSingle(id){
 			this.loader_.classList.toggle('hidden');
@@ -1151,6 +1348,66 @@ export default {
 		this.newPlayer=[];
 		this.newPlayerTransfer=false;
 	},
+	async startTrade(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Проводим торговую транзакцию',this.transaction);
+		//this.$buefy.toast.open({
+        //            message: `${this.transaction[0].resource}`,
+        //            type: 'is-success'
+        //})
+		let playerId;
+		if(this.tradePlayer[0].objectType=='player'){playerId=this.tradePlayer[0].id;}
+		else if(this.tradePlayer[0].objectType=='bjzi'){playerId=this.tradePlayer[0].playerId;}
+		else{this.$buefy.toast.open({
+                    message: `Не подходящий субъект торговли`,
+                    type: 'is-danger',
+					duration:5000
+                });
+			return;}
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/setOrUpdateTransaction',{
+						id:null,
+						playerId:playerId,
+						god:this.transaction[0].god,
+						resource:this.transaction[0].resource,
+						quantity:this.transaction[0].quantity,
+						gold:this.transaction[0].gold,
+						description:this.transaction[0].description
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		this.$buefy.toast.open({
+                    message: `Сделка совершена!`,
+                    type: 'is-success',
+					duration:5000
+        })
+		this.transaction=[{playerId:null,god:this.transaction[0].god, resource:null, quantity:null, gold:null,description:null}];
+		this.tradeGodName=this.transaction[0].god;
+	    this.tradeResourceName='';
+		this.loader_.classList.toggle('hidden');
+	},
 	async startWarProgress(){
 		console.log('Отмечаем стратегическую точку',this.warProgressObject[0]);
 		
@@ -1206,6 +1463,16 @@ export default {
 			}
 			return res
 		}
+	,getImg(deedType){
+		let res
+		try{
+			res=require(`../assets/deeds/${deedType}.png`);
+		}
+		catch(e){
+			res=require(`../assets/deeds/feat.png`);
+		}
+		return res
+	}
   }
 }
 </script>
@@ -1284,5 +1551,24 @@ a {
 }
 .checkpoint_state_3{
 	background-color:#bb5555
+}
+.deed{
+	//border: 1px solid black;
+	border-radius:10%;
+	//border:none;
+	width:30px;
+	height:30px;
+	//display:grid;
+	grid-template-rows:  2fr 1fr;
+	grid-template-columns: 2fr 1fr;
+	//aspect-ratio: 1 / 1;
+	margin:5px;
+}
+.flex-deeds{
+	display:flex;
+	height:100%;
+	width:70%;
+	flex-wrap: wrap;
+	//position: relative;
 }
 </style>

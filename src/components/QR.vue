@@ -315,7 +315,7 @@
 						<!--<div>QR: {{ qr }}</div>-->
 						<!--<div>hasCamera: {{ hasCamera }}</div>-->
 						<div v-for="obj in scannedObject">
-							<div class="innerTab" v-if="obj.objectType=='none'">Увы такого типа объектов не существует</div>
+							<div class="innerTab" v-if="obj.objectType=='none'">Увы такого объекта не существует</div>
 							<div class="innerTab" v-if="obj.objectType=='player'">
 								<hr>
 								<b>Герой</b> 
@@ -436,7 +436,22 @@
             
                 <video id="videoElem" style="height:90vh;"></video>
             
-        </b-modal>
+    </b-modal>
+	<b-modal v-model="manualScannerActive" @close="onCloseManualModal">
+            
+            <b-numberinput style="min-width:170px; max-width:170px; margin-left:37%" placeholder="id" v-model="manualScannedId" :min="0" :controls="false" :disabled="false"></b-numberinput>
+			<br>
+			<b-select placeholder="Тип объекта" v-model="manualScannedObjectType" style="min-width:200px">
+                <option
+                    v-for="option in [{id:'bjzi'},{id:'player'}]"
+                    :value="option.id"
+                    :key="option.id">
+                    {{ option.id }}
+                </option>
+            </b-select><br>
+			<b-button @click="startManualScan(currentAction)" type="is-warning" :disabled="!manualScanSubmit">Подтвердить</b-button>
+            
+    </b-modal>
 </div>
 </template>
 
@@ -463,6 +478,10 @@ export default {
 	  checkpointName_warProgress:'',
 	  cycleName_warProgress:'',
 	  scannerActive:false,
+	  manualScannerActive:false,
+	  manualScannedId:null,
+	  manualScannedObjectType:null,
+	  currentAction:null,
 	  activeTab: undefined,
 	  activeTabPersons: undefined,
 	  activeTabCustom:undefined,
@@ -511,6 +530,9 @@ export default {
         },
 		tradeSubmit() {
             return this.tradePlayer[0]&&this.transaction[0]&&this.transaction[0].god&&this.transaction[0].resource&&this.transaction[0].quantity&&this.transaction[0].gold!==null;
+        },
+		manualScanSubmit() {
+            return this.manualScannedId&&this.manualScannedObjectType;
         },
 		filteredSquads() {
 			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==16333)}).filter(squad => {
@@ -619,6 +641,7 @@ export default {
   },
   methods:{
 	async startScan(action){
+		this.currentAction=action;
 		this.scannerActive=true;
 		await setTimeout(()=>{return;},0);
 		const videoElem = document.getElementById('videoElem');
@@ -678,6 +701,13 @@ export default {
 
 										});
 		this.qrScanner.start();
+	}
+	,async startManualScan(action){
+		await this[action]({id:this.manualScannedId,objectType:this.manualScannedObjectType})
+		this.manualScannerActive=false;
+		this.manualScannedId=null;
+		this.manualScannedObjectType=null;
+		this.currentAction=null;
 	}
 	,async fetchDictionaries(){
 			this.loader_.classList.toggle('hidden');
@@ -1006,6 +1036,11 @@ export default {
 			this.qrScanner.destroy();
 			this.qrScanner = null;
 		}
+		this.manualScannerActive=true;
+	},
+	async onCloseManualModal(){
+		this.manualScannedId=null;
+	    this.manualScannedObjectType=null;
 	},
 	async getPlayer(id){
 			this.loader_.classList.toggle('hidden');
@@ -1036,7 +1071,7 @@ export default {
 			}
 			this.loader_.classList.toggle('hidden');
 			//console.log(response);
-			return response.data[0];
+			return response.data[0]?response.data[0]:{objectType:'none'};
 	},
 	async getPlayerTradeResources(id){
 			this.loader_.classList.toggle('hidden');
@@ -1098,7 +1133,7 @@ export default {
 			}
 			this.loader_.classList.toggle('hidden');
 			console.log('!!!!',response.data[0]);
-			return response.data[0].isPlayer?response.data[0].player:response.data[0];
+			return response.data[0]?(response.data[0].isPlayer?response.data[0].player:response.data[0]):{objectType:'none'};
 	},
 	async startFuneral(){
 		this.loader_.classList.toggle('hidden');

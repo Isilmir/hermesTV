@@ -585,14 +585,22 @@
 </b-tab-item>
 <b-tab-item label="Типы Деяний">
 	<div class="" style="display:flex;justify-content: space-around;">
+		<b-field label="Иконка"></b-field>
 		<b-field label="Код"></b-field>
 		<b-field label="Тип деяния"></b-field>
 		<b-field label="Славы по умолчанию"></b-field>
 		<b-field label="Видимость"></b-field>
+		<b-field label=" "></b-field>
+		<b-field label=" "></b-field>
 		<!--<b-field label="   "></b-field>-->
 		<!--<b-button @click="deleteLink({id:curPlayer.id,type:curPlayer.objectType},{id:deed.id,type:deed.objectType},player)" type="is-danger">🞪</b-button>-->
 	</div>
 	<div class="" v-for="(deed,deedIndex) in deedTypes" :key="deed.id" style="display:flex;justify-content: space-around;">
+		<div :class="`deed`" :style="`background-color:#bbbbbb`">
+		<img :class="`deed-img`"
+			:src="getImg(deed.name)" style="width:30px"
+		> </img>
+		</div>
 		<b-input v-model="deed.name" maxlength="255" disabled></b-input>
 		<b-input v-model="deed.description" maxlength="255"></b-input>
 		<b-input v-model="deed.defaultHonor" type="number" maxlength="255" ></b-input>

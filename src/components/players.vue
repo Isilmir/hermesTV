@@ -76,12 +76,12 @@
                     role="button"
                 >
                     <p class="card-header-title" style="display:flex;justify-content:space-between">
-                        <span><span v-if="player.stateId!=3">{{player.name}}</span><s v-if="player.stateId==3">{{player.name}}</s> ({{player.sideDescription}})</span> <!--<router-link :to="`/graph?id=${player.id}&type=${player.objectType}&deep=${deep}`" target="_blank">посмотреть граф</router-link>-->
+                        <span><span v-if="player.stateId!=3">{{player.name}}</span><s v-if="player.stateId==3">{{player.name}}</s> <span style="color:#558888">[{{player.squadName?player.squadName:'без отряда'}}]</span> <span style="color:#885588">[{{player.sideDescription}}]</span></span> <!--<router-link :to="`/graph?id=${player.id}&type=${player.objectType}&deep=${deep}`" target="_blank">посмотреть граф</router-link>-->
 						<span><span :class="`isactive ${player.active?'green':'red'}`">{{player.active?'Видимый':'Невидимый'}}</span> Слава: {{player.honor}}</span>
                     </p>
                     <a class="card-header-icon">
                         <b-icon
-                            :icon="props.open ? 'menu-down' : 'menu-up'">
+                            :icon="props.open ? 'chevron-up' : 'chevron-down'" type="is-dark">
                         </b-icon>
                     </a>
                 </div>
@@ -89,8 +89,10 @@
             <div class="card-content">
                 <div class="content">
                     <div v-if="isOpenPlayer == index" v-for="curPlayer in currentPlayer">
-						<div>Id: {{curPlayer.id}}</div><br>
+					<div style="display:flex;justify-content: space-around;">
+						<div>Id: {{curPlayer.id}}</div>
 						<b-switch v-model="curPlayer.active" @input="playerActivation(curPlayer)">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>
+					</div>
 						<b-tabs type="is-boxed" position="is-left">
 							<b-tab-item label="Деяния">
 							<b-field label="Всего славы у персонажа" position="is-right"><span style="font-size:200%">{{curPlayer.honor}}</span></b-field><hr>
@@ -127,8 +129,7 @@
 												@select="option => {newDeed.type = {defaultHonor:option.defaultHonor,description:option.description,id:option.id,name:option.name,visible:option.visible};newDeed.honor = option.defaultHonor;newDeed.heroic=false;console.log(newDeed)}"
 												:clearable="true"
 												style="min-width:400px"
-											>
-											</b-autocomplete>
+											></b-autocomplete>
 											<!--<b-input v-model="newDeed.description" maxlength="255" placeholder="Описание деяния" style="min-width:400px"></b-input>-->
 											<textarea class="story_textarea" v-model="newDeed.description" placeholder="Описание деяния" style="margin-left:10px;margin-right:10px"></textarea>
 											<b-input v-model="newDeed.honor" type="number" maxlength="255" placeholder="Очки Славы" style="margin-right:10px"></b-input>
@@ -379,6 +380,23 @@
 									</b-table-column>
 								</b-table>
 							</b-tab-item>
+							<b-tab-item label="Смена отряда">
+								<div style="display:flex;justify-content: center;">
+									<b-autocomplete
+									v-model="filteredSquadName_forChange"
+									placeholder="Название нового отряда"
+									:keep-first="false"
+									:open-on-focus="true"
+									:data="filteredSquads_forChange"
+									field="name"
+									_input="option => {console.log(option)}"
+									@select="option => {newSquad={id:option.id,name:option.name};console.log('newSquad',newSquad);}"
+									:clearable="true"
+									style="min-width:100px"
+									></b-autocomplete>
+									<b-button @click="changeSquad(curPlayer,newSquad)" type="is-success" :disabled="!(newSquad.name&&filteredSquadName_forChange)">✔</b-button>
+								</div>
+							</b-tab-item>
 						</b-tabs>
 					</div>
                 </div>
@@ -585,14 +603,22 @@
 </b-tab-item>
 <b-tab-item label="Типы Деяний">
 	<div class="" style="display:flex;justify-content: space-around;">
+		<b-field label="Иконка"></b-field>
 		<b-field label="Код"></b-field>
 		<b-field label="Тип деяния"></b-field>
 		<b-field label="Славы по умолчанию"></b-field>
 		<b-field label="Видимость"></b-field>
+		<b-field label=" "></b-field>
+		<b-field label=" "></b-field>
 		<!--<b-field label="   "></b-field>-->
 		<!--<b-button @click="deleteLink({id:curPlayer.id,type:curPlayer.objectType},{id:deed.id,type:deed.objectType},player)" type="is-danger">🞪</b-button>-->
 	</div>
 	<div class="" v-for="(deed,deedIndex) in deedTypes" :key="deed.id" style="display:flex;justify-content: space-around;">
+		<div :class="`deed`" :style="`background-color:#bbbbbb`">
+		<img :class="`deed-img`"
+			:src="getImg(deed.name)" style="width:30px"
+		> </img>
+		</div>
 		<b-input v-model="deed.name" maxlength="255" disabled></b-input>
 		<b-input v-model="deed.description" maxlength="255"></b-input>
 		<b-input v-model="deed.defaultHonor" type="number" maxlength="255" ></b-input>
@@ -679,6 +705,7 @@ export default {
 	  filteredPlayerName:'',
 	  filteredSideName:'',
 	  filteredSquadName:'',
+	  filteredSquadName_forChange:'',
 	  newDeedType:{name:'',
 					description:'',
 					defaultHonor:0,
@@ -706,7 +733,8 @@ export default {
 	  newMessageTypeDescription:'',
 	  config:[],
 	  configStorages:[],
-	  warProgress:[]
+	  warProgress:[],
+	  newSquad:{}
     }
   }
   ,computed: {
@@ -790,6 +818,24 @@ export default {
                         .indexOf(this.filteredSquadName.toLowerCase()) >= 0
                 )
             })
+		},
+		filteredSquads_forChange() {
+			if(this.currentPlayer[0]){
+				return this.dictionaries.filter(el=>el.dict=='squads')[0].data
+											.filter(el=>el.id!=this.currentPlayer[0].squadId)
+											.filter(el=>el.sideId!=16333)
+											.filter(squad => {
+					//console.log(squad);
+					return (
+						squad.name
+							.toString()
+							.toLowerCase()
+							.indexOf(this.filteredSquadName_forChange.toLowerCase()) >= 0
+					)
+				})
+			}else{
+				return[{id:null,name:'без отряда'}]
+			}
 		},
 		filteredDeedTypes() {
 			//if(this.newDeedName=='')return this.deedTypes;
@@ -2046,6 +2092,52 @@ export default {
                     type: 'is-success',
 					duration:3000
                 });
+		}
+		,async changeSquad(curPlayer,newSquad){
+			console.log('меняем отряд',curPlayer,newSquad);
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/changePlayerSquad',{
+						id:curPlayer.id,
+						squadId:newSquad.id
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger',
+					duration:5000
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+			this.loader_.classList.toggle('hidden');
+			//await this.fetchPlayers();
+			this.$buefy.toast.open({
+                    message: `Отряд изменен`,
+                    type: 'is-success',
+					duration:5000
+                });
+			await this.showPlayer(this.players[this.players.findIndex(el=>el.id==curPlayer.id)],this.isOpenPlayer);
+			this.players[this.players.findIndex(el=>el.id==curPlayer.id)].squadId=this.currentPlayer[0].squadId;
+			this.players[this.players.findIndex(el=>el.id==curPlayer.id)].squadName=this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>(el.id==this.currentPlayer[0].squadId)||(!el.id&&!this.currentPlayer[0].squadId))[0].name;
+			this.players[this.players.findIndex(el=>el.id==curPlayer.id)].sideDescription=this.dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>(el.id==this.currentPlayer[0].sideId))[0].description;
+			this.newSquad={};
+			this.filteredSquadName_forChange='';
 		}
 		,getImg(deedName){
 			let res

@@ -208,6 +208,96 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startNewPlayerMaking" type="is-success" :disabled="!newPlayerSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
+		<!---->	<b-tab-item label="Изменить отряд персонажа" v-if="permissions.filter(el=>el=='changePlayerSquad'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectChangeSquadObject')" type="is-success">Кому изменяем отряд</b-button>
+							<div v-for="obj in changeSquadObject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя сдать</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{obj.squadId?dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>el.id==obj.squadId)[0].name:'без отряда'}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{obj.playerSquad?dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>el.id==obj.playerSquad)[0].name:'без отряда'}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter">
+										<span>Выбрать отряд: 
+										<b-autocomplete
+											v-model="squadName_forChange"
+											placeholder="Название отряда"
+											:keep-first="false"
+											:open-on-focus="true"
+											:data="filteredSquads_forChange"
+											field="name"
+											@select="option => {changeSquadSquadId=option.id}"
+											:clearable="true"
+											style="min-width:10px"
+										></b-autocomplete>
+										<img :class="`deed-img`"
+														:src="getSquadLogo(changeSquadSquadId)" style="width:40px;height:40px;"
+														v-if="changeSquadSquadId"
+													> </img></span></div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startSquadChange" type="is-success" :disabled="!changeSquadSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
+				<b-tab-item label="Видимость персонажа" v-if="permissions.filter(el=>el=='test-action'||el=='admin').length>0">
+					<div class="innerTab">
+						<!--<input value="Активировать" type="button" v-on:click="startScan('activateObject')"/>
+						<input value="Деактивировать" type="button" v-on:click="startScan('deactivateObject')"/>-->
+						<b-button @click="startScan('activateObject')" type="is-success">Сделать видимым</b-button>
+						<b-button @click="startScan('deactivateObject')" type="is-danger">Сделать невидимым</b-button>
+						<!--<div>hasCamera: {{ hasCamera }}</div>-->
+						<div>result: {{ result }}</div>
+					</div>
+				</b-tab-item>
+			</b-tabs>
+		</b-tab-item>
+		<b-tab-item label="Общее">
+			<b-tabs v-model="activeTabCustom" position="is-centered" vertical>
+				<b-tab-item label="Информация по объекту"  v-if="permissions.filter(el=>el=='scanObject'||el=='admin').length>0">
+					<div class="innerTab">
+						<!--<input value="Сканировать" type="button" v-on:click="startScan('scanObject')"/>-->
+						<b-button @click="startScan('scanObject')" type="is-success">Сканировать</b-button>
+						<!--<div>QR: {{ qr }}</div>-->
+						<!--<div>hasCamera: {{ hasCamera }}</div>-->
+						<div v-for="obj in scannedObject">
+							<div class="innerTab" v-if="obj.objectType=='none'">Увы такого объекта не существует</div>
+							<div class="innerTab" v-if="obj.objectType=='player'">
+								<hr>
+								<b>Герой</b> 
+								<div class="innerTabRow"><span class="innerTabRowPropName">Id:</span> <span class="innerTabRowPropVal"> {{obj.id}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Имя:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Статус:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='states')[0].data.filter(el=>el.id==obj.stateId)[0].description}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Отряд:</span> <span class="innerTabRowPropVal"> {{obj.squadId?dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>el.id==obj.squadId)[0].name:'без отряда'}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Сторона:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Слава:</span> <span class="innerTabRowPropVal"> {{obj.honor}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Видимый:</span> <span class="innerTabRowPropVal"> {{obj.active?'Да':'Нет'}}</span></div>
+							</div>
+							<div class="innerTab" v-if="obj.objectType=='bjzi'">
+								<hr>
+								<b>Спутник</b> 
+								<div class="innerTabRow"><span class="innerTabRowPropName">Id:</span> <span class="innerTabRowPropVal"> {{obj.id}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Имя:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Статус:</span> <span class="innerTabRowPropVal"> {{obj.utilized?'Мертв':'Жив'}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Канал поступления:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='bjziChannelTypes')[0].data.filter(el=>el.id==obj.bjziChannelTypeId)[0].description}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Похороны:</span> <span class="innerTabRowPropVal"> {{obj.deathCaseId?dictionaries.filter(el=>el.dict=='deathCaseTypes')[0].data.filter(el=>el.id==obj.deathCaseId)[0]:'-'}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Командир:</span> <span class="innerTabRowPropVal"> {{obj.playerName}}</span></div>
+								<div class="innerTabRow"><span class="innerTabRowPropName">Сторона:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span></div>
+							</div>
+						</div>
+					</div>
+				</b-tab-item>
 				<b-tab-item label="Стратегические точки" v-if="permissions.filter(el=>el=='setOrUpdateWarProgress'||el=='admin').length>0">
 					<div class="innerTabWrap">
 						<div class="innerTabCenter">
@@ -292,53 +382,6 @@
 														:src="getSquadLogo(squad.id)" style="width:80px;height:80px;"
 														@click="() => {$buefy.toast.open({message: `Выбрано: ${squad.name}`,type: 'is-success'});warProgressObject[0].squadId=squad.id;squadName_warProgress=squad.name}"
 													> </img> </b-field>
-					</div>
-				</b-tab-item>
-				<b-tab-item label="Видимость персонажа" v-if="permissions.filter(el=>el=='test-action'||el=='admin').length>0">
-					<div class="innerTab">
-						<!--<input value="Активировать" type="button" v-on:click="startScan('activateObject')"/>
-						<input value="Деактивировать" type="button" v-on:click="startScan('deactivateObject')"/>-->
-						<b-button @click="startScan('activateObject')" type="is-success">Сделать видимым</b-button>
-						<b-button @click="startScan('deactivateObject')" type="is-danger">Сделать невидимым</b-button>
-						<!--<div>hasCamera: {{ hasCamera }}</div>-->
-						<div>result: {{ result }}</div>
-					</div>
-				</b-tab-item>
-			</b-tabs>
-		</b-tab-item>
-		<b-tab-item label="Общее">
-			<b-tabs v-model="activeTabCustom" position="is-centered" vertical>
-				<b-tab-item label="Информация по объекту"  v-if="permissions.filter(el=>el=='scanObject'||el=='admin').length>0">
-					<div class="innerTab">
-						<!--<input value="Сканировать" type="button" v-on:click="startScan('scanObject')"/>-->
-						<b-button @click="startScan('scanObject')" type="is-success">Сканировать</b-button>
-						<!--<div>QR: {{ qr }}</div>-->
-						<!--<div>hasCamera: {{ hasCamera }}</div>-->
-						<div v-for="obj in scannedObject">
-							<div class="innerTab" v-if="obj.objectType=='none'">Увы такого объекта не существует</div>
-							<div class="innerTab" v-if="obj.objectType=='player'">
-								<hr>
-								<b>Герой</b> 
-								<div class="innerTabRow"><span class="innerTabRowPropName">Id:</span> <span class="innerTabRowPropVal"> {{obj.id}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Имя:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Статус:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='states')[0].data.filter(el=>el.id==obj.stateId)[0].description}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Отряд:</span> <span class="innerTabRowPropVal"> {{obj.squadId?dictionaries.filter(el=>el.dict=='squads')[0].data.filter(el=>el.id==obj.squadId)[0].name:'-'}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Сторона:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Слава:</span> <span class="innerTabRowPropVal"> {{obj.honor}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Видимый:</span> <span class="innerTabRowPropVal"> {{obj.active?'Да':'Нет'}}</span></div>
-							</div>
-							<div class="innerTab" v-if="obj.objectType=='bjzi'">
-								<hr>
-								<b>Спутник</b> 
-								<div class="innerTabRow"><span class="innerTabRowPropName">Id:</span> <span class="innerTabRowPropVal"> {{obj.id}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Имя:</span> <span class="innerTabRowPropVal"> {{obj.name}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Статус:</span> <span class="innerTabRowPropVal"> {{obj.utilized?'Мертв':'Жив'}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Канал поступления:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='bjziChannelTypes')[0].data.filter(el=>el.id==obj.bjziChannelTypeId)[0].description}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Похороны:</span> <span class="innerTabRowPropVal"> {{obj.deathCaseId?dictionaries.filter(el=>el.dict=='deathCaseTypes')[0].data.filter(el=>el.id==obj.deathCaseId)[0]:'-'}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Командир:</span> <span class="innerTabRowPropVal"> {{obj.playerName}}</span></div>
-								<div class="innerTabRow"><span class="innerTabRowPropName">Сторона:</span> <span class="innerTabRowPropVal"> {{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span></div>
-							</div>
-						</div>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Покупка ресурсов" v-if="permissions.filter(el=>el=='setOrUpdateTransaction'||el=='admin').length>0">
@@ -475,6 +518,7 @@ export default {
 	  result:'',
 	  squadName:'',
 	  squadName_warProgress:'',
+	  squadName_forChange:'',
 	  checkpointName_warProgress:'',
 	  cycleName_warProgress:'',
 	  scannerActive:false,
@@ -490,6 +534,8 @@ export default {
 	  furnalSubject:[],
 	  furnalObject:[],
 	  trashObject:[],
+	  changeSquadObject:[],
+	  changeSquadSquadId:null,
 	  transferSubject:[],
 	  transferObject:[],
 	  reinforcementCheckSubject:[],
@@ -534,6 +580,9 @@ export default {
 		manualScanSubmit() {
             return this.manualScannedId&&this.manualScannedObjectType;
         },
+		changeSquadSubmit(){
+			return this.changeSquadObject[0]&&(this.changeSquadSquadId||this.squadName_forChange=='без отряда');
+		},
 		filteredSquads() {
 			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==16333)}).filter(squad => {
 				//console.log(squad);
@@ -553,6 +602,17 @@ export default {
                         .toString()
                         .toLowerCase()
                         .indexOf(this.squadName_warProgress.toLowerCase()) >= 0
+                )
+            })
+		},
+		filteredSquads_forChange() {
+			return this.dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad=>{return !(squad.sideId==15680||squad.sideId==16333)}).filter(squad => {
+				//console.log(squad);
+                return (
+                    squad.name
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(this.squadName_forChange.toLowerCase()) >= 0
                 )
             })
 		},
@@ -896,6 +956,21 @@ export default {
 		console.log(this.furnalObject);
 		return;
 	},
+	async selectChangeSquadObject(obj){
+		this.changeSquadObject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.changeSquadObject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.changeSquadObject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.changeSquadObject.push({objectType:'none'});
+		}
+		console.log(this.changeSquadObject);
+		return;
+	},
 	async selectTrashObject(obj){
 		//this.qr = JSON.stringify(obj);
 		this.trashObject=[];
@@ -1233,6 +1308,52 @@ export default {
                     type: 'is-success'
         })
 		this.trashObject=[];
+	},
+	async startSquadChange(){
+		this.loader_.classList.toggle('hidden');
+		//console.log('Меняем отряд',this.changeSquadObject,this.changeSquadSquadId);
+		let playerId;
+		if(this.changeSquadObject[0].objectType=='player') playerId = this.changeSquadObject[0].id;
+		if(this.changeSquadObject[0].objectType=='bjzi') playerId = this.changeSquadObject[0].playerId;
+		console.log('Меняем отряд',playerId,this.changeSquadSquadId);
+
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/changePlayerSquad',{
+						id:playerId,
+						squadId:this.changeSquadSquadId
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Отряд изменен`,
+                    type: 'is-success'
+        })
+		this.changeSquadObject=[];
+		this.changeSquadSquadId=null;
+		this.squadName_forChange='';
 	},
 	async startTransfer(){
 		this.loader_.classList.toggle('hidden');

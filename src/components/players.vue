@@ -433,8 +433,8 @@
 							<template v-slot="props">
 							<div :class="`checkpoint_state_${props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].checkpointStateId}`"  style="width:100px">
 									<!--<b-tag style="width:50px">{{ props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].warProgressId }}</b-tag><br>-->
-									<span v-if="dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0]">{{ dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name }}
-									<b-tooltip :label="`${dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name}`"
+									<span v-if="dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0]&&props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId">{{ dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name }}
+									<b-tooltip v-if="props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId" :label="`${dictionaries.filter(el=>el.dict=='squads')[0].data.filter(squad => squad.id==props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)[0].name}`"
 									position="is-top">
 									<img :class="`deed-img`"
 														:src="getSquadLogo(props.row.checkpoints.filter(el=>el.checkpointId==checkpoint.checkpointId)[0].squadId)" style="width:40px;height:40px;"

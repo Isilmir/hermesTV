@@ -266,7 +266,8 @@
 							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
 																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56
-																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60||deed.type.id==61||deed.type.id==62||deed.type.id==67)" 
+																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60
+																||deed.type.id==61||deed.type.id==62||deed.type.id==67||deed.type.id==68||deed.type.id==69)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -858,7 +859,8 @@ export default {
 				||(this.activeDeedGroup=='achievment'&&(deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
 																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56
-																||deedType.id==57||deedType.id==59||deedType.id==60||deedType.id==61||deedType.id==62||deedType.id==67))
+																||deedType.id==57||deedType.id==60||deedType.id==61
+																||deedType.id==62||deedType.id==67||deedType.id==68||deedType.id==69))
 			}).filter(deedType => {
                 return (
                     deedType.description

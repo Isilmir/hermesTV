@@ -163,7 +163,7 @@
 																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56
 																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60
 																||deed.type.id==61||deed.type.id==62||deed.type.id==63||deed.type.id==64
-																||deed.type.id==67||deed.type.id==68||deed.type.id==69))" 
+																||deed.type.id==67||deed.type.id==68||deed.type.id==69||deed.type.id==70||deed.type.id==71||deed.type.id==72))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -214,7 +214,8 @@
 							</b-table>
 						</b-tab-item></template>
 						<template><b-tab-item label="Боевые" value="war">
-							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==63||deed.type.id==64)" 
+							<b-table :data="curPlayer.deeds.filter(deed=>deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35
+																	   ||deed.type.id==63||deed.type.id==64||deed.type.id==71||deed.type.id==72)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -269,7 +270,8 @@
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
 																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56
 																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60
-																||deed.type.id==61||deed.type.id==62||deed.type.id==67||deed.type.id==68||deed.type.id==69)" 
+																||deed.type.id==61||deed.type.id==62||deed.type.id==67||deed.type.id==68
+																||deed.type.id==69||deed.type.id==70)" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"
@@ -856,13 +858,15 @@ export default {
 				return(this.activeDeedGroup=='media'&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
 																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56
-																||deedType.id==57||deedType.id==58||deedType.id==59||deedType.id==60||deedType.id==61||deedType.id==62||deedType.id==63||deedType.id==64||deedType.id==67)))
-				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==63||deedType.id==64))
+																||deedType.id==57||deedType.id==58||deedType.id==59||deedType.id==60
+																||deedType.id==61||deedType.id==62||deedType.id==63||deedType.id==64
+																||deedType.id==67||deedType.id==68||deedType.id==69||deedType.id==70||deedType.id==71||deedType.id==72)))
+				||(this.activeDeedGroup=='war'&&(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==63||deedType.id==71||deedType.id==72))
 				||(this.activeDeedGroup=='achievment'&&(deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
 																||deedType.id==53||deedType.id==54||deedType.id==55||deedType.id==56
 																||deedType.id==57||deedType.id==60||deedType.id==61
-																||deedType.id==62||deedType.id==67||deedType.id==68||deedType.id==69))
+																||deedType.id==62||deedType.id==67))
 			}).filter(deedType => {
                 return (
                     deedType.description

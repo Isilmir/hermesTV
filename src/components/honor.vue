@@ -99,6 +99,7 @@
 																														||deedGroup.name=='blockAres'
 																														||deedGroup.name=='gauleiterOfLirness'
 																														||deedGroup.name=='LirnessChildren'
+																														||deedGroup.name=='SiegeOfTroy'
 																								?'achievment':''}`"
 								:style="deedGroup.color?`${'background-color:'+deedGroup.color}`:''">
 						<img v-if="!deedGroup.messageId"

@@ -161,7 +161,9 @@
 							<b-table :data="curPlayer.deeds.filter(deed=>!(deed.type.id==33||deed.type.id==32||deed.type.id==34||deed.type.id==35||deed.type.id==45||deed.type.id==46||deed.type.id==47||deed.type.id==48
 																||deed.type.id==49||deed.type.id==50||deed.type.id==51||deed.type.id==52
 																||deed.type.id==53||deed.type.id==54||deed.type.id==55||deed.type.id==56
-																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60||deed.type.id==61||deed.type.id==62||deed.type.id==63||deed.type.id==64||deed.type.id==67))" 
+																||deed.type.id==57||deed.type.id==58||deed.type.id==59||deed.type.id==60
+																||deed.type.id==61||deed.type.id==62||deed.type.id==63||deed.type.id==64
+																||deed.type.id==67||deed.type.id==68||deed.type.id==69))" 
 										   :bordered="false" 
 										   :hoverable="true" 
 										   ref="table"

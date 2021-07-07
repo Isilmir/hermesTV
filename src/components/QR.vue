@@ -261,6 +261,30 @@
 						<div>result: {{ result }}</div>
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Операция в госпитале" v-if="permissions.filter(el=>el=='makeCure'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectCureObject')" type="is-success">Пациент</b-button>
+							<div v-for="obj in cureObject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя сдать</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startCure" type="is-success" :disabled="!cureSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
 			</b-tabs>
 		</b-tab-item>
 		<b-tab-item label="Общее">
@@ -534,6 +558,7 @@ export default {
 	  furnalSubject:[],
 	  furnalObject:[],
 	  trashObject:[],
+	  cureObject:[],
 	  changeSquadObject:[],
 	  changeSquadSquadId:null,
 	  transferSubject:[],
@@ -561,6 +586,9 @@ export default {
         },
 		trashSubmit() {
             return this.trashObject[0]&&!this.trashObject[0].utilized&&this.trashObject[0].stateId!=3
+        },
+		cureSubmit() {
+            return !!this.cureObject[0]
         },
 		transferSubmit() {
             return this.transferSubject[0]&&this.transferObject[0]&&!this.transferObject[0].utilized
@@ -987,6 +1015,23 @@ export default {
 		console.log(this.trashObject);
 		return;
 	},
+	async selectCureObject(obj){
+		//this.qr = JSON.stringify(obj);
+		console.log(obj)
+		this.cureObject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.cureObject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.cureObject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.cureObject.push({objectType:'none'});
+		}
+		console.log('cureObject',this.cureObject);
+		return;
+	},
 	async selectTransferSubject(obj){
 		//this.qr = JSON.stringify(obj);
 		this.transferSubject=[];
@@ -1308,6 +1353,46 @@ export default {
                     type: 'is-success'
         })
 		this.trashObject=[];
+	},
+	async startCure(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Завершаем операцию',this.cureObject);
+		
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeCure',{
+						patient:this.cureObject[0].id,
+						patientType:this.cureObject[0].objectType
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Операция завершена успешно`,
+                    type: 'is-success'
+        })
+		this.cureObject=[];
 	},
 	async startSquadChange(){
 		this.loader_.classList.toggle('hidden');

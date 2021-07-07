@@ -285,6 +285,30 @@
 						<div class="innerTabCenter" style="border:none"><b-button @click="startCure" type="is-success" :disabled="!cureSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Регистрация на полигоне" v-if="permissions.filter(el=>el=='makeRegistration'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectRegistrationObject')" type="is-success">Персонаж</b-button>
+							<div v-for="obj in registrationObject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя зарегистрировать</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startRegistration" type="is-success" :disabled="!registrationSubmit">Подтвердить</b-button></div>
+					</div>
+				</b-tab-item>
 			</b-tabs>
 		</b-tab-item>
 		<b-tab-item label="Общее">
@@ -559,6 +583,7 @@ export default {
 	  furnalObject:[],
 	  trashObject:[],
 	  cureObject:[],
+	  registrationObject:[],
 	  changeSquadObject:[],
 	  changeSquadSquadId:null,
 	  transferSubject:[],
@@ -588,7 +613,10 @@ export default {
             return this.trashObject[0]&&!this.trashObject[0].utilized&&this.trashObject[0].stateId!=3
         },
 		cureSubmit() {
-            return !!this.cureObject[0]
+            return !!this.cureObject[0]&&this.cureObject[0].objectType!='none'
+        },
+		registrationSubmit() {
+            return this.registrationObject[0]&&this.registrationObject[0].objectType!='none'
         },
 		transferSubmit() {
             return this.transferSubject[0]&&this.transferObject[0]&&!this.transferObject[0].utilized
@@ -1032,6 +1060,23 @@ export default {
 		console.log('cureObject',this.cureObject);
 		return;
 	},
+	async selectRegistrationObject(obj){
+		//this.qr = JSON.stringify(obj);
+		console.log(obj)
+		this.registrationObject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.registrationObject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.registrationObject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.registrationObject.push({objectType:'none'});
+		}
+		console.log('registrationObject',this.registrationObject);
+		return;
+	},
 	async selectTransferSubject(obj){
 		//this.qr = JSON.stringify(obj);
 		this.transferSubject=[];
@@ -1393,6 +1438,48 @@ export default {
                     type: 'is-success'
         })
 		this.cureObject=[];
+	},
+	async startRegistration(){
+		this.loader_.classList.toggle('hidden');
+		//console.log('Регистрируем персонажа на полигоне',this.registrationObject);
+		let id;
+		if(this.registrationObject[0].objectType=='bjzi')id=this.registrationObject[0].playerId
+		if(this.registrationObject[0].objectType=='player')id=this.registrationObject[0].id
+		console.log('Регистрируем персонажа на полигоне',this.registrationObject,id);
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeRegistration',{
+						id:id
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Персонаж зарегистрирован`,
+                    type: 'is-success'
+        })
+		this.registartionObject=[];
 	},
 	async startSquadChange(){
 		this.loader_.classList.toggle('hidden');

@@ -99,7 +99,9 @@
 																														||deedGroup.name=='blockAres'
 																														||deedGroup.name=='gauleiterOfLirness'
 																														||deedGroup.name=='LirnessChildren'
-																														||deedGroup.name=='SiegeOfTroy'
+																														||deedGroup.name=='EternalDarkness'
+																														||deedGroup.name=='Icepick'
+																														||deedGroup.name=='OneTimeToken'
 																								?'achievment':''}`"
 								:style="deedGroup.color?`${'background-color:'+deedGroup.color}`:''">
 						<img v-if="!deedGroup.messageId"

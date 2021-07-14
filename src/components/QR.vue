@@ -101,7 +101,10 @@
 								</div>
 							</div>
 						</div>
-						<div class="innerTabCenter" style="border:none"><b-button @click="startFuneral" type="is-success" :disabled="!funeralSubmit">Подтвердить</b-button></div>
+						<div class="innerTabCenter" style="border:none"><b-checkbox v-model="badFuneral">
+                некачественные похороны
+            </b-checkbox><br>
+			<b-button @click="startFuneral" type="is-success" :disabled="!funeralSubmit">Подтвердить</b-button></div>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Утилизировать просроченные тела" v-if="permissions.filter(el=>el=='removeTrash'||el=='admin').length>0">
@@ -501,6 +504,7 @@
 																			field="resource"
 																			@select="option => {
 																								if(transaction[0].god=='Зевс'){transaction[0].gold=5;minTradeValue=5;maxTradeValue=999;transaction[0].quantity=+option.quantity*5;}
+																								else if(transaction[0].god=='Гера'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (перемирие)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру UC'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (война)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
@@ -581,6 +585,7 @@ export default {
 	  scannedObject:[],
 	  furnalSubject:[],
 	  furnalObject:[],
+	  badFuneral:false,
 	  trashObject:[],
 	  cureObject:[],
 	  registrationObject:[],
@@ -1317,7 +1322,8 @@ export default {
 						OBJECT:{
 							id:this.furnalObject[0].id,
 							type:this.furnalObject[0].objectType
-						}
+						},
+						bad:this.badFuneral
 				},
 				{
 					headers: {
@@ -1348,6 +1354,7 @@ export default {
                     type: 'is-success'
         })
 		this.furnalObject=[];
+		this.badFuneral=false;
 	},
 	async startTrash(){
 		this.loader_.classList.toggle('hidden');

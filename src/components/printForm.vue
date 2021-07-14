@@ -54,7 +54,7 @@
         </b-tabs>
 		<div style="color:red;" v-if="sendError">При отправке письма произошла ошибка! <br>Попробуйте отправить еще раз. Если ошибка повторится, то просьба самостоятельно отправить сохраненный файл на почту hermes.tv.troy@gmail.com указав в теме "{{user.id}} {{user.name}} [{{this.user.squad.name}}] [{{this.user.side.name}}]"</div>
 <b-checkbox v-model="confirm">
-                При отправке письма подтверждаю, что все использованные изображения реальных людей получены мной с их согласия
+                Подтверждаю, что все использованные изображения реальных людей получены мной с их согласия
             </b-checkbox><br>
 <b-button @click="sendMail" :disabled="sendButtonDisable||!confirm">Отправить список спутников в редакцию Гермес-ТВ</b-button>
 	<div style="display:none" id="printform-wrapper">

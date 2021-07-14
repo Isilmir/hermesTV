@@ -9,6 +9,7 @@
 		<b>Ссылки</b>
 		<ol>
 		<li><router-link :to="`/honor`">Зал славы корпорации Олимп</router-link></li>
+		<li><router-link :to="`/printform`">Генератор спутников</router-link></li>
 		</ol>
 		<!--<b>Сканер qr-кодов</b>
 		<ol>

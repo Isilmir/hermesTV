@@ -501,6 +501,7 @@
 																			field="resource"
 																			@select="option => {
 																								if(transaction[0].god=='Зевс'){transaction[0].gold=5;minTradeValue=5;maxTradeValue=999;transaction[0].quantity=+option.quantity*5;}
+																								else if(transaction[0].god=='Гера'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (перемирие)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру UC'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (война)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}

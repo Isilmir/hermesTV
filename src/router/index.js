@@ -20,6 +20,7 @@ import simulation from '@/components/simulation'
 import honor from '@/components/honor'
 import players from '@/components/players'
 import message from '@/components/message'
+import statistic from '@/components/statistic'
 
 Vue.use(Router) 
 
@@ -128,6 +129,15 @@ let router = new Router({
       component: message,
 	  meta:{
 			requireAuth:true
+		}
+    },
+	{
+      path: '/statistic',
+      name: 'statistic',
+      component: statistic,
+	  meta:{
+			requireAuth:true,
+			requireAdmin:true
 		}
     },
 	{

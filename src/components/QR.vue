@@ -52,6 +52,37 @@
 							</div>
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startTransfer" type="is-success" :disabled="!transferSubmit">Подтвердить</b-button></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Отсканировать карточку субъекта" icon="qrcode">
+Субъект - тот кому мы передаем спутника
+									</b-step-item>
+
+									<b-step-item label="Отсканировать карточку объекта" icon="qrcode">
+Объект - спутник, которого передаем
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Провести похороны" v-if="permissions.filter(el=>el=='makeFuneral'||el=='admin').length>0">
@@ -105,6 +136,47 @@
                 некачественные похороны
             </b-checkbox><br>
 			<b-button @click="startFuneral" type="is-success" :disabled="!funeralSubmit">Подтвердить</b-button></div>
+			<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Провести похороны" icon="power-off">
+Похороны должны включать поминовение покойного, рассказ о его смерти или о том, что связывало его с принесшим тело
+									</b-step-item>
+
+									<b-step-item label="Отсканировать карточку субъекта" icon="qrcode">
+Субъект - тот, кто принес тело
+									</b-step-item>
+									
+									<b-step-item label="Отсканировать карточку объекта" icon="qrcode">
+Объект - тот, кого хоронят
+									</b-step-item>
+									
+									<b-step-item label="Оценить качество проведенного ритуала" icon="thumbs-up">
+Если похороны были проведены недостойно, можно отметить галочку "некачественные похороны"<br><br>
+Если карточки были брошены игроком вообще без обряда, то с ними можно взаимодействовать как с любым побираемым ресурсом: похоронить самостоятельно или отдать кому-нибудь. В конце цикла они утилизируется в соответствии с правилами.
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+Карточки ЧВК Арес и Мертвой Фаланги следует откладывать в отдельную стопку.<br>
+Остальные должны быть вывешены на стену.
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Утилизировать просроченные тела" v-if="permissions.filter(el=>el=='removeTrash'||el=='admin').length>0">
@@ -150,6 +222,37 @@
 							</div>
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startTrash" type="is-success" :disabled="!trashSubmit">Подтвердить</b-button></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Когда можно утилизировать" icon="info">
+Утилизации подвергаются карточки, перешедшие в статус Мертв в любом из прошлых циклов кроме текущего. Они не получат посмертия.
+									</b-step-item>
+
+									<b-step-item label="Отсканировать карточку" icon="qrcode">
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+Карточки ЧВК Арес и Мертвой Фаланги следует откладывать в отдельную стопку.<br>
+Остальные должны быть вывешены на стену.
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Отметить полученное подкрепление" v-if="permissions.filter(el=>el=='makeReinforcementsArrived'||el=='admin').length>0">
@@ -174,6 +277,38 @@
 							</div>
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startReinforcementCheck" type="is-success" :disabled="!reinforcementCheckSubmit">Подтвердить</b-button></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Проверить статус в зале славы" icon="info">
+Нужно убедиться, что этот персонаж еще не получал подкреплений
+									</b-step-item>
+
+									<b-step-item label="Передать спутников" icon="user">
+Передавать через функцию сканера "Передача спутника"<br><br>
+Количество спутников указано в зале славы
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+После завершения проверить в зале славы, что иконка ожидания подкреплений сменилась на иконку полученных подкреплений
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Создать нового персонажа из спутника" v-if="permissions.filter(el=>el=='makeNewPlayerFromBjzi'||el=='admin').length>0">
@@ -209,6 +344,59 @@
 							</div>
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startNewPlayerMaking" type="is-success" :disabled="!newPlayerSubmit">Подтвердить</b-button></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Взять карточку" icon="user">
+Подходит любая карточка из пакета с мастерским резервом
+									</b-step-item>
+
+									<b-step-item label="Отсканировать qr-код" icon="qrcode" disabled>
+Нажать кнопку "Спутник, готовый стать героем"
+									</b-step-item>
+
+									<b-step-item label="Указать имя" icon="address-book">
+НА ИГРЕ. <br>
+Вписываем имя, о котором договоритесь с игроком или оставляем имя спутника, если игрок выходит в роли своего спутника.<br><br>
+НА ПРЕДИГРОВОМ ИВЕНТЕ<br>
+Оставляем имя спутника, дописываем ", друг [имя основного персонажа]". Например "Эогон, друг Диагона"
+									</b-step-item>
+									
+									<b-step-item label="Выбрать отряд" icon="address-book">
+НА ИГРЕ. <br>
+Выбираем отряд, в который выходит персонаж. По умолчанию стоит отряд спутника<br><br>
+НА ПРЕДИГРОВОМ ИВЕНТЕ<br>
+Выбрать один из виртуальных отрядов "Троя для ивента" "Ахейцы для ивента" "Миротворцы для ивента" в зависимости от стороны основного персонажа
+									</b-step-item>
+									
+									<b-step-item label="Переносить ли спутников" icon="address-book">
+Для спутников игроков можно целиком перенести их новому персонажу. Для мастерского резерва (отряд Игротехника) эта опция недоступна.<br><br>
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+Если нужно, то передать дополнительных спутников новому персонажу через функцию сканера "Передать спутника"
+									</b-step-item>
+									
+									<b-step-item label="Сделать видимым" icon="power-off" disabled>
+Через функцию сканера "Видимость персонажа" сделать его видимым в зале славы
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 				</b-tab-item>
 		<!---->	<b-tab-item label="Изменить отряд персонажа" v-if="permissions.filter(el=>el=='changePlayerSquad'||el=='admin').length>0">
@@ -285,7 +473,42 @@
 								</div>
 							</div>
 						</div>
-						<div class="innerTabCenter" style="border:none"><b-button @click="startCure" type="is-success" :disabled="!cureSubmit">Подтвердить</b-button></div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startCure" type="is-success" :disabled="!cureSubmit">Подтвердить</b-button></div><div><br></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Провести операцию" icon="ambulance">
+Операция проводится в Гостпитале по правилам 
+									</b-step-item>
+
+									<b-step-item label="Взять карточку пациента" icon="user">
+Это может быть спутник или герой
+									</b-step-item>
+
+									<b-step-item label="Отсканировать qr-код" icon="qrcode" disabled>
+Нажать кнопку "Пациент"
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+После завершения операции обязательно убрать распущенную красную ленту на место.
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 				</b-tab-item>
 				<b-tab-item label="Регистрация на полигоне" v-if="permissions.filter(el=>el=='makeRegistration'||el=='admin').length>0">
@@ -421,6 +644,49 @@
 							
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startWarProgress" type="is-success" :disabled="!warProgressSubmit">Подтвердить</b-button></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Дождаться окончания цикла" icon="clock">
+									</b-step-item>
+									
+									<b-step-item label="Добраться до точки" icon="bicycle">
+Нужно как можно быстрее добраться до закрепленной за тобой точки
+									</b-step-item>
+
+									<b-step-item label="Выбрать цикл" icon="address-book" disabled>
+Указать только что завершившийся цикл
+									</b-step-item>
+									
+									<b-step-item label="Выбрать точку" icon="address-book" disabled>
+									</b-step-item>
+									
+									<b-step-item label="Выбрать отряд" icon="address-book" disabled>
+Указать отряд, чья эмблема нанесена на точке
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+									</b-step-item>
+									
+									<b-step-item label="Двигаться к следующей точке" icon="bicycle">
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 					<hr>
 					<span>Эмблемы отрядов</span><br>
@@ -522,6 +788,58 @@
 										<!--<span>{{transaction[0].resource}}{{transaction[0].quantity}}</span>--></span>
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startTrade" type="is-success" :disabled="!tradeSubmit">Подтвердить</b-button></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									<b-step-item label="Отсканировать qr-code" icon="qrcode">
+Отсканировать qr-код с карточки персонажа, который хочет торговать
+									</b-step-item>
+									
+									<b-step-item label="Проверить статус персонажа" icon="info">
+Проверить какие на него наложены санкции, какие боги благоволят ему, а какие недолюбливают
+									</b-step-item>
+
+									<b-step-item label="Выбрать олимпийца" icon="address-book" disabled>
+Учитывайте отношение богов к персонажу!
+									</b-step-item>
+									
+									<b-step-item label="Выбрать ресурс" icon="address-book" disabled>
+Все что не запрещено - разрешено
+									</b-step-item>
+									
+									<b-step-item label="Указать количество ресурса" icon="address-book" disabled>
+Оно может быть больше или меньше указанного в прайсе
+									</b-step-item>
+									
+									<b-step-item label="Указать количество золота" icon="address-book" disabled>
+Количество ресурса изменяется кратно прайсу
+									</b-step-item>
+									
+									<b-step-item label="Оставить комментарий" icon="address-book" disabled>
+Если цена была нестандартной
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+									</b-step-item>
+									
+								</b-steps>
+							</div>
+						</b-collapse>
+						
 					</div>
 				</b-tab-item>
 			</b-tabs>
@@ -881,10 +1199,6 @@ export default {
 	},
 	async activateObject(obj){
 		//this.startScan('activate');
-		this.$buefy.toast.open({
-                    message: `Активируем объект: ${JSON.stringify(obj)}`,
-                    type: 'is-danger'
-                })
 		obj.activationToggle=true;
 		this.loader_.classList.toggle('hidden');
 		let obj_;
@@ -904,8 +1218,12 @@ export default {
 		}
 		let actionRes
 		try{
-		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
-			,{id:obj_.id,objectType:obj_.objectType,activationToggle:true}, {
+		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/objectActivation'//'http://192.168.0.181:5000/test-action'
+			,{
+						id:obj_.id,
+						type:obj_.objectType,
+						active:true
+				}, {
 			headers: {
 			  'Content-Type': 'application/json',
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
@@ -927,16 +1245,17 @@ export default {
                     type: 'is-danger'
                 });
 			}
+			this.$buefy.toast.open({
+                    message: `Активировали объект: ${JSON.stringify(obj)}`,
+                    type: 'is-success'
+                })
 		//let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
 		this.loader_.classList.toggle('hidden');
 		this.result = actionRes.data;
 	},
 	async deactivateObject(obj){
 		//this.startScan('deactivate');
-		this.$buefy.toast.open({
-                    message: `Деактивируем объект: ${JSON.stringify(obj)}`,
-                    type: 'is-danger'
-                })
+
 		obj.activationToggle=false;
 		this.loader_.classList.toggle('hidden');
 		let obj_;
@@ -956,8 +1275,12 @@ export default {
 		}
 		let actionRes 
 		try{
-		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/test-action'//'http://192.168.0.181:5000/test-action'
-			,{id:obj_.id,objectType:obj_.objectType,activationToggle:false}, {
+		actionRes = await axios.post('https://blooming-refuge-12227.herokuapp.com/objectActivation'//'http://192.168.0.181:5000/test-action'
+			,{
+						id:obj_.id,
+						type:obj_.objectType,
+						active:false
+				}, {
 			headers: {
 			  'Content-Type': 'application/json',
 			  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
@@ -980,7 +1303,10 @@ export default {
                 });
 			}
 		
-		
+		this.$buefy.toast.open({
+                    message: `Деактивировали объект: ${JSON.stringify(obj)}`,
+                    type: 'is-success'
+                })
 		//let actionRes = await PostsService.doPost('https://blooming-refuge-12227.herokuapp.com','/test-action',resultJSON);
 		this.loader_.classList.toggle('hidden');
 		this.result = actionRes.data;

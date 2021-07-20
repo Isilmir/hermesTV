@@ -10,6 +10,12 @@
 		<ol>
 		<li><router-link :to="`/honor`">Зал славы корпорации Олимп</router-link></li>
 		<li><router-link :to="`/printform`">Генератор спутников</router-link></li>
+		<li v-if="permissions.filter(el=>el=='scanObject'||el=='admin').length>0"><router-link :to="`/qr`">Сканер QR-кодов</router-link></li>
+		<li v-if="permissions.filter(el=>el=='admin').length>0"><router-link :to="`/players`">Админка зала славы</router-link></li>
+		<li v-if="permissions.filter(el=>el=='admin').length>0"><router-link :to="`/statistic`">Тулза статистики по славе</router-link></li>
+		<li v-if="permissions.filter(el=>el=='admin').length>0"><router-link :to="`/qrView`">Все qr-коды</router-link></li>
+		<li v-if="permissions.filter(el=>el=='admin').length>0"><router-link :to="`/stories`">Управление сюжетами</router-link></li>
+		<li v-if="permissions.filter(el=>el=='admin').length>0"><router-link :to="`/simulation`">Симуляция экономики</router-link></li>
 		</ol>
 		<!--<b>Сканер qr-кодов</b>
 		<ol>
@@ -42,12 +48,26 @@
 </template>
 
 <script>
+import jwt from 'jsonwebtoken'
 export default {
   name: 'HelloWorld',
+  props:['cert'],
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+	  permissions:[],
     }
+  },
+  async mounted(){
+	console.log('jwt',jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }));
+	if(localStorage.getItem('jwt')){
+		try{
+			this.permissions=jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }).permissions;
+		}catch(e){
+			this.permissions=[];
+		}
+	}
+	console.log(this.permissions);
   }
 }
 </script>

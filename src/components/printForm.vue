@@ -472,7 +472,7 @@ this.activeTab=0;
 		  let res;
 		  
 		try{ 
-	res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.148:5000/sendMail'
+	res = await axios.post('https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://localhost:5000/sendMail'//'https://blooming-refuge-12227.herokuapp.com/sendMail'//'http://192.168.0.148:5000/sendMail'
 		, formData
 		, {
 		headers: {

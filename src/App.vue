@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <!--<img src="./assets/logo.png">--><div class="header">{{user.name}} <a v-if="user.name!='Гость'" href="#" @click="logout">выйти</a></div>
+    <!--<img src="./assets/logo.png">--><div class="header">{{user.name}} 
+	<a v-if="user.name!='Гость'" href="#" @click="logout">выйти</a><router-link :to="`/login?nextUrl=${this.$route.fullPath}`" v-if="user.name=='Гость'&&this.$route.path!='/login'">войти</router-link></div>
     
 <router-view style="height:100%" v-bind:cert="cert"/>
 
@@ -28,7 +29,7 @@ export default {
 		}
 	},
 	async mounted(){
-		console.log('mounted',this.user.name)
+		console.log('mounted',this.user.name,this.$route)
 		//console.log(jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }))
 		//console.log('путь',this.$route)
 	},

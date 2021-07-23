@@ -2,7 +2,11 @@
 <div>
 <img src="../assets/lazy-img.gif" id="loader_" class="loader_ hidden"></img>
 
-{{message}}
+<div v-for="line in message.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
 </div>
 </template>
 

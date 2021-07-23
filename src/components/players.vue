@@ -12,7 +12,7 @@
             <div style="display:flex;">
 			<b-select placeholder="Select a name" v-model="playerSortProp">
                 <option
-                    v-for="option in [{id:'name',name:'Имя персонажа'},{id:'honor',name:'Слава'},{id:'squadName',name:'Название отряда'},{id:'sideDescription',name:'Сторона конфликта'}]"
+                    v-for="option in [{id:'honor',name:'Слава'},{id:'name',name:'Имя персонажа'},{id:'squadName',name:'Название отряда'},{id:'sideDescription',name:'Сторона конфликта'}]"
                     :value="option.id"
                     :key="option.id">
                     {{ option.name }}
@@ -725,8 +725,8 @@ export default {
 	  newStory:{},
 	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]}],
 	  filters:{sides:[],squads:[],players:[]},
-	  playerSortProp:'name',
-	  playerSortOrder:1,
+	  playerSortProp:'honor',
+	  playerSortOrder:-1,
 	  lastUpdate:'',
 	  activeDeedGroup:'media',
 	  messages:[],
@@ -998,7 +998,7 @@ export default {
                 });
 			}
 			//console.log(players.data);
-			this.players=players.data.filter(player=>player.realName);
+			this.players=players.data;//.filter(player=>player.realName);
 			this.loader_.classList.toggle('hidden');
 			//console.log ('players',this.players);
 		}

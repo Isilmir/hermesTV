@@ -46,22 +46,81 @@
 				:clearable="true"
 				style="min-width:10px"
 			></b-autocomplete>
-			<b-autocomplete
+			<b-autocomplete 
 				v-model="filteredPlayerName"
 				placeholder="Имя персонажа"
 				:keep-first="false"
 				:open-on-focus="true"
 				:data="filteredPlayers_forFilter"
 				field="name"
-				_input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+				_input="option => {timeProbe= new Date(); console.log(+timeProbe/*newPlayerName,option,filteredPlayers*/)}"
 				@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
 				:clearable="true"
 				style="min-width:10px"
 			></b-autocomplete>
 			<b-button v-if="filters.players.length>0||filters.sides.length>0||filters.squads.length>0" @click="filters={sides:[],squads:[],players:[]};filteredPlayerName='';filteredSideName='';filteredSquadName='';isOpenPlayer=-1;" type="is-warning" style="max-width:100px;margin-left:10px">Сбросить</b-button>
 			</div>
+			
         </b-field>
 </div>
+<!--<b-table :data="[{filteredPlayerName:'',filteredSquadName:'',filteredSideName:''}]" 
+										   :bordered="false" 
+										   :hoverable="false" 
+										   ref="table"
+
+										   style="text-align:left;
+												width:100%;"
+							>
+							<b-table-column field="type.description" label="Сторона" width="33%" v-slot="props">
+									<b-autocomplete
+										v-model="props.filteredSideName"
+										placeholder="Сторона"
+										:keep-first="false"
+										:open-on-focus="true"
+										:data="filteredSides_forFilter"
+										field="description"
+										_input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+										@select="option => {filters.sides=[{description:option.description,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
+										:clearable="true"
+										style="min-width:10px"
+									></b-autocomplete>
+							</b-table-column>
+							<b-table-column field="date" label="Отряд"  v-slot="props">
+									<b-autocomplete
+										_v-model="filteredSquadName"
+										:value="filteredSquadName"
+										@keydown.native="()=>{console.log('$event.target.value',$event.target.value);filteredSquadName = $event.target.value}"
+										placeholder="Название отряда"
+										:keep-first="false"
+										:open-on-focus="true"
+										:data="filteredSquads_forFilter"
+										field="name"
+										_input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+										@select="option => {filters.squads=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
+										:clearable="true"
+										style="min-width:10px"
+									></b-autocomplete>
+							</b-table-column>
+							<b-table-column field="date" label="Персонаж" width="33%"  v-slot="props">
+									<b-autocomplete 
+										_v-model="props.filteredPlayerName"
+										:value="props.filteredPlayerName"
+										@change.native="props.filteredPlayerName = $event.target.value"
+										placeholder="Имя персонажа"
+										:keep-first="false"
+										:open-on-focus="true"
+										:data="filteredPlayers_forFilter_tab"
+										field="name"
+										@input="option => {timeProbe= new Date(); console.log(+timeProbe/*newPlayerName,option,filteredPlayers*/)}"
+										@select="option => {filters.players=[{name:option.name,id:option.id}];isOpenPlayer=-1;console.log('!!!',option);}"
+										:clearable="true"
+										style="min-width:10px"
+									></b-autocomplete>
+							
+							</b-table-column>
+							
+</b-table>-->
+
 <b-collapse
             class="card"
             animation="slide"
@@ -118,7 +177,7 @@
 											</div>-->
 										<b-field label="Добавить деяние">
 										</b-field>
-										<div class="" style="display:flex;justify-content: space-around;">
+										<!--<div class="" style="display:flex;justify-content: space-around;">
 											<b-autocomplete
 												v-model="newDeedName"
 												placeholder="Начните вводить тип деяния"
@@ -130,7 +189,7 @@
 												:clearable="true"
 												style="min-width:400px"
 											></b-autocomplete>
-											<!--<b-input v-model="newDeed.description" maxlength="255" placeholder="Описание деяния" style="min-width:400px"></b-input>-->
+											
 											<textarea class="story_textarea" v-model="newDeed.description" placeholder="Описание деяния" style="margin-left:10px;margin-right:10px"></textarea>
 											<b-input v-model="newDeed.honor" type="number" maxlength="255" placeholder="Очки Славы" style="margin-right:10px"></b-input>
 											<b-switch v-model="newDeed.heroic" >{{ newDeed.heroic?`Героическое`:`Не героическое` }}</b-switch>
@@ -147,13 +206,63 @@
 												  validation-message="Only lowercase is allowed"
 												  pattern="#([0-9a-fA-F]{3}){1,2}">
 												</b-input>
-												<!--<b-input
-												  type="color"
-												  v-model="newDeed.color">
-												</b-input>-->
+												
 											</div>
 											<b-button @click="addDeed(curPlayer,newDeed)" type="is-success">✔</b-button>
-										</div>
+										</div>-->
+											<b-table :data="newDeed_" 
+										   :bordered="false" 
+										   :hoverable="true" 
+										   ref="table"
+										   style="text-align:left;
+												width:100%;"
+													>
+													<b-table-column field="type.description" label="Тип деяния" width="25%" v-slot="props">
+															<b-autocomplete
+																v-model="newDeedName"
+																placeholder="Начните вводить тип деяния"
+																:keep-first="false"
+																:open-on-focus="true"
+																:data="filteredDeedTypes"
+																field="description"
+																@select="option => {props.row.type = {defaultHonor:option.defaultHonor,description:option.description,id:option.id,name:option.name,visible:option.visible};props.row.honor = option.defaultHonor;props.row.heroic=false;console.log(props.row)}"
+																:clearable="true"
+																
+															></b-autocomplete>
+															
+													</b-table-column>
+													<b-table-column field="description" label="Описание деяния" width="65%"  v-slot="props">
+															<textarea class="story_textarea" v-model="props.row.description" placeholder="Описание деяния" style="margin-left:10px;margin-right:10px"></textarea>
+													</b-table-column>
+													<b-table-column field="honor" label="Слава" width="15%"  v-slot="props">
+															<b-input  v-model="props.row.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+													</b-table-column>
+													<b-table-column field="heroic" label="Героическое" width="10%"  v-slot="props">
+															<b-switch v-model="props.row.heroic" >{{ props.row.heroic?`Героическое`:`Не героическое` }}</b-switch>
+													</b-table-column>
+													<b-table-column field="color" label="Цвет" width="9%"  v-slot="props">
+														<div :class="`deed`" :style="`background-color:${props.row.color?props.row.color:props.row.honor>0?'#00bb00':'#bb0000'}`">
+															<img :class="`deed-img`"
+																:src="getImg(props.row.type.name)" style="width:30px"
+															> </img>
+															<span :class="`deed-count`" >{{ props.row.heroic?''/*'★'*/:1 }}</span>
+														</div>
+														<b-input placeholder="#9Ab"
+														  type="text"
+														  v-model="props.row.color"
+														  validation-message="Only lowercase is allowed"
+														  pattern="#([0-9a-fA-F]{3}){1,2}">
+														</b-input>
+														<!--<b-input
+														  type="color"
+														  v-model="props.row.color">
+														</b-input>-->
+													</b-table-column>
+													<b-table-column field="honor" label=" " width="10%"  v-slot="props">
+															<b-button @click="addDeed(curPlayer,props.row)" type="is-success">✔</b-button>
+													</b-table-column>
+											</b-table>
+										
 									</div>
 							</div>
 					<b-tabs type="is-boxed" position="is-centered" v-model="activeDeedGroup">
@@ -460,7 +569,7 @@
 <b-field label="Добавить сообщение">
 										</b-field>
 										<div class="" style="display:flex;justify-content: space-around;">
-											<b-autocomplete
+											<span><b-autocomplete
 												v-model="newMessagePlayerName"
 												placeholder="Начните вводить имя игрока"
 												:keep-first="false"
@@ -470,8 +579,8 @@
 												@select="option => {newMessage.player = JSON.parse(JSON.stringify(option));console.log(newMessage)}"
 												:clearable="true"
 												style="min-width:400px"
-											></b-autocomplete>
-											<b-autocomplete
+											></b-autocomplete></span>
+											<span><b-autocomplete
 												v-model="newMessageTypeDescription"
 												placeholder="Начните вводить тип деяния"
 												:keep-first="false"
@@ -482,9 +591,12 @@
 												:clearable="true"
 												style="min-width:400px"
 											>
-											</b-autocomplete>
+											</b-autocomplete></span>
 											<!--<b-input v-model="newDeed.description" maxlength="255" placeholder="Описание деяния" style="min-width:400px"></b-input>-->
-											<textarea class="story_textarea" v-model="newMessage.description" placeholder="Послание персонажу" style="margin-left:10px;margin-right:10px"></textarea>
+											<!--<textarea class="story_textarea" v-model="newMessage.description" placeholder="Послание персонажу" style="margin-left:10px;margin-right:10px"></textarea>-->
+											<b-input class="story_textarea_"
+											:value="newMessage.description"
+											@change.native="newMessage.description = $event.target.value" type="textarea" placeholder="Послание персонажу" style="margin-left:10px;margin-right:10px"></b-input>
 											<!--<b-input v-model="newDeed.honor" type="number" maxlength="255" placeholder="Очки Славы" style="margin-right:10px"></b-input>
 											<b-switch v-model="newDeed.heroic" >{{ newDeed.heroic?`Героическое`:`Не героическое` }}</b-switch>-->
 											<b-button @click="addMessage(newMessage)" type="is-success">✔</b-button>
@@ -542,7 +654,7 @@
 						:open-on-focus="true"
 						:data="filteredPlayers"
 						field="name"
-						@input="option => {console.log(newPlayerName,option,filteredPlayers)}"
+						_input="option => {console.log(newPlayerName,option,filteredPlayers)}"
 						@select="option => {mass_players_deed.players.push({name:option.name,id:option.id});console.log('!!!',option);}"
 						:clearable="true"
 						style="min-width:10px"
@@ -555,7 +667,7 @@
 						:open-on-focus="true"
 						:data="filteredSides"
 						field="description"
-						@input="option => {console.log(sideName,option,filteredSides)}"
+						_input="option => {console.log(sideName,option,filteredSides)}"
 						@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.sideId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
 						:clearable="true"
 						style="min-width:10px"
@@ -568,7 +680,7 @@
 						:open-on-focus="true"
 						:data="filteredSquads"
 						field="name"
-						@input="option => {console.log(sideName,option,filteredSides)}"
+						_input="option => {console.log(sideName,option,filteredSides)}"
 						@select="option => {mass_players_deed.players = mass_players_deed.players.concat(players.filter(el=>el.squadId==option.id&&mass_players_deed.players.filter(ell=>ell.id==el.id).length==0).map(el=>{return {name:el.name,id:el.id}}));console.log('Добавление стороны',players.filter(el=>el.sideId==option.id).map(el=>{return {name:el.name,id:el.id}}));}"
 						:clearable="true"
 						style="min-width:10px"
@@ -583,13 +695,17 @@
 														:open-on-focus="true"
 														:data="filteredDeedTypes_mass"
 														field="description"
-														@input="option => {console.log(newDeedName_mass,option,filteredDeedTypes_mass)}"
+														_input="option => {console.log(newDeedName_mass,option,filteredDeedTypes_mass)}"
 														@select="option => {mass_players_deed.type = option;mass_players_deed.honor = option.defaultHonor;console.log(option);}"
 														:clearable="true"
 														style="min-width:10px"
 													></b-autocomplete><br>
-													<b-input v-model="mass_players_deed.description" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
-													<b-input v-model="mass_players_deed.honor" type="number" maxlength="255" placeholder="Очки Славы"></b-input>
+													<b-input 
+													:value="mass_players_deed.description"
+													@change.native="mass_players_deed.description = $event.target.value" type="textarea" maxlength="255" placeholder="Описание деяния" style="min-width:10px"></b-input>
+													<b-input
+													:value="mass_players_deed.honor"
+													@change.native="mass_players_deed.honor = $event.target.value"type="number" maxlength="255" placeholder="Очки Славы"></b-input><br>
 													<b-switch v-model="mass_players_deed.heroic" >{{ mass_players_deed.heroic?`Героическое`:`Не героическое` }}</b-switch>
 				</div>
 				<!--<div class="deeds_mass_add_content deeds_mass_add_description">
@@ -703,6 +819,7 @@ export default {
 				honor:'',
 				heroic:false
 				},
+		newDeed_:[{description:null,type:{defaultHonor:0,description:null,id:null,name:null,visible:null},honor:null,heroic:null,color:null}],
 	  newDeedName:'',
 	  newDeedName_mass:'',
 	  newPlayerName:'',// тестовые значения для поисковых фильтров задавать только так - через отдельное корневое свойство. Иначе все сломается. Уж поверь.
@@ -740,7 +857,8 @@ export default {
 	  config:[],
 	  configStorages:[],
 	  warProgress:[],
-	  newSquad:{}
+	  newSquad:{},
+	  timeProbe:null
     }
   }
   ,computed: {
@@ -755,6 +873,7 @@ export default {
             })
         },
 		filteredPlayers_forFilter() {
+			//if (this.timeProbe){console.log('performance', (new Date()) - this.timeProbe);this.timeProbe=null;}
             return this.players.filter(player=>(this.filters.sides.filter(el=>el.id==player.sideId).length>0||this.filters.sides.length==0)
 											 &&(this.filters.squads.filter(el=>el.id==player.squadId).length>0||this.filters.squads.length==0)
 										)
@@ -767,6 +886,22 @@ export default {
                 )
             })
         },
+		/*filteredPlayers_forFilter_tab() {
+			return [];
+			let local_players=JSON.parse(JSON.stringify(this.players));
+			if (this.timeProbe){console.log('performance', (new Date()) - this.timeProbe);this.timeProbe=null;}
+            return local_players.filter(player=>(this.filters.sides.filter(el=>el.id==player.sideId).length>0||this.filters.sides.length==0)
+											 &&(this.filters.squads.filter(el=>el.id==player.squadId).length>0||this.filters.squads.length==0)
+										)
+							   .filter(player => {
+                return (
+                    player.name
+                        .toString()
+                        .toLowerCase()
+                        //.indexOf(this.filteredPlayerName.toLowerCase()) >= 0
+                )
+            })
+        },*/
 		filteredPlayers_message() {
             return this.players.filter(player => {
                 return (
@@ -854,7 +989,7 @@ export default {
 			//													||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
 			//													||deedType.id==53||deedType.id==54||deedType.id==55)
 			//}));
-			console.log('filteredDeedTypes',this.newDeedName,this.newDeed)
+			//console.log('filteredDeedTypes',this.newDeedName,this.newDeed)
             return this.deedTypes.filter(deedType=>{
 				return(this.activeDeedGroup=='media'&&(!(deedType.id==33||deedType.id==32||deedType.id==34||deedType.id==35||deedType.id==45||deedType.id==46||deedType.id==47||deedType.id==48
 																||deedType.id==49||deedType.id==50||deedType.id==51||deedType.id==52
@@ -964,6 +1099,7 @@ export default {
 				description:'',
 				honor:''
 				}
+			newDeed_=[{description:null,type:{defaultHonor:0,description:null,id:null,name:null,visible:null},honor:null,heroic:null,color:null}]
 			 console.log('currentPlayer',this.currentPlayer);
 			 this.newDeedName='';
 			 this.$forceUpdate();
@@ -2247,7 +2383,22 @@ a {
   width:100%;
   height:100%;
   //max-width: 500px;
+  
+  
 }
+
+.story_textarea_ {
+  background: rgba(0, 0, 0, 0);
+  outline: 0;
+  cursor: text;
+  resize: vertical;
+  width:100%;
+  height:100%;
+  //max-width: 500px;
+  
+  
+}
+
 .player_stories{
 	grid-column: 1 / 2;
 	padding: 10px;

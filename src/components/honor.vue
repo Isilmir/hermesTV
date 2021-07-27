@@ -102,6 +102,8 @@
 																														||deedGroup.name=='EternalDarkness'
 																														||deedGroup.name=='Icepick'
 																														||deedGroup.name=='OneTimeToken'
+																														||deedGroup.name=='shame'
+																														||deedGroup.name=='wanted'
 																								?'achievment':''}`"
 								:style="deedGroup.color?`${'background-color:'+deedGroup.color}`:''">
 						<img v-if="!deedGroup.messageId"

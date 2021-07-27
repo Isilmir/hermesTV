@@ -13,6 +13,7 @@
 			<img class="result-data" :src="res_src" ref="img"></img>
 		
 	</div>-->
+	<!--<b v-if="getBrowser()[0]!='chrome'" style="color:red;">Ваш браузер {{getBrowser()[0]}} увы не поддерживается. Пожалуйста, используйте браузер chrome.<br><br></b>-->
 	<span v-if="user.side.id==16333"><b-button @click="testFaces">Загрузить фото автоматически</b-button>
 			<!--<b-switch v-model="male">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>-->
 			<b-switch v-model="sex" true-value="female" false-value="male" passive-type='is-success' >{{ sex }}</b-switch><br>
@@ -99,6 +100,7 @@ import html2canvas from 'html2canvas';
 import axios from 'axios'
 import domtoimage from 'dom-to-image';
 
+
 export default {
   name: 'printForm',
   props: {
@@ -156,7 +158,8 @@ export default {
   },
   async mounted(){
 	console.log('user',this.user);
-	console.log(localStorage)
+	//console.log(localStorage)
+	console.log('Браузер: ',this.getBrowser());
 	
 	this.loader_=document.getElementById('loader_');
 	this.loader_.classList.toggle('hidden');
@@ -766,7 +769,53 @@ this.activeTab=0;
 		//tab.img_height_back=screenshot_back.height;
 		this.$forceUpdate();
 		this.loader_.classList.toggle('hidden');
-    }
+    },
+	getBrowser() {
+		 let ua = navigator.userAgent;
+
+		 let bName = function () {
+
+			 if (ua.search(/MSIE/) > -1) return "ie";
+
+			 if (ua.search(/Firefox/) > -1) return "firefox";
+
+			 if (ua.search(/Opera/) > -1) return "opera";
+
+			 if (ua.search(/Chrome/) > -1) return "chrome";
+
+			 if (ua.search(/Safari/) > -1) return "safari";
+
+			 if (ua.search(/Konqueror/) > -1) return "konqueror";
+
+			 if (ua.search(/Iceweasel/) > -1) return "iceweasel";
+
+			 if (ua.search(/SeaMonkey/) > -1) return "seamonkey";}();
+
+		 let version = function (bName) {
+
+			 switch (bName) {
+
+				 case "ie" : return (ua.split("MSIE ")[1]).split(";")[0];break;
+
+				 case "firefox" : return ua.split("Firefox/")[1];break;
+
+				 case "opera" : return ua.split("Version/")[1];break;
+
+				 case "chrome" : return (ua.split("Chrome/")[1]).split(" ")[0];break;
+
+				 case "safari" : return (ua.split("Version/")[1]).split(" ")[0];break;
+
+				 case "konqueror" : return (ua.split("KHTML/")[1]).split(" ")[0];break;
+
+				 case "iceweasel" : return (ua.split("Iceweasel/")[1]).split(" ")[0];break;
+
+				 case "seamonkey" : return ua.split("SeaMonkey/")[1];break;
+
+			 }}(bName);
+
+		 return [bName,bName + version.split(".")[0],bName + version];
+
+	}
   }
 }
 </script>

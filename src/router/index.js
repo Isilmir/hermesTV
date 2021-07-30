@@ -11,6 +11,7 @@ import qrView from '@/components/QRview'
 //import qr from '@/components/QR_pg'
 //import qrView from '@/components/QRview_pg'
 import printForm from '@/components/printForm'
+import printForm_players from '@/components/printForm_players'
 import login from '@/components/login'
 import graph from '@/components/graph'
 import stories from '@/components/stories'
@@ -67,6 +68,15 @@ let router = new Router({
       component: printForm,
 	  meta:{
 			requireAuth:true
+		}
+    },
+	{
+      path: '/printForm_players',
+      name: 'printForm_players',
+      component: printForm_players,
+	  meta:{
+			requireAuth:true,
+			requireAdmin:true
 		}
     },
 	{

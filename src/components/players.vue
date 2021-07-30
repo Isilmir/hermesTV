@@ -149,7 +149,7 @@
                 <div class="content">
                     <div v-if="isOpenPlayer == index" v-for="curPlayer in currentPlayer">
 					<div style="display:flex;justify-content: space-around;">
-						<div>Id: {{curPlayer.id}}</div>
+						<div align="left">Login: <b>{{curPlayer.id}}</b>  <br>Password: <b>{{player.password}}</b></div>
 						<b-switch v-model="curPlayer.active" @input="playerActivation(curPlayer)">{{ curPlayer.active?`Видимый`:`Невидимый` }}</b-switch>
 					</div>
 						<b-tabs type="is-boxed" position="is-left">

@@ -85,6 +85,7 @@
 </b-tab-item>
 <b-tab-item label="Графики">
 <div>
+<div>Сумма славы по выбранным типам деяний: <b>{{ statistic[0].deeds_sum_total }}</b><br><br></div>
 <div><canvas id="MainChart" style="heigh:100%;width:100%"></canvas></div><br>
 <div><canvas id="Sums" style="heigh:100%;width:100%"></canvas></div><br>
 <div><canvas id="Top" style="heigh:100%;width:100%"></canvas></div>
@@ -111,6 +112,9 @@
 										> </img>
 								</div>
 					</b-tooltip>
+			</b-table-column>
+			<b-table-column field="deeds_sum" label="Сумма славы всего по ВСЕМ деяниям" width="15%" v-slot="props">
+									<b-tag>{{ props.row.deeds_sum_total }}</b-tag>
 			</b-table-column>
 			<b-table-column field="deeds_sum" label="Сумма славы всего" width="15%" v-slot="props">
 									<b-tag>{{ props.row.deeds_sum }}</b-tag>
@@ -159,7 +163,7 @@ export default {
 		topN:10,
 		activeTab:1,
 	  
-	  statistic:[],
+	  statistic:[{deeds_sum_total:0}],
 	  //rows:this.statistic,
 	   ctx_main:document.getElementById('MainChart'),
 	   mainChart:null,
@@ -181,7 +185,7 @@ export default {
   methods:{
   
 	startSimulation(){
-		statistic=[];
+		statistic=[{deeds_sum_total:0}];
 		let simulation = new Simulation(this.woundChance_war,this.woundChance_piece,this.humanitaryHelpChance,this.mercenaryHelpChance,this.startBjzi,this.startHumanitary,this.startGold,this.cureChance);
 		//console.log(simulation);
 		simulation.start();

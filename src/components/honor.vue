@@ -38,12 +38,14 @@
 			<span v-if="props.row.stateId!=3">{{props.row.name}}</span>
 			<s v-if="props.row.stateId==3">{{props.row.name}}</s>
             </b-table-column>
-			<!--<b-table-column
-                field="honor"
-                label="Слава"
+			<!--
+			<b-table-column
+                field="displayHonor"
+                label=""
                 v-slot="props"
+				width="5%"
             >
-                {{ props.row.honor }}
+                <span style="font-size:100%">{{ props.row.displayHonor }}</span>
             </b-table-column>-->
 			<b-table-column
                 field="honor"
@@ -346,7 +348,7 @@ a {
 }
 .b52{
 	font-family:'B52';
-	font-size:130%;
+	font-size:100%;
 }
 .deed-video{
 	background:url(../assets/logo.png);

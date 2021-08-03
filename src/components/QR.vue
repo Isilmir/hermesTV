@@ -769,21 +769,24 @@
 																			:data="filteredTradeResourceName"
 																			field="resource"
 																			@select="option => {
+																								transaction[0].resource=option.resource;tradeCurrentRate=+option.quantity;tradeStep=1;
 																								if(transaction[0].god=='Зевс'){transaction[0].gold=5;minTradeValue=5;maxTradeValue=999;transaction[0].quantity=+option.quantity*5;}
 																								else if(transaction[0].god=='Гера'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (перемирие)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру UC'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (война)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
+																								else if(option.resource=='Золотой полис (годовое покрытие)'){transaction[0].gold=2;minTradeValue=2;maxTradeValue=999;transaction[0].quantity=+option.quantity*2;}
+																								else if(option.resource=='Платиновый полис (годовое покрытие)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=999;transaction[0].quantity=+option.quantity;}
 																								else{transaction[0].gold=1;minTradeValue=1;maxTradeValue=999;transaction[0].quantity=+option.quantity;}
-																								transaction[0].resource=option.resource;tradeCurrentRate=+option.quantity;
+																								
 																								}"
 																			clearable
 																			style="min-width:300px"
 																		><template #empty>Нет подходящих ресурсов</template></b-autocomplete>
 										<!--<span>{{transaction[0].resource}}{{transaction[0].quantity}}</span>--></span>
 										<span v-if="transaction[0].resource">Установленный олимпом курс: <b>{{tradeCurrentRate}}</b></span><br>
-										<span>Количество ресурса: <b-numberinput v-model="transaction[0].quantity" :min="0" :controls="true" style="min-width:300px" :disabled="true" ></b-numberinput></span>
-										<span>Принятое золото: <b-numberinput @input="()=>{transaction[0].quantity=(+transaction[0].gold)*tradeCurrentRate}" v-model="transaction[0].gold" :min="minTradeValue" :max="maxTradeValue" :controls="true" style="min-width:300px" :disabled="true"></b-numberinput></span>
+										<span>Количество ресурса: <b-numberinput v-model="transaction[0].quantity" :min="1" :controls="true" style="min-width:300px" :disabled="true" ></b-numberinput></span>
+										<span>Принятое золото: <b-numberinput @input="()=>{transaction[0].quantity=(+transaction[0].gold)*tradeCurrentRate}" v-model="transaction[0].gold" :min="minTradeValue" :max="maxTradeValue" :controls="true" style="min-width:300px" :disabled="true" :step="tradeStep"></b-numberinput></span>
 										<span>Комментарий: <b-input v-model="transaction[0].description" type="textarea" maxlength="255" placeholder="Комментарий по сделке" style="min-width:300px"></b-input></span>
 										<!--<span>{{transaction[0].resource}}{{transaction[0].quantity}}</span>--></span>
 						</div>
@@ -835,7 +838,9 @@
 									
 									<b-step-item label="Подтвердить" icon="check" disabled>
 									</b-step-item>
-									
+									<b-step-item label="Передать спутников" icon="user" disabled>
+Если были приобретены спутники, то нужно передать карточки спутников персонажу через функцию сканера "Передать спутника"
+									</b-step-item>
 								</b-steps>
 							</div>
 						</b-collapse>
@@ -925,6 +930,7 @@ export default {
 	  tradeCurrentRate:1,
 	  minTradeValue:0,
 	  maxTradeValue:999,
+	  tradeStep:1,
 	  transaction:[{playerId:null,god:null, resource:null, quantity:null, gold:null,description:null}]
     }
   },

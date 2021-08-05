@@ -275,6 +275,46 @@
 									</div>
 								</div>
 							</div>
+							<div class="flex-deeds">
+							<b-tooltip 
+							position="is-bottom" multilined v-for="deed in reinforcmentsDeeds" :key="deed.id"  style="font-family:'Arial';">
+							<template v-slot:content>
+							<div v-for="line in deed.description.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
+						</template>
+								<div :class="`deed`" :style="`background-color:${deed.deedTypeId==51
+																				||deed.deedTypeId==52
+																				||deed.deedTypeId==53
+																				||deed.deedTypeId==54
+																				||deed.deedTypeId==67?'#CCCCCC'
+																				:deed.deedTypeId==36
+																				||deed.deedTypeId==37
+																				||deed.deedTypeId==50?'#bb0000'
+																				:'#00bb00'}`">
+										<img :class="`deed-img`"
+											:src="getImg(deed.deedTypeName)" style="width:30px"
+										> </img>
+								</div>
+							</b-tooltip> 
+							<b-tooltip 
+							position="is-bottom" multilined v-if="reinforcmentsDeeds.length==0&&reinforcementCheckSubject[0]"  style="font-family:'Arial';">
+							<template v-slot:content>
+							<div v-for="line in `Герою не положены подкрепления`.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
+						</template>
+								<div :class="`deed`" :style="`background-color:#bb0000`">
+										<img :class="`deed-img`"
+											:src="getImg('WaitReinforcements')" style="width:30px"
+										> </img>
+								</div>
+							</b-tooltip> 
+							</div>
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startReinforcementCheck" type="is-success" :disabled="!reinforcementCheckSubmit">Подтвердить</b-button></div>
 						<b-collapse
@@ -769,21 +809,24 @@
 																			:data="filteredTradeResourceName"
 																			field="resource"
 																			@select="option => {
+																								transaction[0].resource=option.resource;tradeCurrentRate=+option.quantity;tradeStep=1;
 																								if(transaction[0].god=='Зевс'){transaction[0].gold=5;minTradeValue=5;maxTradeValue=999;transaction[0].quantity=+option.quantity*5;}
 																								else if(transaction[0].god=='Гера'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (перемирие)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру UC'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
 																								else if(option.resource=='Гуманитарка командиру DBS (война)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=0;transaction[0].quantity=+option.quantity;}
+																								else if(option.resource=='Золотой полис (годовое покрытие)'){transaction[0].gold=2;minTradeValue=2;maxTradeValue=999;transaction[0].quantity=+option.quantity*2;}
+																								else if(option.resource=='Платиновый полис (годовое покрытие)'){transaction[0].gold=0;minTradeValue=0;maxTradeValue=999;transaction[0].quantity=+option.quantity;}
 																								else{transaction[0].gold=1;minTradeValue=1;maxTradeValue=999;transaction[0].quantity=+option.quantity;}
-																								transaction[0].resource=option.resource;tradeCurrentRate=+option.quantity;
+																								
 																								}"
 																			clearable
 																			style="min-width:300px"
 																		><template #empty>Нет подходящих ресурсов</template></b-autocomplete>
 										<!--<span>{{transaction[0].resource}}{{transaction[0].quantity}}</span>--></span>
 										<span v-if="transaction[0].resource">Установленный олимпом курс: <b>{{tradeCurrentRate}}</b></span><br>
-										<span>Количество ресурса: <b-numberinput v-model="transaction[0].quantity" :min="0" :controls="true" style="min-width:300px" :disabled="true" ></b-numberinput></span>
-										<span>Принятое золото: <b-numberinput @input="()=>{transaction[0].quantity=(+transaction[0].gold)*tradeCurrentRate}" v-model="transaction[0].gold" :min="minTradeValue" :max="maxTradeValue" :controls="true" style="min-width:300px" :disabled="true"></b-numberinput></span>
+										<span>Количество ресурса: <b-numberinput v-model="transaction[0].quantity" :min="1" :controls="true" style="min-width:300px" :disabled="true" ></b-numberinput></span>
+										<span>Принятое золото: <b-numberinput @input="()=>{transaction[0].quantity=(+transaction[0].gold)*tradeCurrentRate}" v-model="transaction[0].gold" :min="minTradeValue" :max="maxTradeValue" :controls="true" style="min-width:300px" :disabled="true" :step="tradeStep"></b-numberinput></span>
 										<span>Комментарий: <b-input v-model="transaction[0].description" type="textarea" maxlength="255" placeholder="Комментарий по сделке" style="min-width:300px"></b-input></span>
 										<!--<span>{{transaction[0].resource}}{{transaction[0].quantity}}</span>--></span>
 						</div>
@@ -835,11 +878,90 @@
 									
 									<b-step-item label="Подтвердить" icon="check" disabled>
 									</b-step-item>
-									
+									<b-step-item label="Передать спутников" icon="user" disabled>
+Если были приобретены спутники, то нужно передать карточки спутников персонажу через функцию сканера "Передать спутника"
+									</b-step-item>
 								</b-steps>
 							</div>
 						</b-collapse>
 						
+					</div>
+				</b-tab-item>
+				<b-tab-item label="Благосклонность богов" v-if="permissions.filter(el=>el=='makeBless'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectBlessObject')" type="is-success">Герой</b-button>
+							<div v-for="obj in blessObject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя сдать</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter">
+							<b-select placeholder="Выберите олимпийца" v-model="selectedBless.god"
+								@input="(option)=>{console.log(option);selectedBless.description=`Благосклонность от олимпийца: ${option.godName}`}">
+								<option
+									v-for="option in blesses"
+									:value="option"
+									:key="option.god"
+									>
+									{{ option.godName }}
+								</option>
+							</b-select>
+							<span>Осталось блессов: <b>{{selectedBless.god.blessCount}}</b></span>
+							<span>Комментарий: <b-input v-model="selectedBless.description" type="textarea" maxlength="255" placeholder="Текст блесса" style="min-width:300px"></b-input></span>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startBless" type="is-success" :disabled="!blessSubmit">Подтвердить</b-button></div><div><br></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									
+									<b-step-item label="Выбрать олимпийца" icon="star">
+									</b-step-item>
+									
+									<b-step-item label="Написать текст комментария к блессу" icon="comment">
+Обязательно оставьте имя олимпийца
+									</b-step-item>
+									
+									<b-step-item label="Взять карточку героя" icon="user">
+Так же это может быть карточка спутника
+									</b-step-item>
+
+									<b-step-item label="Отсканировать qr-код" icon="qrcode" disabled>
+Нажать кнопку "Герой"
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+Число оставших блессов должно уменьшиться
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
 					</div>
 				</b-tab-item>
 			</b-tabs>
@@ -900,12 +1022,14 @@ export default {
 	  activeTabPersons: undefined,
 	  activeTabCustom:undefined,
 	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]},{dict:'checkpoints',data:[{name:''}]},{dict:'gameCycles',data:[{id:''}]},{dict:'checkpointStates',data:[{name:''}]},{dict:'cycleTypes',data:[{description:''}]}],
+	  blesses:[],
 	  scannedObject:[],
 	  furnalSubject:[],
 	  furnalObject:[],
 	  badFuneral:false,
 	  trashObject:[],
 	  cureObject:[],
+	  blessObject:[],
 	  registrationObject:[],
 	  changeSquadObject:[],
 	  changeSquadSquadId:null,
@@ -920,11 +1044,14 @@ export default {
 	  tradeResources:[],
 	  tradeDeeds:[],
 	  tradeGods:[],
+	  reinforcmentsDeeds:[],
+	  selectedBless:{god:{},description:null},
 	  tradeGodName:'',
 	  tradeResourceName:'',
 	  tradeCurrentRate:1,
 	  minTradeValue:0,
 	  maxTradeValue:999,
+	  tradeStep:1,
 	  transaction:[{playerId:null,god:null, resource:null, quantity:null, gold:null,description:null}]
     }
   },
@@ -938,6 +1065,9 @@ export default {
 		cureSubmit() {
             return !!this.cureObject[0]&&this.cureObject[0].objectType!='none'
         },
+		blessSubmit() {
+            return !!this.blessObject[0]&&this.blessObject[0].objectType!='none'&&this.selectedBless.god.god&&this.selectedBless.description;
+        },
 		registrationSubmit() {
             return this.registrationObject[0]&&this.registrationObject[0].objectType!='none'
         },
@@ -945,7 +1075,7 @@ export default {
             return this.transferSubject[0]&&this.transferObject[0]&&!this.transferObject[0].utilized
         },
 		reinforcementCheckSubmit() {
-            return this.reinforcementCheckSubject[0]
+            return this.reinforcementCheckSubject[0]&&!this.reinforcmentsDeeds.filter(deed=>deed.deedTypeId==62).length>0
         },
 		newPlayerSubmit() {
             return this.newPlayer[0]&&this.newPlayer[0].playerSquad;
@@ -1057,6 +1187,7 @@ export default {
 		}
 	},
   async mounted(){
+	this.console=console;
 	console.log(jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }));
 	try{
 		this.permissions=jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }).permissions;
@@ -1073,6 +1204,10 @@ export default {
 	await this.fetchDictionaries();
 	console.log(this.dictionaries)
 	console.log(this.dictionaries.filter(el=>el.dict=='gameCycles')[0].data[0].startTime,(new Date(this.dictionaries.filter(el=>el.dict=='gameCycles')[0].data[0].startTime)).getHours())
+	
+	if(this.permissions.filter(el=>el=='makeBless'||el=='admin').length>0){
+		this.fetchBlesses();
+	}
 	//const videoElem = document.getElementById('videoElem');
 	//console.log(videoElem)
 	//this.qrScanner = new QrScanner(videoElem, result => {this.result = result;console.log('decoded qr code:', result);return result;});
@@ -1178,6 +1313,38 @@ export default {
 			}
 			//console.log(players.data);
 			this.dictionaries=dictionaries.data;
+			this.loader_.classList.toggle('hidden');
+			//console.log ('dictionaries',this.dictionaries);
+		},
+		async fetchBlesses(){
+			this.loader_.classList.toggle('hidden');
+			let blesses;
+			try{
+			blesses = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBlesses',
+				{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+			}
+			//console.log(players.data);
+			this.blesses=blesses.data;
+			if(blesses.data.length>0)this.selectedBless={god:blesses.data[0],description:`Благосклонность от олимпийца: ${blesses.data[0].godName}`};
 			this.loader_.classList.toggle('hidden');
 			//console.log ('dictionaries',this.dictionaries);
 		},
@@ -1374,6 +1541,23 @@ export default {
 		console.log(this.trashObject);
 		return;
 	},
+	async selectBlessObject(obj){
+		//this.qr = JSON.stringify(obj);
+		console.log(obj)
+		this.blessObject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.blessObject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.blessObject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.blessObject.push({objectType:'none'});
+		}
+		console.log('blessObject',this.blessObject);
+		return;
+	},
 	async selectCureObject(obj){
 		//this.qr = JSON.stringify(obj);
 		console.log(obj)
@@ -1440,17 +1624,31 @@ export default {
 	async selectReinforcementCheckSubject(obj){
 		//this.qr = JSON.stringify(obj);
 		this.reinforcementCheckSubject=[];
+		this.reinforcmentsDeeds=[];
+		let deeds;
 		switch(obj.objectType){
 			case 'player':
 				this.reinforcementCheckSubject.push(await this.getPlayer(obj.id));
+				deeds = await this.getPlayerReinforcements(obj.id);
 				break;
 			case 'bjzi':
 				this.reinforcementCheckSubject.push(await this.getBjziSingle(obj.id));
+				switch(this.reinforcementCheckSubject[0].objectType){
+					case 'player':
+						//console.log('case player',this.tradePlayer[0].id);
+						tradeResources= await this.getPlayerReinforcements(this.reinforcementCheckSubject[0].id);
+						break;
+					case 'bjzi':
+						//console.log('case bjzi',this.tradePlayer[0].playerId);
+						tradeResources=await this.getPlayerReinforcements(this.reinforcementCheckSubject[0].playerId);
+						break;
+				}
 				break;
 			default:
 				this.reinforcementCheckSubject.push({objectType:'none'});
 		}
 		console.log('reinforcementCheckSubject',this.reinforcementCheckSubject);
+		this.reinforcmentsDeeds=deeds;
 		return;
 	},
 	async selectNewPlayer(obj){
@@ -1574,6 +1772,37 @@ export default {
 			let response;
 			try{
 				response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/getTradeResources/${id}`,
+			{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+			this.loader_.classList.toggle('hidden');
+			console.log(e.message);
+			//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+			}
+			this.loader_.classList.toggle('hidden');
+			//console.log(response);
+			return response.data;
+	},
+	async getPlayerReinforcements(id){
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/getReinforcements/${id}`,
 			{
 				headers: {
 				  'Content-Type': 'application/json',
@@ -1772,6 +2001,57 @@ export default {
         })
 		this.cureObject=[];
 	},
+	async startBless(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Делаем блесс',this.cureObject);
+		let id;
+		let deedType;
+		if(this.blessObject[0].objectType=='bjzi')id=this.blessObject[0].playerId;
+		if(this.blessObject[0].objectType=='player')id=this.blessObject[0].id;
+		deedType=this.selectedBless.god.god=='Hades'?39:38;
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeBless',{
+						
+						object:id,
+						objectType:"player",
+						god:this.selectedBless.god.god,
+						deedDesc:this.selectedBless.description,
+						deedType:deedType
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Операция завершена успешно`,
+                    type: 'is-success'
+        })
+		console.log(response.data)
+		this.blessObject=[];
+		this.selectedBless={god:this.selectedBless.god,description:`Благосклонность от олимпийца: ${this.selectedBless.god.god}`};
+		this.selectedBless.god.blessCount=response.data[0].value;
+	},
 	async startRegistration(){
 		this.loader_.classList.toggle('hidden');
 		//console.log('Регистрируем персонажа на полигоне',this.registrationObject);
@@ -1957,6 +2237,7 @@ export default {
                     type: 'is-success'
         })
 		this.reinforcementCheckSubject=[];
+		this.reinforcmentsDeeds=[];
 	},
 	async startNewPlayerMaking(){
 		this.loader_.classList.toggle('hidden');

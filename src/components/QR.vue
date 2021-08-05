@@ -275,6 +275,46 @@
 									</div>
 								</div>
 							</div>
+							<div class="flex-deeds">
+							<b-tooltip 
+							position="is-bottom" multilined v-for="deed in reinforcmentsDeeds" :key="deed.id"  style="font-family:'Arial';">
+							<template v-slot:content>
+							<div v-for="line in deed.description.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
+						</template>
+								<div :class="`deed`" :style="`background-color:${deed.deedTypeId==51
+																				||deed.deedTypeId==52
+																				||deed.deedTypeId==53
+																				||deed.deedTypeId==54
+																				||deed.deedTypeId==67?'#CCCCCC'
+																				:deed.deedTypeId==36
+																				||deed.deedTypeId==37
+																				||deed.deedTypeId==50?'#bb0000'
+																				:'#00bb00'}`">
+										<img :class="`deed-img`"
+											:src="getImg(deed.deedTypeName)" style="width:30px"
+										> </img>
+								</div>
+							</b-tooltip> 
+							<b-tooltip 
+							position="is-bottom" multilined v-if="reinforcmentsDeeds.length==0&&reinforcementCheckSubject[0]"  style="font-family:'Arial';">
+							<template v-slot:content>
+							<div v-for="line in `Герою не положены подкрепления`.split(/[\r\n]/)" class="has-margin-15" style="display:flex">
+								<div style="justify-content: flex-start;text-align:left;text-indent: 0em; padding-bottom:5px;line-height:110%">
+								{{line}}
+								</div>
+							</div>
+						</template>
+								<div :class="`deed`" :style="`background-color:#bb0000`">
+										<img :class="`deed-img`"
+											:src="getImg('WaitReinforcements')" style="width:30px"
+										> </img>
+								</div>
+							</b-tooltip> 
+							</div>
 						</div>
 						<div class="innerTabCenter" style="border:none"><b-button @click="startReinforcementCheck" type="is-success" :disabled="!reinforcementCheckSubmit">Подтвердить</b-button></div>
 						<b-collapse
@@ -1004,6 +1044,7 @@ export default {
 	  tradeResources:[],
 	  tradeDeeds:[],
 	  tradeGods:[],
+	  reinforcmentsDeeds:[],
 	  selectedBless:{god:{},description:null},
 	  tradeGodName:'',
 	  tradeResourceName:'',
@@ -1034,7 +1075,7 @@ export default {
             return this.transferSubject[0]&&this.transferObject[0]&&!this.transferObject[0].utilized
         },
 		reinforcementCheckSubmit() {
-            return this.reinforcementCheckSubject[0]
+            return this.reinforcementCheckSubject[0]&&!this.reinforcmentsDeeds.filter(deed=>deed.deedTypeId==62).length>0
         },
 		newPlayerSubmit() {
             return this.newPlayer[0]&&this.newPlayer[0].playerSquad;
@@ -1583,17 +1624,31 @@ export default {
 	async selectReinforcementCheckSubject(obj){
 		//this.qr = JSON.stringify(obj);
 		this.reinforcementCheckSubject=[];
+		this.reinforcmentsDeeds=[];
+		let deeds;
 		switch(obj.objectType){
 			case 'player':
 				this.reinforcementCheckSubject.push(await this.getPlayer(obj.id));
+				deeds = await this.getPlayerReinforcements(obj.id);
 				break;
 			case 'bjzi':
 				this.reinforcementCheckSubject.push(await this.getBjziSingle(obj.id));
+				switch(this.reinforcementCheckSubject[0].objectType){
+					case 'player':
+						//console.log('case player',this.tradePlayer[0].id);
+						tradeResources= await this.getPlayerReinforcements(this.reinforcementCheckSubject[0].id);
+						break;
+					case 'bjzi':
+						//console.log('case bjzi',this.tradePlayer[0].playerId);
+						tradeResources=await this.getPlayerReinforcements(this.reinforcementCheckSubject[0].playerId);
+						break;
+				}
 				break;
 			default:
 				this.reinforcementCheckSubject.push({objectType:'none'});
 		}
 		console.log('reinforcementCheckSubject',this.reinforcementCheckSubject);
+		this.reinforcmentsDeeds=deeds;
 		return;
 	},
 	async selectNewPlayer(obj){
@@ -1717,6 +1772,37 @@ export default {
 			let response;
 			try{
 				response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/getTradeResources/${id}`,
+			{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+			this.loader_.classList.toggle('hidden');
+			console.log(e.message);
+			//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+			}
+			this.loader_.classList.toggle('hidden');
+			//console.log(response);
+			return response.data;
+	},
+	async getPlayerReinforcements(id){
+			this.loader_.classList.toggle('hidden');
+			let response;
+			try{
+				response = await axios.get(`https://blooming-refuge-12227.herokuapp.com/getReinforcements/${id}`,
 			{
 				headers: {
 				  'Content-Type': 'application/json',
@@ -2151,6 +2237,7 @@ export default {
                     type: 'is-success'
         })
 		this.reinforcementCheckSubject=[];
+		this.reinforcmentsDeeds=[];
 	},
 	async startNewPlayerMaking(){
 		this.loader_.classList.toggle('hidden');

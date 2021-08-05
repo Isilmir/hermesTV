@@ -847,6 +847,83 @@
 						
 					</div>
 				</b-tab-item>
+				<b-tab-item label="Благосклонность богов" v-if="permissions.filter(el=>el=='makeBless'||el=='admin').length>0">
+					<div class="innerTabWrap">
+						<div class="innerTabCenter">
+							<b-button @click="startScan('selectBlessObject')" type="is-success">Герой</b-button>
+							<div v-for="obj in blessObject">
+								<div class="innerTab" v-if="obj.objectType=='none'">Увы этот объект нельзя сдать</div>
+								<div class="innerTab" v-if="obj.objectType=='player'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (герой)</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.sideId)[0].description}}</span>
+									</div>
+								</div>
+								<div class="innerTab" v-if="obj.objectType=='bjzi'">
+									<div class="innerTabFurnal">
+										<span>{{obj.name}} (спутник)</span>
+										<span>Командир: {{obj.playerName}}</span>
+										<span>{{dictionaries.filter(el=>el.dict=='sides')[0].data.filter(el=>el.id==obj.playerSide)[0].description}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="innerTabCenter">
+							<b-select placeholder="Выберите олимпийца" v-model="selectedBless.god"
+								@input="(option)=>{console.log(option);selectedBless.description=`Благосклонность от олимпийца: ${option.godName}`}">
+								<option
+									v-for="option in blesses"
+									:value="option"
+									:key="option.god"
+									>
+									{{ option.godName }}
+								</option>
+							</b-select>
+							<span>Осталось блессов: <b>{{selectedBless.god.blessCount}}</b></span>
+							<span>Комментарий: <b-input v-model="selectedBless.description" type="textarea" maxlength="255" placeholder="Текст блесса" style="min-width:300px"></b-input></span>
+						</div>
+						<div class="innerTabCenter" style="border:none"><b-button @click="startBless" type="is-success" :disabled="!blessSubmit">Подтвердить</b-button></div><div><br></div>
+						<b-collapse
+							aria-id="contentIdForA11y2"
+							class="panel"
+							animation="slide"
+							:open="false">
+							<template #trigger>
+								<div
+									class="panel-heading"
+									role="button"
+									aria-controls="contentIdForA11y2">
+									<div>Инструкция</div>
+								</div>
+							</template>
+							<div>
+								<b-steps
+									size="is-small"
+									vertical>
+									
+									<b-step-item label="Выбрать олимпийца" icon="star">
+									</b-step-item>
+									
+									<b-step-item label="Написать текст комментария к блессу" icon="comment">
+Обязательно оставьте имя олимпийца
+									</b-step-item>
+									
+									<b-step-item label="Взять карточку героя" icon="user">
+Так же это может быть карточка спутника
+									</b-step-item>
+
+									<b-step-item label="Отсканировать qr-код" icon="qrcode" disabled>
+Нажать кнопку "Герой"
+									</b-step-item>
+									
+									<b-step-item label="Подтвердить" icon="check" disabled>
+Число оставших блессов должно уменьшиться
+									</b-step-item>
+								</b-steps>
+							</div>
+						</b-collapse>
+					</div>
+				</b-tab-item>
 			</b-tabs>
 		</b-tab-item>
 	</b-tabs>
@@ -905,12 +982,14 @@ export default {
 	  activeTabPersons: undefined,
 	  activeTabCustom:undefined,
 	  dictionaries:[{dict:'sides',data:[{description:''}]},{dict:'squads',data:[{name:''}]},{dict:'checkpoints',data:[{name:''}]},{dict:'gameCycles',data:[{id:''}]},{dict:'checkpointStates',data:[{name:''}]},{dict:'cycleTypes',data:[{description:''}]}],
+	  blesses:[],
 	  scannedObject:[],
 	  furnalSubject:[],
 	  furnalObject:[],
 	  badFuneral:false,
 	  trashObject:[],
 	  cureObject:[],
+	  blessObject:[],
 	  registrationObject:[],
 	  changeSquadObject:[],
 	  changeSquadSquadId:null,
@@ -925,6 +1004,7 @@ export default {
 	  tradeResources:[],
 	  tradeDeeds:[],
 	  tradeGods:[],
+	  selectedBless:{god:{},description:null},
 	  tradeGodName:'',
 	  tradeResourceName:'',
 	  tradeCurrentRate:1,
@@ -943,6 +1023,9 @@ export default {
         },
 		cureSubmit() {
             return !!this.cureObject[0]&&this.cureObject[0].objectType!='none'
+        },
+		blessSubmit() {
+            return !!this.blessObject[0]&&this.blessObject[0].objectType!='none'&&this.selectedBless.god.god&&this.selectedBless.description;
         },
 		registrationSubmit() {
             return this.registrationObject[0]&&this.registrationObject[0].objectType!='none'
@@ -1063,6 +1146,7 @@ export default {
 		}
 	},
   async mounted(){
+	this.console=console;
 	console.log(jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }));
 	try{
 		this.permissions=jwt.verify(localStorage.getItem('jwt').replace(/"/g,''),this.cert,{ algorithms: ['RS256'] }).permissions;
@@ -1079,6 +1163,10 @@ export default {
 	await this.fetchDictionaries();
 	console.log(this.dictionaries)
 	console.log(this.dictionaries.filter(el=>el.dict=='gameCycles')[0].data[0].startTime,(new Date(this.dictionaries.filter(el=>el.dict=='gameCycles')[0].data[0].startTime)).getHours())
+	
+	if(this.permissions.filter(el=>el=='makeBless'||el=='admin').length>0){
+		this.fetchBlesses();
+	}
 	//const videoElem = document.getElementById('videoElem');
 	//console.log(videoElem)
 	//this.qrScanner = new QrScanner(videoElem, result => {this.result = result;console.log('decoded qr code:', result);return result;});
@@ -1184,6 +1272,38 @@ export default {
 			}
 			//console.log(players.data);
 			this.dictionaries=dictionaries.data;
+			this.loader_.classList.toggle('hidden');
+			//console.log ('dictionaries',this.dictionaries);
+		},
+		async fetchBlesses(){
+			this.loader_.classList.toggle('hidden');
+			let blesses;
+			try{
+			blesses = await axios.get('https://blooming-refuge-12227.herokuapp.com/getBlesses',
+				{
+				headers: {
+				  'Content-Type': 'application/json',
+				  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+				}
+			});
+			}catch(e){
+				console.log(e.message);
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+			}
+			//console.log(players.data);
+			this.blesses=blesses.data;
+			if(blesses.data.length>0)this.selectedBless={god:blesses.data[0],description:`Благосклонность от олимпийца: ${blesses.data[0].godName}`};
 			this.loader_.classList.toggle('hidden');
 			//console.log ('dictionaries',this.dictionaries);
 		},
@@ -1378,6 +1498,23 @@ export default {
 				this.trashObject.push({objectType:'none'});
 		}
 		console.log(this.trashObject);
+		return;
+	},
+	async selectBlessObject(obj){
+		//this.qr = JSON.stringify(obj);
+		console.log(obj)
+		this.blessObject=[];
+		switch(obj.objectType){
+			case 'player':
+				this.blessObject.push(await this.getPlayer(obj.id));
+				break;
+			case 'bjzi':
+				this.blessObject.push(await this.getBjziSingle(obj.id));
+				break;
+			default:
+				this.blessObject.push({objectType:'none'});
+		}
+		console.log('blessObject',this.blessObject);
 		return;
 	},
 	async selectCureObject(obj){
@@ -1777,6 +1914,57 @@ export default {
                     type: 'is-success'
         })
 		this.cureObject=[];
+	},
+	async startBless(){
+		this.loader_.classList.toggle('hidden');
+		console.log('Делаем блесс',this.cureObject);
+		let id;
+		let deedType;
+		if(this.blessObject[0].objectType=='bjzi')id=this.blessObject[0].playerId;
+		if(this.blessObject[0].objectType=='player')id=this.blessObject[0].id;
+		deedType=this.selectedBless.god.god=='Hades'?39:38;
+		let response;
+			try{
+				response = await axios.post('https://blooming-refuge-12227.herokuapp.com/processing/makeBless',{
+						
+						object:id,
+						objectType:"player",
+						god:this.selectedBless.god.god,
+						deedDesc:this.selectedBless.description,
+						deedType:deedType
+				},
+				{
+					headers: {
+					  'Content-Type': 'application/json',
+					  'Authorization':`Bearer ${localStorage.getItem('jwt').replace(/"/g,'')}`
+					}
+				});
+			}catch(e){
+				//console.log(e.response);
+				if(e.response){
+					if(e.response.status==403){
+						localStorage.removeItem('jwt');
+						localStorage.removeItem('user');
+						this.$router.push(`/login?nextUrl=${this.$route.fullPath}`)
+					}
+				}
+				this.$buefy.toast.open({
+                    message: `${e.response?e.response.data:e.message}`,
+                    type: 'is-danger'
+                });
+				this.loader_.classList.toggle('hidden');
+				return;
+			}
+		
+		this.loader_.classList.toggle('hidden');
+		this.$buefy.toast.open({
+                    message: `Операция завершена успешно`,
+                    type: 'is-success'
+        })
+		console.log(response.data)
+		this.blessObject=[];
+		this.selectedBless={god:this.selectedBless.god,description:`Благосклонность от олимпийца: ${this.selectedBless.god.god}`};
+		this.selectedBless.god.blessCount=response.data[0].value;
 	},
 	async startRegistration(){
 		this.loader_.classList.toggle('hidden');

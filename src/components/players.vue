@@ -525,7 +525,7 @@
 	<b-button @click="fetchWarProgress()" type="is-info">Обновить</b-button>
 	<b-table v-if="warProgress.length>0" :data="warProgress" :bordered="false" :hoverable="true" ref="table" style="text-align:left; width:100%;">
 							<b-table-column field="type.description" label="cycleId" width="50" v-slot="props">
-									<b-tag>{{ props.row.cycleId }}</b-tag>
+									<b-tag>{{ ` ${props.row.cycleId} (${(new Date(props.row.startTime)).getHours()-3}:${(''+(new Date(props.row.startTime)).getMinutes()).length<2?'0':''}${(new Date(props.row.startTime)).getMinutes()} - ${((new Date(props.row.endTime)).getHours()-3)<0?((new Date(props.row.endTime)).getHours()+21):((new Date(props.row.endTime)).getHours()-3)}:${(''+(new Date(props.row.endTime)).getMinutes()).length<2?'0':''}${(new Date(props.row.endTime)).getMinutes()})` }}<br>{{`${props.row.cycleType}`}}</b-tag>
 							</b-table-column>
 							<b-table-column v-for="checkpoint in warProgress[0].checkpoints" field="type.description" :key="checkpoint.checkpointId" :label="checkpoint.checkpointName" width="50">
 							<template v-slot:header="{ column }">

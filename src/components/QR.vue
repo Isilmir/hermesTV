@@ -910,7 +910,7 @@
 						</div>
 						<div class="innerTabCenter">
 							<b-select placeholder="Выберите олимпийца" v-model="selectedBless.god"
-								@input="(option)=>{console.log(option);selectedBless.description=`Благосклонность от олимпийца: ${option.godName}`}">
+								@input="(option)=>{console.log(option,option.god=='Hades');selectedBless.description=option.god!='Hades'?`Благосклонность от олимпийца: ${option.godName}`:`Покровительство от олимпийца: ${option.godName}`}">
 								<option
 									v-for="option in blesses"
 									:value="option"
@@ -1344,7 +1344,7 @@ export default {
 			}
 			//console.log(players.data);
 			this.blesses=blesses.data;
-			if(blesses.data.length>0)this.selectedBless={god:blesses.data[0],description:`Благосклонность от олимпийца: ${blesses.data[0].godName}`};
+			if(blesses.data.length>0)this.selectedBless={god:blesses.data[0],description:blesses.data[0].god!='Hades'?`Благосклонность от олимпийца: ${blesses.data[0].godName}`:`Покровительство от олимпийца: ${blesses.data[0].godName}`};
 			this.loader_.classList.toggle('hidden');
 			//console.log ('dictionaries',this.dictionaries);
 		},

@@ -38,7 +38,7 @@
 			<span v-if="props.row.stateId!=3">{{props.row.name}}</span>
 			<s v-if="props.row.stateId==3">{{props.row.name}}</s>
             </b-table-column>
-			<!--
+			
 			<b-table-column
                 field="displayHonor"
                 label=""
@@ -46,7 +46,7 @@
 				width="5%"
             >
                 <span style="font-size:100%">{{ props.row.displayHonor }}</span>
-            </b-table-column>-->
+            </b-table-column>
 			<b-table-column
                 field="honor"
                 label=""

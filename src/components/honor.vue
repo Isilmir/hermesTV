@@ -106,6 +106,7 @@
 																														||deedGroup.name=='OneTimeToken'
 																														||deedGroup.name=='shame'
 																														||deedGroup.name=='wanted'
+																														||deedGroup.name=='AreYouVal'
 																								?'achievment':''}`"
 								:style="deedGroup.color?`${'background-color:'+deedGroup.color}`:''">
 						<img v-if="!deedGroup.messageId"
